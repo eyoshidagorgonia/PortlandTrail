@@ -1,9 +1,8 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { MapPin, Route } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { MapPin } from 'lucide-react';
 
 interface TrailMapProps {
   progress: number;
