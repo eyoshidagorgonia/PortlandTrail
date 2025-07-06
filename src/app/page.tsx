@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, HIPSTER_NAMES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
@@ -25,10 +25,11 @@ export default function PortlandTrailPage() {
   const [gameState, setGameState] = useState<'intro' | 'playing' | 'gameover' | 'won'>('intro');
   const [eventLog, setEventLog] = useState<string[]>([]);
   
-  const [name, setName] = useState('Art');
+  const [name, setName] = useState('');
   const [job, setJob] = useState(HIPSTER_JOBS[0]);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isAvatarLoading, setIsAvatarLoading] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const { toast } = useToast();
 
@@ -63,11 +64,19 @@ export default function PortlandTrailPage() {
   }, [name, job, toast]);
 
   useEffect(() => {
-    if (gameState === 'intro') {
+    if (gameState === 'intro' && !hasInitialized) {
+      const randomName = HIPSTER_NAMES[Math.floor(Math.random() * HIPSTER_NAMES.length)];
+      setName(randomName);
+      setHasInitialized(true);
+    }
+  }, [gameState, hasInitialized]);
+  
+  useEffect(() => {
+    if (gameState === 'intro' && name) {
       handleGenerateAvatar();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState, job]);
+  }, [gameState, job, hasInitialized]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -101,8 +110,9 @@ export default function PortlandTrailPage() {
   const restartGame = useCallback(() => {
     setGameState('intro');
     setPlayerState(INITIAL_PLAYER_STATE);
-    setName('Art');
+    setName('');
     setJob(HIPSTER_JOBS[0]);
+    setHasInitialized(false);
   }, []);
 
 
@@ -229,11 +239,7 @@ export default function PortlandTrailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
             <StatusDashboard playerState={playerState} />
-            <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
-          </div>
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <Card>
+             <Card>
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Event Log</h3>
                  <div className="text-sm text-muted-foreground space-y-2">
@@ -241,6 +247,10 @@ export default function PortlandTrailPage() {
                  </div>
               </CardContent>
             </Card>
+          </div>
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
+            <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
           </div>
         </div>
       </div>
