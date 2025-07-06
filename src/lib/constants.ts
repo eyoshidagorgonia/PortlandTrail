@@ -23,6 +23,7 @@ export const HIPSTER_JOBS = [
   "Indie Band Vlogger",
   "Latte Artist",
   "Zine Publisher",
+  "Etsy Artisan",
 ];
 
 export const INITIAL_PLAYER_STATE: PlayerState = {

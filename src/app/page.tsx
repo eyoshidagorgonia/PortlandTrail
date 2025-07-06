@@ -67,6 +67,8 @@ export default function PortlandTrailPage() {
     if (gameState === 'intro' && !hasInitialized) {
       const randomName = HIPSTER_NAMES[Math.floor(Math.random() * HIPSTER_NAMES.length)];
       setName(randomName);
+      const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
+      setJob(randomJob);
       setHasInitialized(true);
     }
   }, [gameState, hasInitialized]);
