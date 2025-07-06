@@ -239,7 +239,11 @@ export default function PortlandTrailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
             <StatusDashboard playerState={playerState} />
-             <Card>
+            <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
+          </div>
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
+            <Card>
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Event Log</h3>
                  <div className="text-sm text-muted-foreground space-y-2">
@@ -247,10 +251,6 @@ export default function PortlandTrailPage() {
                  </div>
               </CardContent>
             </Card>
-          </div>
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
           </div>
         </div>
       </div>
