@@ -23,7 +23,7 @@ export default function PortlandTrailPage() {
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [gameState, setGameState] = useState<'intro' | 'playing' | 'gameover' | 'won'>('intro');
-  const [eventLog, setEventLog] = useState<string[]>([]);
+  const [eventLog, setEventLog] = useState<{ message: string; timestamp: Date }[]>([]);
   
   const [name, setName] = useState('');
   const [job, setJob] = useState(HIPSTER_JOBS[0]);
@@ -42,7 +42,7 @@ export default function PortlandTrailPage() {
   }, [waypointIndex]);
 
   const addLog = (message: string) => {
-    setEventLog(prev => [message, ...prev.slice(0, 4)]);
+    setEventLog(prev => [{ message, timestamp: new Date() }, ...prev.slice(0, 4)]);
   };
 
   const handleGenerateAvatar = useCallback(async () => {
@@ -96,7 +96,8 @@ export default function PortlandTrailPage() {
     };
     
     setPlayerState(initialState);
-    setEventLog([`Your journey as ${name} the ${job} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`]);
+    const initialLogMessage = `Your journey as ${name} the ${job} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
+    setEventLog([{ message: initialLogMessage, timestamp: new Date() }]);
     
     const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
     if (result.error) {
@@ -245,7 +246,14 @@ export default function PortlandTrailPage() {
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Event Log</h3>
                  <div className="text-sm text-muted-foreground space-y-2">
-                    {eventLog.map((log, i) => <p key={i} className="opacity-80 first:opacity-100">{log}</p>)}
+                    {eventLog.map((log, i) => (
+                      <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
+                        <p className="text-primary/70 font-mono text-xs pt-0.5 whitespace-nowrap">
+                          [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
+                        </p>
+                        <p>{log.message}</p>
+                      </div>
+                    ))}
                  </div>
               </CardContent>
             </Card>
