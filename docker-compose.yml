@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    # The 'extra_hosts' directive allows the container to resolve
+    # 'host.docker.internal' to the host machine's IP address.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
