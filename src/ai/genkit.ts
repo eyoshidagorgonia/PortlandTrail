@@ -1,12 +1,12 @@
 'use server';
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import * as ollamaPlugin from 'genkitx-ollama';
+const ollama = require('genkitx-ollama').ollama;
 
 export const ai = genkit({
   plugins: [
     googleAI(),
-    ollamaPlugin.ollama({
+    ollama({
       models: [
         {
           name: 'gemma:7b',
