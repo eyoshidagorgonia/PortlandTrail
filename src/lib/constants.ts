@@ -1,6 +1,21 @@
 import type { PlayerState } from './types';
 
+export const HIPSTER_JOBS = [
+  "Artisanal Pickle Maker",
+  "Kombucha Brewer",
+  "Fixie Bike Mechanic",
+  "Terrarium Builder",
+  "Vintage Clothing Curator",
+  "Urban Beekeeper",
+  "Indie Band Vlogger",
+  "Latte Artist",
+  "Zine Publisher",
+];
+
 export const INITIAL_PLAYER_STATE: PlayerState = {
+  name: 'Art',
+  job: HIPSTER_JOBS[0],
+  avatar: '',
   stats: {
     hunger: 80,
     style: 50,

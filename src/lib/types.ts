@@ -14,6 +14,9 @@ export interface PlayerResources {
 }
 
 export interface PlayerState {
+  name: string;
+  job: string;
+  avatar: string;
   stats: PlayerStats;
   resources: PlayerResources;
   location: string;

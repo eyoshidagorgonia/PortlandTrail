@@ -18,7 +18,7 @@ function createConsequences(): Choice['consequences'] {
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   try {
     const scenarioInput = {
-      playerStatus: `Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
+      playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
       location: playerState.location,
     };
     const scenario = await generatePortlandScenario(scenarioInput);

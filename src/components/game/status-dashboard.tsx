@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { PlayerState } from '@/lib/types';
@@ -14,6 +14,7 @@ import {
   BikeIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -73,12 +74,21 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
   );
 
 export default function StatusDashboard({ playerState }: { playerState: PlayerState }) {
-  const { stats, resources } = playerState;
+  const { stats, resources, name, job, avatar } = playerState;
 
   return (
     <Card className="shadow-lg border-2 border-foreground/10">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Status</CardTitle>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-16 w-16 border-2 border-primary/50">
+            <AvatarImage src={avatar} alt={name} />
+            <AvatarFallback>{name?.charAt(0) || 'H'}</AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+            <CardDescription>{job}</CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4 mb-6">
