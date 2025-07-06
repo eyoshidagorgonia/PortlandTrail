@@ -38,11 +38,11 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
   return (
     <Card className="flex-1 flex flex-col justify-between shadow-lg border-2 border-foreground/10">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">{scenario.challenge}</CardTitle>
+        <CardTitle className="font-headline text-xl">{scenario.challenge}</CardTitle>
         {scenario.reward && <CardDescription>Potential Reward: {scenario.reward}</CardDescription>}
       </CardHeader>
       <CardContent>
-        <p className="text-foreground/90 leading-relaxed">{scenario.scenario}</p>
+        <p className="text-sm text-foreground/90 leading-relaxed">{scenario.scenario}</p>
         {scenario.diablo2Element && (
            <p className="mt-4 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic">
             {scenario.diablo2Element}
