@@ -36,7 +36,7 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
   }
 
   return (
-    <Card className="flex-1 flex flex-col justify-between shadow-lg border-2 border-foreground/10">
+    <Card className="flex-1 flex flex-col justify-between shadow-lg border">
       <CardHeader>
         <CardTitle className="font-headline text-xl">{scenario.challenge}</CardTitle>
         {scenario.reward && <CardDescription>Potential Reward: {scenario.reward}</CardDescription>}

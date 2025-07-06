@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Literata', 'serif'],
-        headline: ['Literata', 'serif'],
+        body: ['"Cutive Mono"', 'monospace'],
+        headline: ['"Rock Salt"', 'cursive'],
         code: ['monospace'],
       },
       colors: {

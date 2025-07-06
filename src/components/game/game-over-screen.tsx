@@ -16,7 +16,7 @@ export default function GameOverScreen({ status, onRestart, finalState }: GameOv
 
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center">
-      <Card className="w-full max-w-md text-center shadow-2xl border-2 border-foreground/20">
+      <Card className="w-full max-w-md text-center shadow-xl border">
         <CardHeader>
           {isWin ? (
             <PartyPopper className="mx-auto h-16 w-16 text-primary mb-4" />

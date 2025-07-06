@@ -170,11 +170,11 @@ export default function PortlandTrailPage() {
   if (gameState === 'intro') {
     return (
       <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center">
-        <Card className="max-w-2xl w-full text-center shadow-2xl border-2 border-foreground/20">
+        <Card className="max-w-2xl w-full text-center shadow-xl border">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
               <Coffee className="mx-auto h-12 w-12 text-primary mb-2" />
-              <h1 className="text-4xl font-headline font-bold">The Portland Trail</h1>
+              <h1 className="text-3xl font-headline font-bold">The Portland Trail</h1>
               <p className="text-muted-foreground">
                 Craft your hipster persona and embark on a journey of survival and irony.
               </p>
@@ -237,14 +237,14 @@ export default function PortlandTrailPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8">
-      <div className="container mx-auto border-4 border-foreground/20 dark:border-foreground/40 shadow-2xl p-4 md:p-6 bg-card/80 rounded-lg backdrop-blur-sm">
+      <div className="container mx-auto border-2 shadow-xl p-4 md:p-6 bg-card/80 rounded-lg backdrop-blur-sm">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
             <StatusDashboard playerState={playerState} />
+            <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
           </div>
           <div className="lg:col-span-2 flex flex-col gap-6">
             <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
             <Card>
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Event Log</h3>

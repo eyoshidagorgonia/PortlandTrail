@@ -77,7 +77,7 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
   const { stats, resources, name, job, avatar } = playerState;
 
   return (
-    <Card className="shadow-lg border-2 border-foreground/10">
+    <Card className="shadow-lg border">
       <CardHeader>
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16 border-2 border-primary/50">
