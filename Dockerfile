@@ -1,35 +1,39 @@
-# Dockerfile for Next.js with standalone output
+# Stage 1: Builder
+# Use a specific Node.js version for reproducibility.
+FROM node:20-alpine AS builder
 
-# Base image
-FROM node:20-alpine AS base
-
-# 1. Installer image
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Set working directory.
 WORKDIR /app
-COPY package.json ./
-RUN npm install
 
-# 2. Builder image
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy package.json and lock file.
+COPY package.json package-lock.json* ./
+
+# Install dependencies using `npm ci` for consistency.
+RUN npm ci
+
+# Copy the rest of the application source code.
 COPY . .
+
+# Build the Next.js application.
+# The `output: 'standalone'` in next.config.ts will create a minimal server.
 RUN npm run build
 
-# 3. Runner image
-FROM base AS runner
+# Stage 2: Runner
+# Use a lightweight, secure base image for the final container.
+FROM node:20-alpine AS runner
+
+# Set working directory.
 WORKDIR /app
-ENV NODE_ENV production
 
-# Copy from builder
-COPY --from=builder /app/public ./public
-# Standalone output
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Set environment to production.
+ENV NODE_ENV=production
 
+# The Next.js app in standalone mode runs on port 3000 by default.
 EXPOSE 3000
-ENV PORT 3000
 
-# The standalone output creates a server.js file
+# Copy the standalone output from the builder stage.
+# This includes the server, minimal node_modules, and any static assets.
+COPY --from=builder /app/.next/standalone ./
+
+# The standalone output includes a `server.js` file to run the application.
 CMD ["node", "server.js"]
