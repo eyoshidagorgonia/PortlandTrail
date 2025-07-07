@@ -56,7 +56,15 @@ const generateHipsterNameFlow = ai.defineFlow(
       }
       
       const ollamaResponse = await response.json();
-      const result = JSON.parse(ollamaResponse.response);
+      let responseText = ollamaResponse.response;
+
+      // Sometimes the model returns markdown with the JSON inside, so we extract it.
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        responseText = jsonMatch[0];
+      }
+      
+      const result = JSON.parse(responseText);
       
       return GenerateHipsterNameOutputSchema.parse(result);
 

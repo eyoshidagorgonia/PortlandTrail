@@ -84,9 +84,17 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       
       const ollamaResponse = await response.json();
       
+      let responseText = ollamaResponse.response;
+
+      // Sometimes the model returns markdown with the JSON inside, so we extract it.
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        responseText = jsonMatch[0];
+      }
+      
       // The actual response from the model is a string inside the 'response' field.
       // We need to parse this string as JSON.
-      const result = JSON.parse(ollamaResponse.response);
+      const result = JSON.parse(responseText);
       
       // Validate the result against the Zod schema
       return GeneratePortlandScenarioOutputSchema.parse(result);
