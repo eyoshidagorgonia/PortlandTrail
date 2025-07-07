@@ -69,10 +69,12 @@ const generateHipsterNameFlow = ai.defineFlow(
       return GenerateHipsterNameOutputSchema.parse(result);
 
     } catch (error) {
-        console.error("Error calling Ollama for name generation:", error);
-        // Provide a fallback name
+        console.error("Error calling Ollama for name generation. This is expected in the Studio preview environment, which cannot reach a local server.", error);
+        // Provide a random fallback name from a predefined list
+        const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+        const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
         return {
-            name: "Pip"
+            name: fallbackName
         }
     }
   }
