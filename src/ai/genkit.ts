@@ -1,20 +1,9 @@
 'use server';
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import {ollama} from 'genkitx-ollama';
 
 export const ai = genkit({
   plugins: [
     googleAI(),
-    ollama({
-      models: [
-        {
-          name: 'gemma:7b',
-          type: 'generate',
-        },
-      ],
-      serverAddress: 'http://host.docker.internal:11434',
-    }),
   ],
-  model: 'ollama/gemma:7b', // Set ollama as the default text model
 });
