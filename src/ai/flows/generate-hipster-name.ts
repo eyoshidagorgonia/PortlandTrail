@@ -45,6 +45,7 @@ const generateHipsterNameFlow = ai.defineFlow(
           model: 'gemma:7b',
           prompt: promptTemplate,
           stream: false,
+          format: 'json',
         }),
       });
 
