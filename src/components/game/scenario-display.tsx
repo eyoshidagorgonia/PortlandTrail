@@ -13,22 +13,22 @@ interface ScenarioDisplayProps {
 }
 
 const LoadingState = () => (
-  <Card className="flex-1">
-    <CardHeader>
-      <Skeleton className="h-6 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
-    </CardHeader>
-    <CardContent className="space-y-4">
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-5/6" />
-    </CardContent>
-    <CardFooter className="flex gap-4">
-      <Skeleton className="h-10 w-32" />
-      <Skeleton className="h-10 w-32" />
-    </CardFooter>
-  </Card>
-);
+    <Card className="flex-1 flex flex-col">
+      <CardHeader className="p-4">
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-1/2 mt-1" />
+      </CardHeader>
+      <CardContent className="p-4 pt-0 space-y-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+      </CardContent>
+      <CardFooter className="flex gap-4 p-4 mt-auto border-t">
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-32" />
+      </CardFooter>
+    </Card>
+  );
 
 export default function ScenarioDisplay({ scenario, isLoading, onChoice }: ScenarioDisplayProps) {
   if (isLoading || !scenario) {
@@ -36,20 +36,20 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
   }
 
   return (
-    <Card className="flex-1 flex flex-col justify-between shadow-lg border">
-      <CardHeader>
+    <Card className="flex-1 flex flex-col shadow-lg border">
+      <CardHeader className="p-4 pb-2">
         <CardTitle className="font-headline text-xl">{scenario.challenge}</CardTitle>
-        {scenario.reward && <CardDescription>Potential Reward: {scenario.reward}</CardDescription>}
+        {scenario.reward && <CardDescription className="pt-1">Potential Reward: {scenario.reward}</CardDescription>}
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">{scenario.scenario}</p>
+      <CardContent className="p-4 pt-2">
+        <p className="text-sm text-foreground/90 leading-normal whitespace-pre-wrap">{scenario.scenario}</p>
         {scenario.diablo2Element && (
-           <p className="mt-4 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic">
+           <p className="mt-3 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic">
             {scenario.diablo2Element}
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-4 pt-4 border-t">
+      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t mt-auto">
         <TooltipProvider>
           {scenario.choices.map((choice, index) => (
             <Tooltip key={index}>
