@@ -11,7 +11,7 @@ function createConsequences(): Choice['consequences'] {
     authenticity: Math.floor(Math.random() * 7) - 3, // -3 to +3
     coffee: -1 * Math.floor(Math.random() * 3), // 0 to -2
     vinyls: Math.random() > 0.8 ? 1 : 0, // 20% chance to find a vinyl
-    progress: Math.floor(Math.random() * 5) + 5, // 5 to 9
+    progress: Math.floor(Math.random() * 3) + 2, // 2 to 4
   };
 }
 
@@ -37,7 +37,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
           style: -2,
           irony: -1,
           authenticity: -1,
-          progress: 7, // a bit more progress for being safe
+          progress: 4, // a bit more progress for being safe
         },
       },
     ];
