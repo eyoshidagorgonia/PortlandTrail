@@ -1,39 +1,49 @@
-# Stage 1: Builder
-# Use a specific Node.js version for reproducibility.
-FROM node:20-alpine AS builder
+# Dockerfile
 
-# Set working directory.
+# 1. Install dependencies
+FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copy package.json and lock file.
-COPY package.json package-lock.json* ./
+# Copy package.json and package-lock.json
+COPY package*.json ./
+# Install dependencies
+RUN npm install
 
-# Install dependencies using `npm ci` for consistency.
-RUN npm ci
-
-# Copy the rest of the application source code.
+# 2. Build the application
+FROM node:20-alpine AS builder
+WORKDIR /app
+# Copy dependencies from the 'deps' stage
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the Next.js application.
-# The `output: 'standalone'` in next.config.ts will create a minimal server.
+# Set NEXT_TELEMETRY_DISABLED to 1 to disable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Build the Next.js application
 RUN npm run build
 
-# Stage 2: Runner
-# Use a lightweight, secure base image for the final container.
+# 3. Production image
 FROM node:20-alpine AS runner
-
-# Set working directory.
 WORKDIR /app
 
-# Set environment to production.
-ENV NODE_ENV=production
+# Set NEXT_TELEMETRY_DISABLED to 1 to disable telemetry in production.
+ENV NEXT_TELEMETRY_DISABLED 1
+# Set the Node.js environment to production
+ENV NODE_ENV production
 
-# The Next.js app in standalone mode runs on port 3000 by default.
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+# Copy the standalone output
+COPY --from=builder /app/.next/standalone ./
+# Copy the static assets
+COPY --from=builder /app/.next/static ./.next/static
+
+# Expose the port the app will run on
 EXPOSE 3000
 
-# Copy the standalone output from the builder stage.
-# This includes the server, minimal node_modules, and any static assets.
-COPY --from=builder /app/.next/standalone ./
+# Set the host and port environment variables
+ENV PORT 3000
+ENV HOSTNAME 0.0.0.0
 
-# The standalone output includes a `server.js` file to run the application.
+# Start the app
 CMD ["node", "server.js"]
