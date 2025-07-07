@@ -53,7 +53,8 @@ export interface PlayerAction {
     };
 }
 
-export type Scenario = GeneratePortlandScenarioOutput & {
+export type Scenario = (GeneratePortlandScenarioOutput & {
   choices: Choice[];
+  image: string;
   error?: undefined;
-} | { error: string };
+}) | { error: string };

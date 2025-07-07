@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Scenario, Choice } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import Image from 'next/image';
 
 interface ScenarioDisplayProps {
   scenario: Scenario | null;
@@ -19,6 +20,7 @@ const LoadingState = () => (
         <Skeleton className="h-4 w-1/2 mt-1" />
       </CardHeader>
       <CardContent className="p-4 pt-2 space-y-3">
+        <Skeleton className="w-full h-48 rounded-md" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
@@ -35,6 +37,10 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
     return <LoadingState />;
   }
 
+  // This component might receive the previous scenario if a fetch for a new one fails.
+  // The old scenario object won't have an `image` property.
+  const hasImage = 'image' in scenario && scenario.image;
+
   return (
     <Card className="shadow-lg border">
       <CardHeader className="p-4 pb-2">
@@ -42,6 +48,18 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
         {scenario.reward && <CardDescription className="pt-1">Potential Reward: {scenario.reward}</CardDescription>}
       </CardHeader>
       <CardContent className="p-4 pt-2">
+        {hasImage && (
+          <div className="mb-4 rounded-md overflow-hidden border">
+            <Image
+              src={scenario.image}
+              alt={scenario.challenge || 'Scenario image'}
+              width={500}
+              height={300}
+              className="w-full object-cover"
+              priority
+            />
+          </div>
+        )}
         <p className="text-sm text-foreground/90 leading-normal whitespace-pre-wrap">{scenario.scenario}</p>
         {scenario.diablo2Element && (
            <p className="mt-3 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic">

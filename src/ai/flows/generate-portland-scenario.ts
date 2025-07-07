@@ -25,6 +25,7 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   diablo2Element: z
     .string()
     .optional(),
+  imagePrompt: z.string().describe('A short, 2-4 word prompt for an image generator to create a visual for this scenario. e.g. "Pigeons in hats" or "Man with handlebar mustache"'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
@@ -39,14 +40,15 @@ const promptTemplate = `You are a game master for The Portland Trail, a game tha
 Player Status: {playerStatus}
 Current Location: {location}
 
-Create a scenario that incorporates elements of Portland's hipster culture, "Keep Portland Weird," and unexpected Diablo II-style events. Include a challenge the player must overcome and a potential reward. The Diablo II element should be subtle and unexpected. The scenario should feel unique and unpredictable.
+Create a scenario that incorporates elements of Portland's hipster culture, "Keep Portland Weird," and unexpected Diablo II-style events. Include a challenge the player must overcome, a potential reward, and a short prompt (2-4 words) for an image generator. The Diablo II element should be subtle and unexpected. The scenario should feel unique and unpredictable.
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
   "scenario": "description of the scenario",
   "challenge": "description of the challenge",
   "reward": "description of the reward",
-  "diablo2Element": "description of the Diablo II element"
+  "diablo2Element": "description of the Diablo II element",
+  "imagePrompt": "a short 2-4 word image prompt"
 }
 `;
 
@@ -107,7 +109,8 @@ const generatePortlandScenarioFlow = ai.defineFlow(
             scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
             challenge: "Question your reality",
             reward: "A fleeting sense of existential dread, which oddly increases your irony.",
-            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds."
+            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
+            imagePrompt: "pigeons wearing fedoras"
         }
     }
   }

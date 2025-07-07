@@ -1,6 +1,7 @@
 'use server';
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
+import { generateScenarioImage } from '@/ai/flows/generate-scenario-image';
 import type { PlayerState, Scenario, Choice } from '@/lib/types';
 
 function createConsequences(): Choice['consequences'] {
@@ -11,7 +12,7 @@ function createConsequences(): Choice['consequences'] {
     authenticity: Math.floor(Math.random() * 7) - 3, // -3 to +3
     coffee: -1 * Math.floor(Math.random() * 3), // 0 to -2
     vinyls: Math.random() > 0.8 ? 1 : 0, // 20% chance to find a vinyl
-    progress: Math.floor(Math.random() * 3) + 2, // 2 to 4
+    progress: Math.floor(Math.random() * 2) + 1, // 1 to 2
   };
 }
 
@@ -21,7 +22,10 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
       location: playerState.location,
     };
-    const scenario = await generatePortlandScenario(scenarioInput);
+    
+    // Generate scenario text and image prompt in parallel
+    const scenarioDetails = await generatePortlandScenario(scenarioInput);
+    const imageResult = await generateScenarioImage({ prompt: scenarioDetails.imagePrompt });
 
     const choices: Choice[] = [
       {
@@ -42,7 +46,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       },
     ];
 
-    return { ...scenario, choices };
+    return { ...scenarioDetails, choices, image: imageResult.imageDataUri };
   } catch (error) {
     console.error('Error in getScenarioAction:', error);
     return {
