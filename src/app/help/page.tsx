@@ -68,7 +68,7 @@ export default function HelpPage() {
                 <p>**Actions Card:** Your available actions between story events. Use them wisely!</p>
                 <p>**The Trail Map:** Shows your overall progress towards Portland.</p>
                 <p>**Scenario Display:** This is where the story happens. Read the text and make your choices here.</p>
-                <p>**Event Log:** A running history of what has happened on your journey.</p>
+                <p>**Travel Diary:** A running history of what has happened on your journey.</p>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

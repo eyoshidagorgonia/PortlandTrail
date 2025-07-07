@@ -324,7 +324,7 @@ export default function PortlandTrailPage() {
             <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
             <Card>
               <CardContent className="p-4">
-                 <h3 className="font-headline text-lg mb-2">Event Log</h3>
+                 <h3 className="font-headline text-lg mb-2">Travel Diary</h3>
                  <div className="text-sm text-muted-foreground space-y-2">
                     {eventLog.map((log, i) => (
                       <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
