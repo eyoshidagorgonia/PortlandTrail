@@ -8,13 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, HIPSTER_NAMES } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, PlayerAction } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
 import StatusDashboard from '@/components/game/status-dashboard';
 import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
+import ActionsCard from '@/components/game/actions-card';
 import { Coffee, Route, RefreshCw, Loader2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -118,32 +119,19 @@ export default function PortlandTrailPage() {
     setHasInitialized(false);
   }, []);
 
-
-  const handleChoice = (choice: Choice) => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-    let tempState = { ...playerState };
-
-    // Apply consequences
-    const consequences = choice.consequences;
-    tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
-    tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
-    tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
-    tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
-    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
-    tempState.resources.vinyls += consequences.vinyls;
-    tempState.progress = Math.min(100, tempState.progress + consequences.progress);
-    tempState.location = currentLocation;
-
-    setPlayerState(tempState);
-
+  const advanceTurn = (tempState: PlayerState) => {
     // Check for game over/win conditions
     if (tempState.stats.hunger <= 0) {
       setGameState('gameover');
       addLog('You have succumbed to hunger. Your journey ends.');
       setIsLoading(false);
       return;
+    }
+    if (tempState.resources.bikeHealth <= 0) {
+        setGameState('gameover');
+        addLog('Your bike broke down, leaving you stranded. Your journey ends.');
+        setIsLoading(false);
+        return;
     }
     if (tempState.progress >= 100) {
       setGameState('won');
@@ -166,6 +154,59 @@ export default function PortlandTrailPage() {
 
     // Add a slight delay for suspense
     setTimeout(getNextScenario, 500);
+  };
+
+  const handleAction = (action: PlayerAction) => {
+    if (isLoading) return;
+
+    if (playerState.resources.coffee + action.consequences.coffee < 0) {
+        toast({
+            variant: 'destructive',
+            title: 'Not Enough Coffee',
+            description: 'You need more coffee beans to perform this action.',
+        });
+        return;
+    }
+
+    setIsLoading(true);
+    let tempState = { ...playerState };
+    const consequences = action.consequences;
+
+    // Apply consequences
+    tempState.stats.hunger = Math.min(100, Math.max(0, tempState.stats.hunger + consequences.hunger));
+    tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
+    tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
+    tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
+    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
+    tempState.resources.vinyls = Math.max(0, tempState.resources.vinyls + consequences.vinyls);
+    tempState.progress = Math.min(100, Math.max(0, tempState.progress + consequences.progress));
+    tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
+    tempState.location = currentLocation;
+
+    setPlayerState(tempState);
+    addLog(`You chose to: ${action.text}.`);
+    advanceTurn(tempState);
+  };
+
+  const handleChoice = (choice: Choice) => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    let tempState = { ...playerState };
+
+    // Apply consequences
+    const consequences = choice.consequences;
+    tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
+    tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
+    tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
+    tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
+    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
+    tempState.resources.vinyls += consequences.vinyls;
+    tempState.progress = Math.min(100, tempState.progress + consequences.progress);
+    tempState.location = currentLocation;
+
+    setPlayerState(tempState);
+    advanceTurn(tempState);
   };
 
   if (gameState === 'intro') {
@@ -242,6 +283,7 @@ export default function PortlandTrailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
             <StatusDashboard playerState={playerState} />
+            <ActionsCard onAction={handleAction} isLoading={isLoading} />
             <Card>
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Event Log</h3>

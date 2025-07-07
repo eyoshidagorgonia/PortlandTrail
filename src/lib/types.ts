@@ -37,6 +37,22 @@ export interface Choice {
   };
 }
 
+export interface PlayerAction {
+    text: string;
+    description: string;
+    icon: React.ElementType;
+    consequences: {
+        hunger: number;
+        style: number;
+        irony: number;
+        authenticity: number;
+        coffee: number;
+        vinyls: number;
+        progress: number;
+        bikeHealth: number;
+    };
+}
+
 export type Scenario = GeneratePortlandScenarioOutput & {
   choices: Choice[];
   error?: undefined;
