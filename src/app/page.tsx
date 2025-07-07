@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, HIPSTER_NAMES } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
+import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import StatusDashboard from '@/components/game/status-dashboard';
 import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
@@ -31,6 +32,7 @@ export default function PortlandTrailPage() {
   const [job, setJob] = useState(HIPSTER_JOBS[0]);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isAvatarLoading, setIsAvatarLoading] = useState(true);
+  const [isNameLoading, setIsNameLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
 
   const { toast } = useToast();
@@ -46,6 +48,24 @@ export default function PortlandTrailPage() {
   const addLog = (message: string) => {
     setEventLog(prev => [{ message, timestamp: new Date() }, ...prev.slice(0, 4)]);
   };
+
+  const handleGenerateName = useCallback(async () => {
+    setIsNameLoading(true);
+    try {
+        const result = await generateHipsterName();
+        setName(result.name);
+    } catch (error) {
+        console.error('Failed to generate name:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Name Generation Failed',
+            description: 'Could not fetch a new name. Using a default.',
+        });
+        setName('Wren'); // A safe fallback
+    } finally {
+        setIsNameLoading(false);
+    }
+  }, [toast]);
 
   const handleGenerateAvatar = useCallback(async () => {
     setIsAvatarLoading(true);
@@ -67,13 +87,12 @@ export default function PortlandTrailPage() {
 
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
-      const randomName = HIPSTER_NAMES[Math.floor(Math.random() * HIPSTER_NAMES.length)];
-      setName(randomName);
+      handleGenerateName();
       const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
       setJob(randomJob);
       setHasInitialized(true);
     }
-  }, [gameState, hasInitialized]);
+  }, [gameState, hasInitialized, handleGenerateName]);
   
   useEffect(() => {
     if (gameState === 'intro' && name) {
@@ -246,7 +265,19 @@ export default function PortlandTrailPage() {
               <div className="space-y-4 flex-1 w-full">
                 <div className="space-y-2">
                   <Label htmlFor="name">Hipster Name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., River, Kale, Britta" />
+                  <div className="flex items-center gap-2">
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., River, Kale, Britta" disabled={isNameLoading} />
+                    <Button 
+                      type="button"
+                      size="icon" 
+                      variant="secondary" 
+                      onClick={() => handleGenerateName()}
+                      disabled={isNameLoading}
+                      aria-label="Randomize Name"
+                      >
+                      {isNameLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="job">Calling</Label>

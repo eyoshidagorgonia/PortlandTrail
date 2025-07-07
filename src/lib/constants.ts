@@ -1,18 +1,5 @@
 import type { PlayerState } from './types';
 
-export const HIPSTER_NAMES = [
-  "River",
-  "Kale",
-  "Britta",
-  "Jasper",
-  "Clementine",
-  "Finn",
-  "Willow",
-  "Orion",
-  "Sage",
-  "Bodhi"
-];
-
 export const HIPSTER_JOBS = [
   "Artisanal Pickle Maker",
   "Kombucha Brewer",
