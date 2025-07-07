@@ -35,12 +35,18 @@ export async function generatePortlandScenario(
   return generatePortlandScenarioFlow(input);
 }
 
-const promptTemplate = `You are a game master for The Portland Trail, a game that combines the Oregon Trail with Diablo II and hipster culture. Your job is to create quirky and challenging scenarios for the player based on their current status and location.
+const promptTemplate = `You are a game master for The Portland Trail, a game that combines the Oregon Trail with Diablo II and modern hipster culture. Your job is to create quirky, random, and challenging scenarios for the player based on their current status and, most importantly, their location on the trail from San Francisco to Portland.
 
 Player Status: {playerStatus}
 Current Location: {location}
 
-Create a scenario that incorporates elements of Portland's hipster culture, "Keep Portland Weird," and unexpected Diablo II-style events. Include a challenge the player must overcome, a potential reward, and a short prompt (2-4 words) for an image generator. The Diablo II element should be subtle and unexpected. The scenario should feel unique and unpredictable.
+Create a scenario that is HIGHLY SPECIFIC to the current location: {location}. The scenario should feel like it could only happen there. Incorporate local landmarks, stereotypes, or cultural touchstones associated with that place. For example, a scenario in San Francisco might involve tech bros and sourdough, while a scenario in Ashland could involve the Shakespeare Festival.
+
+Also, subtly weave in an unexpected element inspired by the dark fantasy world of Diablo II. This could be a strange item, a mysterious character, or an odd event that feels out of place.
+
+The scenario should feel unique, unpredictable, and a bit weird. Ensure it's not a generic event that could happen anywhere.
+
+Include a challenge the player must overcome, a potential reward, and a short prompt (2-4 words) for an image generator.
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
@@ -62,7 +68,8 @@ const generatePortlandScenarioFlow = ai.defineFlow(
   async ({ playerStatus, location }) => {
     const prompt = promptTemplate
       .replace('{playerStatus}', playerStatus)
-      .replace('{location}', location);
+      .replace('{location}', location)
+      .replace('{location}', location); // second replace for the second template variable
 
     try {
       const response = await fetch('http://host.docker.internal:11434/api/generate', {
