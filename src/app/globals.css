@@ -37,25 +37,25 @@ body {
   }
 
   .dark {
-    --background: 220 13% 18%;
-    --foreground: 60 30% 96%;
-    --card: 220 13% 22%;
-    --card-foreground: 60 30% 96%;
-    --popover: 220 13% 22%;
-    --popover-foreground: 60 30% 96%;
-    --primary: 45 85% 60%;
-    --primary-foreground: 45 85% 10%;
-    --secondary: 180 40% 40%;
-    --secondary-foreground: 60 30% 96%;
-    --muted: 220 13% 31%;
-    --muted-foreground: 220 10% 65%;
-    --accent: 45 85% 60%;
-    --accent-foreground: 45 85% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 31%;
-    --input: 220 13% 31%;
-    --ring: 45 85% 60%;
+    --background: 15 10% 5%;
+    --foreground: 30 30% 85%;
+    --card: 15 10% 8%;
+    --card-foreground: 30 30% 85%;
+    --popover: 15 10% 8%;
+    --popover-foreground: 30 30% 85%;
+    --primary: 0 65% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 20 8% 20%;
+    --secondary-foreground: 30 30% 95%;
+    --muted: 15 8% 12%;
+    --muted-foreground: 20 8% 55%;
+    --accent: 30 80% 60%;
+    --accent-foreground: 30 80% 5%;
+    --destructive: 0 80% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 15 10% 15%;
+    --input: 15 10% 10%;
+    --ring: 30 80% 60%;
   }
 }
 
@@ -73,9 +73,9 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXVuZmaDg4OGgoOFhYaDg4N5eXlwcHCLi4tzc3OLi4t8fHyGgoJ6enp7e3t3d3d2dnZ1dXV5eXl0dHR+fn59fX1+fn53d3d5eXlBCiJ2AAABNUlEQVR42tWQiQ6EMAwD5v+74dG97f/vLEbTMqfJTEqzaJbIwtZgGAIAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwAAlhMRyhMUEwCAJhY+AM8v7H4eAOfbAAAAAElFTkSuQmCC');
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkAQMAAABKLAcXAAAABlBMVEUAAAAAAAClZ7nPAAAAMklEQVR4AWP4fwYo+K/AUMo+YFz+n4Fh8P+B4b8K/t+D4T8/DAb/Gfi/A8P/J/w/AwMANz0enCj4JKEAAAAASUVORK5CYII=');
     pointer-events: none;
     z-index: -1;
-    opacity: 0.05;
+    opacity: 0.08;
   }
 }

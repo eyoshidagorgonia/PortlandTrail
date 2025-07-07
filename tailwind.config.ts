@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"Cutive Mono"', 'monospace'],
-        headline: ['"Rock Salt"', 'cursive'],
+        body: ['"Cinzel"', 'serif'],
+        headline: ['"Cinzel Decorative"', 'cursive'],
         code: ['monospace'],
       },
       colors: {
