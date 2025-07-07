@@ -45,7 +45,6 @@ const generateHipsterNameFlow = ai.defineFlow(
           model: 'gemma:7b',
           prompt: promptTemplate,
           stream: false,
-          format: 'json',
         }),
       });
 
@@ -72,7 +71,7 @@ const generateHipsterNameFlow = ai.defineFlow(
         console.error("Error calling Ollama for name generation:", error);
         // Provide a fallback name
         return {
-            name: "Wren"
+            name: "Pip"
         }
     }
   }

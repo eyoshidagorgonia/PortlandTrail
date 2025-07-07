@@ -61,7 +61,7 @@ export default function PortlandTrailPage() {
             title: 'Name Generation Failed',
             description: 'Could not fetch a new name. Using a default.',
         });
-        setName('Wren'); // A safe fallback
+        setName('Pip'); // A safe fallback
     } finally {
         setIsNameLoading(false);
     }
@@ -98,8 +98,7 @@ export default function PortlandTrailPage() {
     if (gameState === 'intro' && name) {
       handleGenerateAvatar();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState, job, hasInitialized]);
+  }, [gameState, name, handleGenerateAvatar]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
