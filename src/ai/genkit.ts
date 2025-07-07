@@ -1,12 +1,13 @@
 'use server';
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-const ollama = require('genkitx-ollama').ollama;
+// Use require to handle module interop issues.
+const ollama = require('genkitx-ollama');
 
 export const ai = genkit({
   plugins: [
     googleAI(),
-    ollama({
+    ollama.ollama({
       models: [
         {
           name: 'gemma:7b',
