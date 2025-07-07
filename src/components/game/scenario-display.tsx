@@ -42,7 +42,7 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
         {scenario.reward && <CardDescription>Potential Reward: {scenario.reward}</CardDescription>}
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-foreground/90 leading-relaxed">{scenario.scenario}</p>
+        <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">{scenario.scenario}</p>
         {scenario.diablo2Element && (
            <p className="mt-4 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic">
             {scenario.diablo2Element}
