@@ -13,17 +13,17 @@ interface ScenarioDisplayProps {
 }
 
 const LoadingState = () => (
-    <Card className="flex-1 flex flex-col">
-      <CardHeader className="p-4">
+    <Card className="shadow-lg border">
+      <CardHeader className="p-4 pb-2">
         <Skeleton className="h-6 w-3/4" />
         <Skeleton className="h-4 w-1/2 mt-1" />
       </CardHeader>
-      <CardContent className="p-4 pt-0 space-y-3">
+      <CardContent className="p-4 pt-2 space-y-3">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
       </CardContent>
-      <CardFooter className="flex gap-4 p-4 mt-auto border-t">
+      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t">
         <Skeleton className="h-10 w-32" />
         <Skeleton className="h-10 w-32" />
       </CardFooter>
@@ -36,7 +36,7 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
   }
 
   return (
-    <Card className="flex-1 flex flex-col shadow-lg border">
+    <Card className="shadow-lg border">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="font-headline text-xl">{scenario.challenge}</CardTitle>
         {scenario.reward && <CardDescription className="pt-1">Potential Reward: {scenario.reward}</CardDescription>}
@@ -49,7 +49,7 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t mt-auto">
+      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t">
         <TooltipProvider>
           {scenario.choices.map((choice, index) => (
             <Tooltip key={index}>
