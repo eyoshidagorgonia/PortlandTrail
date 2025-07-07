@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -267,6 +268,9 @@ export default function PortlandTrailPage() {
               {(isLoading || isAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
               Begin the Journey
             </Button>
+            <Link href="/help" passHref>
+                <Button variant="link" className="text-muted-foreground mt-2">How to Play</Button>
+            </Link>
           </CardContent>
         </Card>
       </main>
