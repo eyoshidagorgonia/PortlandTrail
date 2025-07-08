@@ -83,6 +83,9 @@ const generatePortlandScenarioFlow = ai.defineFlow(
           prompt: prompt,
           stream: false,
           format: 'json', // Requesting JSON output format from Ollama
+          options: {
+            seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+          }
         }),
       });
 
