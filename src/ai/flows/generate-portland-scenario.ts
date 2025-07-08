@@ -74,6 +74,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
     try {
       const response = await fetch('http://host.docker.internal:11434/api/generate', {
         method: 'POST',
+        cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
         },
