@@ -13,3 +13,7 @@ This file tracks the restore points created for The Portland Trail project.
 - **RP7**
   - **Hash**: `i9j0k1l2`
   - **Description**: Created at the user's last request to save a restore point.
+
+- **RP8**
+  - **Hash**: `m3n4o5p6`
+  - **Description**: Created after adding the initial restore point tracking file.
