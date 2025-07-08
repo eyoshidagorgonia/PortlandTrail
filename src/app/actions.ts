@@ -38,7 +38,14 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         text: `Embrace the weirdness`,
         description: `You dive headfirst into the situation. What's the worst that could happen?`,
         consequences: {
-            ...createConsequences(),
+            hunger: -1 * (Math.floor(Math.random() * 4) + 2), // -2 to -5
+            style: Math.floor(Math.random() * 11) - 5, // -5 to +5
+            irony: Math.floor(Math.random() * 7) - 2, // -2 to +4
+            authenticity: Math.floor(Math.random() * 7) - 3, // -3 to +3
+            progress: 0, // No progress on the trail
+            coffee: 0,
+            vinyls: 0,
+            bikeHealth: 0,
             badge: {
                 description: scenarioDetails.badgeDescription,
                 imageDataUri: badgeImageResult.imageDataUri,
