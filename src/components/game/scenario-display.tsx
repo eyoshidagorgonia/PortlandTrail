@@ -73,7 +73,10 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <Button 
-                  variant={index === 0 ? 'default' : 'secondary'} 
+                  variant={
+                    choice.text === 'GO FOR BROKE' ? 'destructive' : 
+                    index === 0 ? 'default' : 'secondary'
+                  } 
                   onClick={() => onChoice(choice)}
                   disabled={isLoading}
                 >

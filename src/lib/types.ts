@@ -12,6 +12,7 @@ export interface PlayerStats {
 export interface Badge {
   imageDataUri: string;
   description: string;
+  isUber?: boolean;
 }
 
 export interface PlayerResources {
@@ -44,7 +45,7 @@ export interface Choice {
     vinyls: number;
     progress: number;
     bikeHealth: number;
-    badge?: Badge;
+    badge?: Omit<Badge, 'isUber'>;
   };
 }
 

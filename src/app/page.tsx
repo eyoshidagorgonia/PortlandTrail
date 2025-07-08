@@ -14,6 +14,7 @@ import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterBio } from '@/ai/flows/generate-character-bio';
+import { generateBadgeImage } from '@/ai/flows/generate-badge-image';
 import StatusDashboard from '@/components/game/status-dashboard';
 import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
@@ -231,26 +232,53 @@ export default function PortlandTrailPage() {
     advanceTurn(tempState);
   };
 
-  const handleChoice = (choice: Choice) => {
-    if (isLoading) return;
+  const handleChoice = async (choice: Choice) => {
+    if (isLoading || !scenario) return;
 
     setIsLoading(true);
     let tempState = { ...playerState };
 
-    // Apply consequences
-    const consequences = choice.consequences;
-    tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
-    tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
-    tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
-    tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
-    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
-    tempState.resources.vinyls += consequences.vinyls;
-    tempState.progress = Math.min(100, tempState.progress + consequences.progress);
-    tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
-    
-    if (consequences.badge) {
-        tempState.resources.badges = [...tempState.resources.badges, consequences.badge];
-        addLog(`You earned a badge: "${consequences.badge.description}"!`);
+    if (choice.text === 'GO FOR BROKE' && scenario.badgeDescription && scenario.badgeImagePrompt) {
+        const gamble = Math.random();
+        if (gamble < 0.2) { // 20% chance of winning
+            addLog('You went for broke and it paid off spectacularly!');
+            try {
+                const uberBadgeImage = await generateBadgeImage({ prompt: `A glowing, ornate, metallic, vibrating version of: ${scenario.badgeImagePrompt}` });
+                const newBadge = {
+                    imageDataUri: uberBadgeImage.imageDataUri,
+                    description: `Uber-Rare: ${scenario.badgeDescription}`,
+                    isUber: true,
+                };
+                tempState.resources.badges = [...tempState.resources.badges, newBadge];
+                tempState.stats.style += 20; // A nice bonus
+            } catch (error) {
+                console.error("Error generating uber badge", error);
+                addLog("The cosmos glitched, robbing you of your destined prize.");
+            }
+        } else { // 80% chance of failure
+            addLog('You went for broke and got broken. A devastating failure.');
+            tempState.stats.hunger = 5;
+            tempState.resources.bikeHealth = 10;
+            tempState.stats.style = Math.max(0, tempState.stats.style - 50);
+            tempState.stats.irony = Math.max(0, tempState.stats.irony - 50);
+            tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity - 50);
+        }
+    } else {
+        // Apply normal consequences
+        const consequences = choice.consequences;
+        tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
+        tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
+        tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
+        tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
+        tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
+        tempState.resources.vinyls += consequences.vinyls;
+        tempState.progress = Math.min(100, tempState.progress + consequences.progress);
+        tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
+        
+        if (consequences.badge) {
+            tempState.resources.badges = [...tempState.resources.badges, consequences.badge];
+            addLog(`You earned a badge: "${consequences.badge.description}"!`);
+        }
     }
 
     tempState.location = currentLocation;

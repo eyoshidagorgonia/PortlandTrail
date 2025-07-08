@@ -64,6 +64,14 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
           bikeHealth: -5, // more wear for just moving on
         },
       },
+      {
+        text: 'GO FOR BROKE',
+        description: 'A high-risk, high-reward gamble. You might earn an incredible badge, or you might face a devastating failure.',
+        consequences: {
+            // The actual consequences are probabilistic and handled client-side in page.tsx
+            hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: 0, bikeHealth: 0,
+        }
+      }
     ];
 
     return { ...scenarioDetails, choices, image: imageResult.imageDataUri };

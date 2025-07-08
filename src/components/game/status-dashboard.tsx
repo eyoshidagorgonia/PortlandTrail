@@ -16,6 +16,7 @@ import {
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -123,7 +124,10 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
                 {resources.badges.map((badge, index) => (
                   <Tooltip key={index}>
                     <TooltipTrigger>
-                       <div className="h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 overflow-hidden bg-muted">
+                       <div className={cn(
+                        "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 overflow-hidden bg-muted transition-all duration-300",
+                        badge.isUber && 'uber-badge-animation'
+                        )}>
                         <Image
                             src={badge.imageDataUri}
                             alt={badge.description}
