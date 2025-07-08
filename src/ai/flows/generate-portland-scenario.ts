@@ -79,7 +79,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gemma:7b',
+ model: 'llama3:latest',
           prompt: prompt,
           stream: false,
           format: 'json', // Requesting JSON output format from Ollama

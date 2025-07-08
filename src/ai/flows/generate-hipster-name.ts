@@ -46,7 +46,7 @@ const generateHipsterNameFlow = ai.defineFlow(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gemma:7b',
+          model: 'llama3:latest',
           prompt: promptTemplate,
           stream: false,
           format: 'json',
