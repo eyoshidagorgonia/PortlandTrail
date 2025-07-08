@@ -49,62 +49,50 @@ export default function PortlandTrailPage() {
     return TRAIL_WAYPOINTS[waypointIndex] || TRAIL_WAYPOINTS[TRAIL_WAYPOINTS.length - 1];
   }, [waypointIndex]);
 
-  const addLog = (message: string) => {
+  const addLog = useCallback((message: string) => {
     setEventLog(prev => [{ message, timestamp: new Date() }, ...prev.slice(0, 4)]);
-  };
+  }, []);
 
   const handleGenerateName = useCallback(async () => {
     setIsNameLoading(true);
-    try {
-        const result = await generateHipsterName();
-        setName(result.name);
-    } catch (error) {
-        console.error('Failed to generate name:', error);
+    const result = await generateHipsterName();
+    setName(result.name);
+    if (result.isFallback) {
         toast({
-            variant: 'destructive',
-            title: 'Name Generation Failed',
-            description: 'Could not fetch a new name. Using a default.',
+            variant: 'default',
+            title: 'Name Generation Glitch',
+            description: "The AI name generator is on a coffee break. Here's a classic.",
         });
-        setName('Pip'); // A safe fallback
-    } finally {
-        setIsNameLoading(false);
     }
+    setIsNameLoading(false);
   }, [toast]);
 
   const handleGenerateAvatar = useCallback(async () => {
     setIsAvatarLoading(true);
-    try {
-      const result = await generateAvatar({ name: name || 'A nameless wanderer', job });
-      setAvatarUrl(result.avatarDataUri);
-    } catch (error) {
-      console.error('Failed to generate avatar:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Avatar Generation Failed',
-        description: 'Could not create a new avatar. Using a default.',
-      });
-      setAvatarUrl('https://placehold.co/128x128.png');
-    } finally {
-      setIsAvatarLoading(false);
+    const result = await generateAvatar({ name: name || 'A nameless wanderer', job });
+    setAvatarUrl(result.avatarDataUri);
+    if (result.isFallback) {
+        toast({
+            variant: 'default',
+            title: 'Avatar Glitch',
+            description: 'Could not generate a custom avatar. Using a default while the AI takes a nap.',
+        });
     }
+    setIsAvatarLoading(false);
   }, [name, job, toast]);
 
   const handleGenerateBio = useCallback(async () => {
     setIsBioLoading(true);
-    try {
-        const result = await generateCharacterBio({ name, job });
-        setBio(result.bio);
-    } catch (error) {
-        console.error('Failed to generate bio:', error);
+    const result = await generateCharacterBio({ name, job });
+    setBio(result.bio);
+    if (result.isFallback) {
         toast({
-            variant: 'destructive',
-            title: 'Bio Generation Failed',
-            description: 'Could not write a bio for you.',
+            variant: 'default',
+            title: 'Writer\'s Block',
+            description: 'The AI bio writer is contemplating its own existence. Using a stock bio.',
         });
-        setBio("A mysterious figure on a quest for... something.");
-    } finally {
-        setIsBioLoading(false);
     }
+    setIsBioLoading(false);
   }, [name, job, toast]);
 
   useEffect(() => {
@@ -139,20 +127,35 @@ export default function PortlandTrailPage() {
       bio: bio,
     };
     
+    const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
+    if (result.error) {
+      toast({
+        variant: 'destructive',
+        title: 'A Rocky Start',
+        description: `Could not start the journey. ${result.error}`,
+      });
+      setIsLoading(false);
+      return;
+    }
+    
     setPlayerState(initialState);
     const initialLogMessage = `Your journey as ${name} the ${job} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
     setEventLog([{ message: initialLogMessage, timestamp: new Date() }]);
     
-    const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
-    if (result.error) {
-      addLog(result.error);
-    } else {
-      setScenario(result as Scenario);
-      addLog(`An event unfolds: ${result.scenario}`);
+    const scenarioResult = result as Scenario;
+    setScenario(scenarioResult);
+    addLog(`An event unfolds: ${scenarioResult.scenario}`);
+    if (scenarioResult.isFallback) {
+        toast({
+            title: "Déjà Vu on the Trail",
+            description: "The AI is a bit foggy. Your starting journey is from a well-worn path.",
+            variant: 'default',
+        });
     }
+
     setGameState('playing');
     setIsLoading(false);
-  }, [name, job, avatarUrl, bio, toast]);
+  }, [name, job, avatarUrl, bio, toast, addLog]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
@@ -189,9 +192,22 @@ export default function PortlandTrailPage() {
       const result = await getScenarioAction(tempState);
       if (result.error) {
         addLog(result.error);
+        toast({
+            variant: "destructive",
+            title: "The Trail Went Cold",
+            description: "We couldn't generate the next event. Try taking a different action."
+        });
       } else {
-        setScenario(result as Scenario);
-        addLog(`A new event unfolds: ${result.scenario}`);
+        const scenarioResult = result as Scenario;
+        setScenario(scenarioResult);
+        addLog(`A new event unfolds: ${scenarioResult.scenario}`);
+        if (scenarioResult.isFallback) {
+            toast({
+                title: "The Trail Feels... Familiar",
+                description: "The AI is having trouble conjuring a new vision. You've stumbled into a cached memory of the trail.",
+                variant: 'default',
+            });
+        }
       }
       setIsLoading(false);
     };
@@ -242,18 +258,21 @@ export default function PortlandTrailPage() {
         const gamble = Math.random();
         if (gamble < 0.2) { // 20% chance of winning
             addLog('You went for broke and it paid off spectacularly!');
-            try {
-                const uberBadgeImage = await generateBadgeImage({ prompt: `A glowing, ornate, metallic, vibrating version of: ${scenario.badgeImagePrompt}` });
-                const newBadge = {
-                    imageDataUri: uberBadgeImage.imageDataUri,
-                    description: `Uber-Rare: ${scenario.badgeDescription}`,
-                    isUber: true,
-                };
-                tempState.resources.badges = [...tempState.resources.badges, newBadge];
-                tempState.stats.style += 20; // A nice bonus
-            } catch (error) {
-                console.error("Error generating uber badge", error);
-                addLog("The cosmos glitched, robbing you of your destined prize.");
+            const uberBadgeImage = await generateBadgeImage({ prompt: `A glowing, ornate, metallic, vibrating version of: ${scenario.badgeImagePrompt}` });
+            const newBadge = {
+                imageDataUri: uberBadgeImage.imageDataUri,
+                description: `Uber-Rare: ${scenario.badgeDescription}`,
+                isUber: true,
+            };
+            tempState.resources.badges = [...tempState.resources.badges, newBadge];
+            tempState.stats.style += 20; // A nice bonus
+            if (uberBadgeImage.isFallback) {
+                addLog("The cosmos glitched, providing a standard-issue badge instead of something truly epic.");
+                toast({
+                    variant: 'default',
+                    title: 'Slight Cosmic Miscalculation',
+                    description: 'Your uber-rare badge looks suspiciously like a normal one. The AI signal must have dropped.',
+                });
             }
         } else { // 80% chance of failure
             addLog('You went for broke and got broken. A devastating failure.');

@@ -68,5 +68,6 @@ export interface PlayerAction {
 export type Scenario = (GeneratePortlandScenarioOutput & {
   choices: Choice[];
   image: string;
+  isFallback?: boolean;
   error?: undefined;
 }) | { error: string };

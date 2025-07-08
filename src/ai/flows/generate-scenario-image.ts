@@ -17,6 +17,7 @@ export type GenerateScenarioImageInput = z.infer<typeof GenerateScenarioImageInp
 
 const GenerateScenarioImageOutputSchema = z.object({
   imageDataUri: z.string().describe("A generated image for the scenario, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
+  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
 });
 export type GenerateScenarioImageOutput = z.infer<typeof GenerateScenarioImageOutputSchema>;
 
@@ -44,7 +45,10 @@ const generateScenarioImageFlow = ai.defineFlow(
     } catch (error) {
         console.error("Error generating scenario image:", error);
         // Return a placeholder image on error
-        return { imageDataUri: 'https://placehold.co/500x300.png' };
+        return { 
+            imageDataUri: 'https://placehold.co/500x300.png',
+            isFallback: true,
+        };
     }
   }
 );

@@ -18,6 +18,7 @@ export type GenerateCharacterBioInput = z.infer<typeof GenerateCharacterBioInput
 
 const GenerateCharacterBioOutputSchema = z.object({
   bio: z.string().describe('A short, 1-2 sentence, quirky bio for the character in the third person.'),
+  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
 });
 export type GenerateCharacterBioOutput = z.infer<typeof GenerateCharacterBioOutputSchema>;
 
@@ -90,7 +91,8 @@ const generateCharacterBioFlow = ai.defineFlow(
         console.error("Error calling Ollama for bio generation.", error);
         // Provide a fallback bio
         return {
-            bio: "They believe their artisanal pickles can change the world, one jar at a time."
+            bio: "They believe their artisanal pickles can change the world, one jar at a time.",
+            isFallback: true,
         }
     }
   }

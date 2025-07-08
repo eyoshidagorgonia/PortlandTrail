@@ -18,6 +18,7 @@ export type GenerateAvatarInput = z.infer<typeof GenerateAvatarInputSchema>;
 
 const GenerateAvatarOutputSchema = z.object({
   avatarDataUri: z.string().describe("A generated avatar image for the character, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
+  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
 });
 export type GenerateAvatarOutput = z.infer<typeof GenerateAvatarOutputSchema>;
 
@@ -32,14 +33,22 @@ const generateAvatarFlow = ai.defineFlow(
     outputSchema: GenerateAvatarOutputSchema,
   },
   async ({name, job}) => {
-    const {media} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`,
-      config: {
-        responseModalities: ['TEXT', 'IMAGE'],
-      },
-    });
-    
-    return { avatarDataUri: media.url };
+    try {
+        const {media} = await ai.generate({
+          model: 'googleai/gemini-2.0-flash-preview-image-generation',
+          prompt: `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`,
+          config: {
+            responseModalities: ['TEXT', 'IMAGE'],
+          },
+        });
+        
+        return { avatarDataUri: media.url };
+    } catch (error) {
+        console.error("Error generating avatar:", error);
+        return { 
+            avatarDataUri: 'https://placehold.co/128x128.png',
+            isFallback: true,
+        };
+    }
   }
 );

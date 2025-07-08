@@ -28,6 +28,7 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   imagePrompt: z.string().describe('A short, 2-4 word prompt for an image generator to create a visual for this scenario. e.g. "Pigeons in hats" or "Man with handlebar mustache"'),
   badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
   badgeImagePrompt: z.string().describe('A 2-3 word prompt for an image generator to create a small, circular, embroidered patch-style badge for this scenario.'),
+  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
@@ -128,6 +129,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
             imagePrompt: "pigeons wearing fedoras",
             badgeDescription: "Fedorapocalypse Witness",
             badgeImagePrompt: "pigeon wearing fedora",
+            isFallback: true,
         }
     }
   }

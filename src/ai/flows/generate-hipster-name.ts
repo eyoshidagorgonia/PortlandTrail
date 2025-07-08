@@ -11,6 +11,7 @@ import {z} from 'genkit';
 
 const GenerateHipsterNameOutputSchema = z.object({
   name: z.string().describe('A single, quirky, gender-neutral hipster name.'),
+  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
 });
 export type GenerateHipsterNameOutput = z.infer<typeof GenerateHipsterNameOutputSchema>;
 
@@ -81,7 +82,8 @@ const generateHipsterNameFlow = ai.defineFlow(
         const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
         const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
         return {
-            name: fallbackName
+            name: fallbackName,
+            isFallback: true,
         }
     }
   }

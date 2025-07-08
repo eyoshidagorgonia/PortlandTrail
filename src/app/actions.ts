@@ -33,6 +33,8 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt })
     ]);
 
+    const isAnyFallback = scenarioDetails.isFallback || imageResult.isFallback || badgeImageResult.isFallback;
+
     const choices: Choice[] = [
       {
         text: `Embrace the weirdness`,
@@ -74,7 +76,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       }
     ];
 
-    return { ...scenarioDetails, choices, image: imageResult.imageDataUri };
+    return { ...scenarioDetails, choices, image: imageResult.imageDataUri, isFallback: isAnyFallback };
   } catch (error) {
     console.error('Error in getScenarioAction:', error);
     return {
