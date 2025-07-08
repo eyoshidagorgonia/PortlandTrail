@@ -17,6 +17,7 @@ import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -78,6 +79,25 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
 export default function StatusDashboard({ playerState }: { playerState: PlayerState }) {
   const { stats, resources, name, job, avatar, bio } = playerState;
 
+  const normalizedHealth =
+    ((stats.hunger / 100) +
+      (resources.bikeHealth / 100) +
+      (stats.style / 200) +
+      (stats.irony / 200) +
+      (stats.authenticity / 200)) /
+    5 * 100;
+
+  const getIronicHealthStatus = (health: number): { text: string; variant: 'default' | 'secondary' | 'destructive' } => {
+    if (health > 80) return { text: 'Peak Vibe', variant: 'default' };
+    if (health > 60) return { text: 'Ironically Detached', variant: 'secondary' };
+    if (health > 40) return { text: 'Performatively Pained', variant: 'secondary' };
+    if (health > 20) return { text: 'Aesthetically Fading', variant: 'destructive' };
+    return { text: 'Basically Mainstream', variant: 'destructive' };
+  };
+
+  const ironicStatus = getIronicHealthStatus(normalizedHealth);
+
+
   return (
     <Card className="shadow-lg border">
       <CardHeader>
@@ -86,8 +106,20 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
             <AvatarImage src={avatar} alt={name} />
             <AvatarFallback>{name?.charAt(0) || 'H'}</AvatarFallback>
           </Avatar>
-          <div className="flex-grow">
-            <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+          <div className="flex-grow space-y-1">
+            <div className="flex items-center gap-3">
+                 <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Badge variant={ironicStatus.variant} className="cursor-help whitespace-nowrap">{ironicStatus.text}</Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Your overall vibe, based on an average of your vitals and social stats.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                 </TooltipProvider>
+            </div>
             <CardDescription>{job}</CardDescription>
           </div>
         </div>
