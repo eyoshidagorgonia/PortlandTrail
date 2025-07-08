@@ -18,7 +18,10 @@ export async function generateHipsterName(): Promise<GenerateHipsterNameOutput> 
   return generateHipsterNameFlow();
 }
 
-const promptTemplate = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name. Examples include "River", "Kale", "Birch", "Pip".
+const promptTemplate = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name.
+You MUST generate a different name every time. Do not repeat yourself.
+
+Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage".
 
 Do not provide any explanation or extra text.
 
@@ -47,6 +50,9 @@ const generateHipsterNameFlow = ai.defineFlow(
           prompt: promptTemplate,
           stream: false,
           format: 'json',
+          options: {
+            seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
+          }
         }),
       });
 
