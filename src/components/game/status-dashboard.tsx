@@ -75,21 +75,26 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
   );
 
 export default function StatusDashboard({ playerState }: { playerState: PlayerState }) {
-  const { stats, resources, name, job, avatar } = playerState;
+  const { stats, resources, name, job, avatar, bio } = playerState;
 
   return (
     <Card className="shadow-lg border">
       <CardHeader>
-        <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16 border-2 border-primary/50">
+        <div className="flex items-start gap-4">
+          <Avatar className="h-16 w-16 border-2 border-primary/50 shrink-0">
             <AvatarImage src={avatar} alt={name} />
             <AvatarFallback>{name?.charAt(0) || 'H'}</AvatarFallback>
           </Avatar>
-          <div>
+          <div className="flex-grow">
             <CardTitle className="font-headline text-2xl">{name}</CardTitle>
             <CardDescription>{job}</CardDescription>
           </div>
         </div>
+        {bio && (
+            <CardDescription className="pt-3 text-sm italic">
+                {bio}
+            </CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-4 mb-6">

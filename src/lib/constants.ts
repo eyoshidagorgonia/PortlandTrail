@@ -17,6 +17,7 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
   name: 'Art',
   job: HIPSTER_JOBS[0],
   avatar: '',
+  bio: '',
   stats: {
     hunger: 80,
     style: 50,

@@ -13,6 +13,7 @@ import type { PlayerState, Scenario, Choice, PlayerAction } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
+import { generateCharacterBio } from '@/ai/flows/generate-character-bio';
 import StatusDashboard from '@/components/game/status-dashboard';
 import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
@@ -31,8 +32,10 @@ export default function PortlandTrailPage() {
   const [name, setName] = useState('');
   const [job, setJob] = useState(HIPSTER_JOBS[0]);
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [bio, setBio] = useState('');
   const [isAvatarLoading, setIsAvatarLoading] = useState(true);
   const [isNameLoading, setIsNameLoading] = useState(true);
+  const [isBioLoading, setIsBioLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
 
   const { toast } = useToast();
@@ -85,6 +88,24 @@ export default function PortlandTrailPage() {
     }
   }, [name, job, toast]);
 
+  const handleGenerateBio = useCallback(async () => {
+    setIsBioLoading(true);
+    try {
+        const result = await generateCharacterBio({ name, job });
+        setBio(result.bio);
+    } catch (error) {
+        console.error('Failed to generate bio:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Bio Generation Failed',
+            description: 'Could not write a bio for you.',
+        });
+        setBio("A mysterious figure on a quest for... something.");
+    } finally {
+        setIsBioLoading(false);
+    }
+  }, [name, job, toast]);
+
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
       handleGenerateName();
@@ -95,10 +116,11 @@ export default function PortlandTrailPage() {
   }, [gameState, hasInitialized, handleGenerateName]);
   
   useEffect(() => {
-    if (gameState === 'intro' && name) {
+    if (gameState === 'intro' && name && job) {
       handleGenerateAvatar();
+      handleGenerateBio();
     }
-  }, [gameState, name, handleGenerateAvatar]);
+  }, [gameState, name, job, handleGenerateAvatar, handleGenerateBio]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -113,6 +135,7 @@ export default function PortlandTrailPage() {
       name: name,
       job: job,
       avatar: avatarUrl,
+      bio: bio,
     };
     
     setPlayerState(initialState);
@@ -128,12 +151,13 @@ export default function PortlandTrailPage() {
     }
     setGameState('playing');
     setIsLoading(false);
-  }, [name, job, avatarUrl, toast]);
+  }, [name, job, avatarUrl, bio, toast]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
     setPlayerState(INITIAL_PLAYER_STATE);
     setName('');
+    setBio('');
     setJob(HIPSTER_JOBS[0]);
     setHasInitialized(false);
   }, []);
@@ -301,8 +325,8 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isAvatarLoading}>
-              {(isLoading || isAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
+            <Button size="lg" onClick={startGame} disabled={isLoading || isAvatarLoading || isBioLoading}>
+              {(isLoading || isAvatarLoading || isBioLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
               Begin the Journey
             </Button>
             <Link href="/help" passHref>

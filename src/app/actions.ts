@@ -14,14 +14,14 @@ function createConsequences(): Omit<Choice['consequences'], 'badge'> {
     coffee: -1 * Math.floor(Math.random() * 3), // 0 to -2
     vinyls: Math.random() > 0.8 ? 1 : 0, // 20% chance to find a vinyl
     progress: Math.floor(Math.random() * 2) + 1, // 1 to 2
-    bikeHealth: -1 * (Math.floor(Math.random() * 3) + 1), // -1 to -3, general wear and tear
+    bikeHealth: -1 * (Math.floor(Math.random() * 3)), // -0 to -2, general wear and tear
   };
 }
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   try {
     const scenarioInput = {
-      playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
+      playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Bio: ${playerState.bio}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
       location: playerState.location,
     };
     
