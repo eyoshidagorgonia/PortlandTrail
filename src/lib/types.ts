@@ -34,6 +34,7 @@ export interface Choice {
     coffee: number;
     vinyls: number;
     progress: number;
+    bikeHealth: number;
   };
 }
 

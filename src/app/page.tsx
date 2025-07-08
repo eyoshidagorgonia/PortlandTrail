@@ -222,6 +222,7 @@ export default function PortlandTrailPage() {
     tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
     tempState.resources.vinyls += consequences.vinyls;
     tempState.progress = Math.min(100, tempState.progress + consequences.progress);
+    tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
     tempState.location = currentLocation;
 
     setPlayerState(tempState);

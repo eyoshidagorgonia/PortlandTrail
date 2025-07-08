@@ -13,6 +13,7 @@ function createConsequences(): Choice['consequences'] {
     coffee: -1 * Math.floor(Math.random() * 3), // 0 to -2
     vinyls: Math.random() > 0.8 ? 1 : 0, // 20% chance to find a vinyl
     progress: Math.floor(Math.random() * 2) + 1, // 1 to 2
+    bikeHealth: -1 * (Math.floor(Math.random() * 3) + 1), // -1 to -3, general wear and tear
   };
 }
 
@@ -42,6 +43,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
           irony: -1,
           authenticity: -1,
           progress: 4, // a bit more progress for being safe
+          bikeHealth: -5, // more wear for just moving on
         },
       },
     ];
