@@ -2,9 +2,10 @@
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
 import { generateScenarioImage } from '@/ai/flows/generate-scenario-image';
+import { generateBadgeImage } from '@/ai/flows/generate-badge-image';
 import type { PlayerState, Scenario, Choice } from '@/lib/types';
 
-function createConsequences(): Choice['consequences'] {
+function createConsequences(): Omit<Choice['consequences'], 'badge'> {
   return {
     hunger: -1 * (Math.floor(Math.random() * 4) + 2), // -2 to -5
     style: Math.floor(Math.random() * 11) - 5, // -5 to +5
@@ -24,15 +25,25 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       location: playerState.location,
     };
     
-    // Generate scenario text and image prompt in parallel
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
-    const imageResult = await generateScenarioImage({ prompt: scenarioDetails.imagePrompt });
+    
+    // Generate scenario image and badge image in parallel
+    const [imageResult, badgeImageResult] = await Promise.all([
+        generateScenarioImage({ prompt: scenarioDetails.imagePrompt }),
+        generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt })
+    ]);
 
     const choices: Choice[] = [
       {
         text: `Embrace the weirdness`,
         description: `You dive headfirst into the situation. What's the worst that could happen?`,
-        consequences: createConsequences(),
+        consequences: {
+            ...createConsequences(),
+            badge: {
+                description: scenarioDetails.badgeDescription,
+                imageDataUri: badgeImageResult.imageDataUri,
+            }
+        },
       },
       {
         text: `Play it safe`,

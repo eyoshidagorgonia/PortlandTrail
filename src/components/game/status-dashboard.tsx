@@ -15,6 +15,7 @@ import {
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Image from 'next/image';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -102,13 +103,40 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
             <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your ability to appreciate things in a detached, humorous way." maxValue={200}/>
             <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A delicate balance." maxValue={200}/>
         </div>
-         <div className="space-y-4">
+         <div className="space-y-4 mb-6">
             <h3 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider">Inventory</h3>
             <div className="grid grid-cols-2 gap-4">
                 <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="Rare records increase your standing." />
                 <ResourceItem icon={CoffeeIcon} label="Coffee Beans" value={resources.coffee} tooltip="Fair-trade, single-origin coffee beans. The currency of the trail."/>
             </div>
         </div>
+        {resources.badges.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider">Badges</h3>
+            <TooltipProvider>
+              <div className="flex flex-wrap gap-2">
+                {resources.badges.map((badge, index) => (
+                  <Tooltip key={index}>
+                    <TooltipTrigger>
+                       <div className="h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 overflow-hidden bg-muted">
+                        <Image
+                            src={badge.imageDataUri}
+                            alt={badge.description}
+                            width={48}
+                            height={48}
+                            className="rounded-full object-cover"
+                        />
+                       </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{badge.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </TooltipProvider>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

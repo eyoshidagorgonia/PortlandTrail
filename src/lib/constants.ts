@@ -27,6 +27,7 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
     vinyls: 1,
     coffee: 10,
     bikeHealth: 100,
+    badges: [],
   },
   location: 'San Francisco',
   progress: 0,

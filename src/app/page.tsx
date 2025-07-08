@@ -223,6 +223,12 @@ export default function PortlandTrailPage() {
     tempState.resources.vinyls += consequences.vinyls;
     tempState.progress = Math.min(100, tempState.progress + consequences.progress);
     tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
+    
+    if (consequences.badge) {
+        tempState.resources.badges = [...tempState.resources.badges, consequences.badge];
+        addLog(`You earned a badge: "${consequences.badge.description}"!`);
+    }
+
     tempState.location = currentLocation;
 
     setPlayerState(tempState);

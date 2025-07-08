@@ -1,3 +1,5 @@
+'use server';
+
 import type { GeneratePortlandScenarioOutput } from "@/ai/flows/generate-portland-scenario";
 
 export interface PlayerStats {
@@ -7,10 +9,16 @@ export interface PlayerStats {
   authenticity: number;
 }
 
+export interface Badge {
+  imageDataUri: string;
+  description: string;
+}
+
 export interface PlayerResources {
   vinyls: number;
   coffee: number;
   bikeHealth: number;
+  badges: Badge[];
 }
 
 export interface PlayerState {
@@ -35,6 +43,7 @@ export interface Choice {
     vinyls: number;
     progress: number;
     bikeHealth: number;
+    badge?: Badge;
   };
 }
 

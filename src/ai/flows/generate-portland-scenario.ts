@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
@@ -26,6 +26,8 @@ const GeneratePortlandScenarioOutputSchema = z.object({
     .string()
     .optional(),
   imagePrompt: z.string().describe('A short, 2-4 word prompt for an image generator to create a visual for this scenario. e.g. "Pigeons in hats" or "Man with handlebar mustache"'),
+  badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
+  badgeImagePrompt: z.string().describe('A 2-3 word prompt for an image generator to create a small, circular, embroidered patch-style badge for this scenario.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
@@ -46,7 +48,7 @@ Also, subtly weave in an unexpected element inspired by the dark fantasy world o
 
 The scenario should feel unique, unpredictable, and a bit weird. Ensure it's not a generic event that could happen anywhere.
 
-Include a challenge the player must overcome, a potential reward, and a short prompt (2-4 words) for an image generator.
+Include a challenge, a potential reward, a short image prompt (2-4 words), a badge description (a short, witty name for a merit badge earned by embracing this weirdness), and a badge image prompt (2-3 words).
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
@@ -54,7 +56,9 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   "challenge": "description of the challenge",
   "reward": "description of the reward",
   "diablo2Element": "description of the Diablo II element",
-  "imagePrompt": "a short 2-4 word image prompt"
+  "imagePrompt": "a short 2-4 word image prompt",
+  "badgeDescription": "a short, witty badge name",
+  "badgeImagePrompt": "a short 2-3 word badge image prompt"
 }
 `;
 
@@ -121,7 +125,9 @@ const generatePortlandScenarioFlow = ai.defineFlow(
             challenge: "Question your reality",
             reward: "A fleeting sense of existential dread, which oddly increases your irony.",
             diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-            imagePrompt: "pigeons wearing fedoras"
+            imagePrompt: "pigeons wearing fedoras",
+            badgeDescription: "Fedorapocalypse Witness",
+            badgeImagePrompt: "pigeon wearing fedora",
         }
     }
   }
