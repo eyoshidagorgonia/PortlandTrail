@@ -48,17 +48,17 @@ Also, subtly weave in an unexpected element inspired by the dark fantasy world o
 
 The scenario should feel unique, unpredictable, and a bit weird. Ensure it's not a generic event that could happen anywhere.
 
-Include a challenge, a potential reward, a short image prompt (2-4 words), a badge description (a short, witty name for a merit badge earned by embracing this weirdness), and a badge image prompt (2-3 words).
+Based on the scenario you create, you must also define a merit badge that the player can earn.
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
-  "scenario": "description of the scenario",
-  "challenge": "description of the challenge",
-  "reward": "description of the reward",
+  "scenario": "A description of the generated scenario.",
+  "challenge": "A challenge the player must overcome in the scenario.",
+  "reward": "A potential reward for overcoming the challenge.",
   "diablo2Element": "description of the Diablo II element",
-  "imagePrompt": "a short 2-4 word image prompt",
-  "badgeDescription": "a short, witty badge name",
-  "badgeImagePrompt": "a short 2-3 word badge image prompt"
+  "imagePrompt": "A short, 2-4 word prompt for an image generator to create a visual for the main scenario.",
+  "badgeDescription": "A short, witty description for the merit badge earned by embracing this weird scenario. This MUST be directly related to the scenario.",
+  "badgeImagePrompt": "A 2-3 word prompt for an image generator to create the badge image. This prompt must visually describe the badge, which MUST be relevant to the scenario. For example, if the scenario is about pigeons in hats, the prompt could be 'pigeon wearing fedora'."
 }
 `;
 
