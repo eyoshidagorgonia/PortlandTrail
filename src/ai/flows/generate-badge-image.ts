@@ -33,15 +33,28 @@ const generateBadgeImageFlow = ai.defineFlow(
   },
   async ({prompt}) => {
     try {
-        const {media} = await ai.generate({
-            model: 'googleai/gemini-2.0-flash-preview-image-generation',
-            prompt: `A small, circular, embroidered patch-style merit badge for a video game. The badge depicts: ${prompt}. The style should be slightly quirky and vintage, with a 16-bit pixel art aesthetic.`,
-            config: {
-                responseModalities: ['TEXT', 'IMAGE'],
+        const response = await fetch('http://host.docker.internal:9002/api/generate', {
+            method: 'POST',
+            cache: 'no-store',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer aica_live_lq80sjfqw8m3vvxxv5r32urd81kxn87a',
             },
-        });
-        
-        return { imageDataUri: media.url };
+            body: JSON.stringify({
+              model: 'googleai/gemini-2.0-flash-preview-image-generation',
+              prompt: `A small, circular, embroidered patch-style merit badge for a video game. The badge depicts: ${prompt}. The style should be slightly quirky and vintage, with a 16-bit pixel art aesthetic.`,
+            }),
+          });
+          
+          if (!response.ok) {
+            const errorBody = await response.text();
+            console.error('API Cache server error response:', errorBody);
+            throw new Error(`API Cache server request failed with status ${response.status}`);
+          }
+
+          const result = await response.json();
+          return GenerateBadgeImageOutputSchema.parse(result);
+
     } catch (error) {
         console.error("Error generating badge image:", error);
         // Return a placeholder image on error

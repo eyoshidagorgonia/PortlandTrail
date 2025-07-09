@@ -33,16 +33,35 @@ const generateAvatarFlow = ai.defineFlow(
     outputSchema: GenerateAvatarOutputSchema,
   },
   async ({name, job}) => {
+    const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
     try {
-        const {media} = await ai.generate({
+      const response = await fetch('http://host.docker.internal:9002/api/generate', {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer aica_live_lq80sjfqw8m3vvxxv5r32urd81kxn87a',
+        },
+        body: JSON.stringify({
           model: 'googleai/gemini-2.0-flash-preview-image-generation',
-          prompt: `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`,
-          config: {
-            responseModalities: ['TEXT', 'IMAGE'],
-          },
-        });
-        
-        return { avatarDataUri: media.url };
+          prompt: prompt,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('API Cache server error response:', errorBody);
+        throw new Error(`API Cache server request failed with status ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.imageDataUri) {
+        return { avatarDataUri: result.imageDataUri };
+      }
+      
+      throw new Error("Invalid response format from cache server for avatar generation.");
+
     } catch (error) {
         console.error("Error generating avatar:", error);
         return { 

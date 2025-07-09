@@ -33,15 +33,27 @@ const generateScenarioImageFlow = ai.defineFlow(
   },
   async ({prompt}) => {
     try {
-        const {media} = await ai.generate({
-            model: 'googleai/gemini-2.0-flash-preview-image-generation',
-            prompt: `A 16-bit pixel art image for a video game that combines Diablo II with hipster culture. The scene is: ${prompt}. The style should be dark and gritty, but with a quirky, ironic twist.`,
-            config: {
-                responseModalities: ['TEXT', 'IMAGE'],
-            },
-        });
-        
-        return { imageDataUri: media.url };
+      const response = await fetch('http://host.docker.internal:9002/api/generate', {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer aica_live_lq80sjfqw8m3vvxxv5r32urd81kxn87a',
+        },
+        body: JSON.stringify({
+          model: 'googleai/gemini-2.0-flash-preview-image-generation',
+          prompt: `A 16-bit pixel art image for a video game that combines Diablo II with hipster culture. The scene is: ${prompt}. The style should be dark and gritty, but with a quirky, ironic twist.`,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('API Cache server error response:', errorBody);
+        throw new Error(`API Cache server request failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+      return GenerateScenarioImageOutputSchema.parse(result);
     } catch (error) {
         console.error("Error generating scenario image:", error);
         // Return a placeholder image on error

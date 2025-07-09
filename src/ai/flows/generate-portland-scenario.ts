@@ -82,6 +82,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer aica_live_lq80sjfqw8m3vvxxv5r32urd81kxn87a',
         },
         body: JSON.stringify({
  model: 'llama3:latest',
