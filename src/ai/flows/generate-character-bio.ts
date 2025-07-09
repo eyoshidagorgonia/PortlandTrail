@@ -10,6 +10,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+// Define the shape of the expected response from the API cache server
+interface CacheApiResponse {
+  answer: string;
+  wasCached: boolean;
+  error?: string;
+}
+
 const GenerateCharacterBioInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
   job: z.string().describe('The job of the character.'),
@@ -52,7 +59,10 @@ const generateCharacterBioFlow = ai.defineFlow(
       .replace('{job}', job);
 
     try {
-      const response = await fetch('http://host.docker.internal:9002/api/generate', {
+      const cacheKey = `character-bio-${name.replace(/\s+/g, '-')}-${job.replace(/\s+/g, '-')}`;
+      const url = 'http://host.docker.internal:9002/api/cache';
+
+      const response = await fetch(url, {
         method: 'POST',
         cache: 'no-store',
         headers: {
@@ -60,24 +70,19 @@ const generateCharacterBioFlow = ai.defineFlow(
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-          model: 'llama3:latest',
-          prompt: prompt,
-          stream: false,
-          format: 'json',
-          options: {
-            seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
-          }
+          query: prompt,
+          cacheKey: cacheKey
         }),
       });
 
+      const data: CacheApiResponse = await response.json();
+
       if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Ollama API error response:', errorBody);
-        throw new Error(`Ollama API request failed with status ${response.status}`);
+        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+        throw new Error(errorMessage);
       }
       
-      const ollamaResponse = await response.json();
-      let responseText = ollamaResponse.response;
+      let responseText = data.answer;
 
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -89,7 +94,7 @@ const generateCharacterBioFlow = ai.defineFlow(
       return GenerateCharacterBioOutputSchema.parse(result);
 
     } catch (error) {
-        console.error("Error calling Ollama for bio generation.", error);
+        console.error("Error calling cache server for bio generation:", error);
         // Provide a fallback bio
         return {
             bio: "They believe their artisanal pickles can change the world, one jar at a time.",

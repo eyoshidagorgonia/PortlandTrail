@@ -10,6 +10,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+// Define the shape of the expected response from the API cache server
+interface CacheApiResponse {
+  answer: string;
+  wasCached: boolean;
+  error?: string;
+}
+
 const GenerateAvatarInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
   job: z.string().describe('The job of the character.'),
@@ -35,7 +42,10 @@ const generateAvatarFlow = ai.defineFlow(
   async ({name, job}) => {
     const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
     try {
-      const response = await fetch('http://host.docker.internal:9002/api/generate', {
+      const cacheKey = `avatar-${name.replace(/\s+/g, '-')}-${job.replace(/\s+/g, '-')}`;
+      const url = 'http://host.docker.internal:9002/api/cache';
+
+      const response = await fetch(url, {
         method: 'POST',
         cache: 'no-store',
         headers: {
@@ -43,27 +53,26 @@ const generateAvatarFlow = ai.defineFlow(
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-          model: 'googleai/gemini-2.0-flash-preview-image-generation',
-          prompt: prompt,
+          query: prompt,
+          cacheKey: cacheKey
         }),
       });
 
+      const data: CacheApiResponse = await response.json();
+      
       if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('API Cache server error response:', errorBody);
-        throw new Error(`API Cache server request failed with status ${response.status}`);
+        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+        throw new Error(errorMessage);
       }
       
-      const result = await response.json();
-      
-      if (result.imageDataUri) {
-        return { avatarDataUri: result.imageDataUri };
+      if (data.answer) {
+        return { avatarDataUri: data.answer };
       }
       
       throw new Error("Invalid response format from cache server for avatar generation.");
 
     } catch (error) {
-        console.error("Error generating avatar:", error);
+        console.error("Error calling cache server for avatar generation:", error);
         return { 
             avatarDataUri: 'https://placehold.co/128x128.png',
             isFallback: true,

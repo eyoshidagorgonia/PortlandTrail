@@ -9,6 +9,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+// Define the shape of the expected response from the API cache server
+interface CacheApiResponse {
+  answer: string;
+  wasCached: boolean;
+  error?: string;
+}
+
 const GenerateHipsterNameOutputSchema = z.object({
   name: z.string().describe('A single, quirky, gender-neutral hipster name.'),
   isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
@@ -40,7 +47,11 @@ const generateHipsterNameFlow = ai.defineFlow(
   },
   async () => {
     try {
-      const response = await fetch('http://host.docker.internal:9002/api/generate', {
+      // Create a unique cache key for each request to ensure a new name is generated.
+      const cacheKey = `hipster-name-${Date.now()}-${Math.random()}`;
+      const url = 'http://host.docker.internal:9002/api/cache';
+
+      const response = await fetch(url, {
         method: 'POST',
         cache: 'no-store',
         headers: {
@@ -48,24 +59,19 @@ const generateHipsterNameFlow = ai.defineFlow(
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-          model: 'llama3:latest',
-          prompt: promptTemplate,
-          stream: false,
-          format: 'json',
-          options: {
-            seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
-          }
+          query: promptTemplate,
+          cacheKey: cacheKey,
         }),
       });
+      
+      const data: CacheApiResponse = await response.json();
 
       if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Ollama API error response:', errorBody);
-        throw new Error(`Ollama API request failed with status ${response.status}`);
+        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+        throw new Error(errorMessage);
       }
       
-      const ollamaResponse = await response.json();
-      let responseText = ollamaResponse.response;
+      let responseText = data.answer;
 
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -78,7 +84,7 @@ const generateHipsterNameFlow = ai.defineFlow(
       return GenerateHipsterNameOutputSchema.parse(result);
 
     } catch (error) {
-        console.error("Error calling Ollama for name generation. This is expected in the Studio preview environment, which cannot reach a local server.", error);
+        console.error("Error calling cache server for name generation:", error);
         // Provide a random fallback name from a predefined list
         const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
         const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];

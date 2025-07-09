@@ -10,6 +10,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
+// Define the shape of the expected response from the API cache server
+interface CacheApiResponse {
+  answer: string;
+  wasCached: boolean;
+  error?: string;
+}
+
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
     .string()
@@ -63,7 +70,6 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }
 `;
 
-// This flow now calls Ollama directly via fetch to avoid plugin issues.
 const generatePortlandScenarioFlow = ai.defineFlow(
   {
     name: 'generatePortlandScenarioFlow',
@@ -77,7 +83,11 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       .replace('{location}', location); // second replace for the second template variable
 
     try {
-      const response = await fetch('http://host.docker.internal:9002/api/generate', {
+      // Create a unique cache key to ensure a new scenario is generated each time.
+      const cacheKey = `portland-scenario-${location.replace(/\s+/g, '-')}-${Date.now()}`;
+      const url = 'http://host.docker.internal:9002/api/cache';
+
+      const response = await fetch(url, {
         method: 'POST',
         cache: 'no-store',
         headers: {
@@ -85,25 +95,19 @@ const generatePortlandScenarioFlow = ai.defineFlow(
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
- model: 'llama3:latest',
-          prompt: prompt,
-          stream: false,
-          format: 'json', // Requesting JSON output format from Ollama
-          options: {
-            seed: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
-          }
+            query: prompt,
+            cacheKey: cacheKey
         }),
       });
 
+      const data: CacheApiResponse = await response.json();
+
       if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Ollama API error response:', errorBody);
-        throw new Error(`Ollama API request failed with status ${response.status}`);
+        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+        throw new Error(errorMessage);
       }
       
-      const ollamaResponse = await response.json();
-      
-      let responseText = ollamaResponse.response;
+      let responseText = data.answer;
 
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -111,16 +115,13 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         responseText = jsonMatch[0];
       }
       
-      // The actual response from the model is a string inside the 'response' field.
-      // We need to parse this string as JSON.
       const result = JSON.parse(responseText);
       
-      // Validate the result against the Zod schema
       return GeneratePortlandScenarioOutputSchema.parse(result);
 
     } catch (error)
     {
-        console.error("Error calling Ollama or parsing response:", error);
+        console.error("Error calling cache server for scenario generation:", error);
         // Provide a fallback scenario in case of an error
         return {
             scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
