@@ -11,10 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 // Define the shape of the expected response from the API cache server
-interface CacheApiResponse {
-  answer: string;
-  wasCached: boolean;
-  error?: string;
+type CacheResponse = {
+    source: 'cache' | 'model' | 'error';
+    data?: { response: string };
+    error?: string;
+    details?: any;
 }
 
 const GenerateCharacterBioInputSchema = z.object({
@@ -59,7 +60,6 @@ const generateCharacterBioFlow = ai.defineFlow(
       .replace('{job}', job);
 
     try {
-      const cacheKey = `character-bio-${name.replace(/\s+/g, '-')}-${job.replace(/\s+/g, '-')}`;
       const url = 'http://host.docker.internal:9002/api/cache';
 
       const response = await fetch(url, {
@@ -67,31 +67,34 @@ const generateCharacterBioFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-          query: prompt,
-          cacheKey: cacheKey
+            apiKey: process.env.API_CACHE_SERVER_KEY,
+            model: 'google-ai',
+            prompt: prompt,
         }),
       });
 
-      const data: CacheApiResponse = await response.json();
+      const result: CacheResponse = await response.json();
 
-      if (!response.ok) {
-        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+      if (!response.ok || result.source === 'error') {
+        const errorMessage = result.error || `API Error: ${response.status} - ${response.statusText}`;
         throw new Error(errorMessage);
       }
       
-      let responseText = data.answer;
+      let responseText = result.data?.response;
+      if (!responseText) {
+        throw new Error("No response data from cache server.");
+      }
 
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         responseText = jsonMatch[0];
       }
       
-      const result = JSON.parse(responseText);
+      const parsedResult = JSON.parse(responseText);
       
-      return GenerateCharacterBioOutputSchema.parse(result);
+      return GenerateCharacterBioOutputSchema.parse(parsedResult);
 
     } catch (error) {
         console.error("Error calling cache server for bio generation:", error);

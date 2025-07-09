@@ -11,10 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 // Define the shape of the expected response from the API cache server
-interface CacheApiResponse {
-  answer: string;
-  wasCached: boolean;
-  error?: string;
+type CacheResponse = {
+    source: 'cache' | 'model' | 'error';
+    data?: { response: string };
+    error?: string;
+    details?: any;
 }
 
 const GeneratePortlandScenarioInputSchema = z.object({
@@ -83,8 +84,6 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       .replace('{location}', location); // second replace for the second template variable
 
     try {
-      // Create a unique cache key to ensure a new scenario is generated each time.
-      const cacheKey = `portland-scenario-${location.replace(/\s+/g, '-')}-${Date.now()}`;
       const url = 'http://host.docker.internal:9002/api/cache';
 
       const response = await fetch(url, {
@@ -92,22 +91,27 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-            query: prompt,
-            cacheKey: cacheKey
+            apiKey: process.env.API_CACHE_SERVER_KEY,
+            model: 'google-ai',
+            prompt: prompt,
+            // Pass a unique value to bust the cache for this specific request
+            options: { cacheBuster: `${Date.now()}-${Math.random()}` }
         }),
       });
 
-      const data: CacheApiResponse = await response.json();
+      const result: CacheResponse = await response.json();
 
-      if (!response.ok) {
-        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+      if (!response.ok || result.source === 'error') {
+        const errorMessage = result.error || `API Error: ${response.status} - ${response.statusText}`;
         throw new Error(errorMessage);
       }
       
-      let responseText = data.answer;
+      let responseText = result.data?.response;
+      if (!responseText) {
+        throw new Error("No response data from cache server.");
+      }
 
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -115,9 +119,9 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         responseText = jsonMatch[0];
       }
       
-      const result = JSON.parse(responseText);
+      const parsedResult = JSON.parse(responseText);
       
-      return GeneratePortlandScenarioOutputSchema.parse(result);
+      return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
 
     } catch (error)
     {

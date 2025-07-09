@@ -10,10 +10,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 // Define the shape of the expected response from the API cache server
-interface CacheApiResponse {
-  answer: string;
-  wasCached: boolean;
-  error?: string;
+type CacheResponse = {
+    source: 'cache' | 'model' | 'error';
+    data?: { response: string };
+    error?: string;
+    details?: any;
 }
 
 const GenerateHipsterNameOutputSchema = z.object({
@@ -47,8 +48,6 @@ const generateHipsterNameFlow = ai.defineFlow(
   },
   async () => {
     try {
-      // Create a unique cache key for each request to ensure a new name is generated.
-      const cacheKey = `hipster-name-${Date.now()}-${Math.random()}`;
       const url = 'http://host.docker.internal:9002/api/cache';
 
       const response = await fetch(url, {
@@ -56,22 +55,27 @@ const generateHipsterNameFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-          query: promptTemplate,
-          cacheKey: cacheKey,
+            apiKey: process.env.API_CACHE_SERVER_KEY,
+            model: 'ollama',
+            prompt: promptTemplate,
+            // Pass a unique value to bust the cache for this specific request
+            options: { cacheBuster: `${Date.now()}-${Math.random()}` }
         }),
       });
       
-      const data: CacheApiResponse = await response.json();
+      const result: CacheResponse = await response.json();
 
-      if (!response.ok) {
-        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+      if (!response.ok || result.source === 'error') {
+        const errorMessage = result.error || `API Error: ${response.status} - ${response.statusText}`;
         throw new Error(errorMessage);
       }
       
-      let responseText = data.answer;
+      let responseText = result.data?.response;
+      if (!responseText) {
+        throw new Error("No response data from cache server.");
+      }
 
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -79,9 +83,9 @@ const generateHipsterNameFlow = ai.defineFlow(
         responseText = jsonMatch[0];
       }
       
-      const result = JSON.parse(responseText);
+      const parsedResult = JSON.parse(responseText);
       
-      return GenerateHipsterNameOutputSchema.parse(result);
+      return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
         console.error("Error calling cache server for name generation:", error);

@@ -11,10 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 // Define the shape of the expected response from the API cache server
-interface CacheApiResponse {
-    answer: string;
-    wasCached: boolean;
+type CacheResponse = {
+    source: 'cache' | 'model' | 'error';
+    data?: { response: string };
     error?: string;
+    details?: any;
 }
 
 const GenerateBadgeImageInputSchema = z.object({
@@ -41,7 +42,6 @@ const generateBadgeImageFlow = ai.defineFlow(
   async ({prompt}) => {
     try {
         const fullPrompt = `A small, circular, embroidered patch-style merit badge for a video game. The badge depicts: ${prompt}. The style should be slightly quirky and vintage, with a 16-bit pixel art aesthetic.`;
-        const cacheKey = `badge-image-${prompt.replace(/\s+/g, '-')}`;
         const url = 'http://host.docker.internal:9002/api/cache';
 
         const response = await fetch(url, {
@@ -49,23 +49,23 @@ const generateBadgeImageFlow = ai.defineFlow(
             cache: 'no-store',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
             },
             body: JSON.stringify({
-              query: fullPrompt,
-              cacheKey: cacheKey,
+                apiKey: process.env.API_CACHE_SERVER_KEY,
+                model: 'google-ai',
+                prompt: fullPrompt,
             }),
           });
           
-          const data: CacheApiResponse = await response.json();
+          const result: CacheResponse = await response.json();
 
-          if (!response.ok) {
-            const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+          if (!response.ok || result.source === 'error') {
+            const errorMessage = result.error || `API Error: ${response.status} - ${response.statusText}`;
             throw new Error(errorMessage);
           }
 
-          if (data.answer) {
-            return { imageDataUri: data.answer };
+          if (result.data?.response) {
+            return { imageDataUri: result.data.response };
           }
 
           throw new Error("Invalid response format from cache server for badge image generation.");

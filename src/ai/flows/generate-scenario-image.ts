@@ -11,10 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 // Define the shape of the expected response from the API cache server
-interface CacheApiResponse {
-  answer: string;
-  wasCached: boolean;
-  error?: string;
+type CacheResponse = {
+    source: 'cache' | 'model' | 'error';
+    data?: { response: string };
+    error?: string;
+    details?: any;
 }
 
 const GenerateScenarioImageInputSchema = z.object({
@@ -41,7 +42,6 @@ const generateScenarioImageFlow = ai.defineFlow(
   async ({prompt}) => {
     try {
       const fullPrompt = `A 16-bit pixel art image for a video game that combines Diablo II with hipster culture. The scene is: ${prompt}. The style should be dark and gritty, but with a quirky, ironic twist.`;
-      const cacheKey = `scenario-image-${prompt.replace(/\s+/g, '-')}`;
       const url = 'http://host.docker.internal:9002/api/cache';
 
       const response = await fetch(url, {
@@ -49,23 +49,23 @@ const generateScenarioImageFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-            query: fullPrompt,
-            cacheKey: cacheKey
+            apiKey: process.env.API_CACHE_SERVER_KEY,
+            model: 'google-ai',
+            prompt: fullPrompt,
         }),
       });
 
-      const data: CacheApiResponse = await response.json();
+      const result: CacheResponse = await response.json();
 
-      if (!response.ok) {
-        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+      if (!response.ok || result.source === 'error') {
+        const errorMessage = result.error || `API Error: ${response.status} - ${response.statusText}`;
         throw new Error(errorMessage);
       }
 
-      if (data.answer) {
-        return { imageDataUri: data.answer };
+      if (result.data?.response) {
+        return { imageDataUri: result.data.response };
       }
 
       throw new Error("Invalid response format from cache server for scenario image generation.");

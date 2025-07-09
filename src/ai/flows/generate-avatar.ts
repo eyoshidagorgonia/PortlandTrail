@@ -11,10 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 // Define the shape of the expected response from the API cache server
-interface CacheApiResponse {
-  answer: string;
-  wasCached: boolean;
-  error?: string;
+type CacheResponse = {
+    source: 'cache' | 'model' | 'error';
+    data?: { response: string };
+    error?: string;
+    details?: any;
 }
 
 const GenerateAvatarInputSchema = z.object({
@@ -42,7 +43,6 @@ const generateAvatarFlow = ai.defineFlow(
   async ({name, job}) => {
     const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
     try {
-      const cacheKey = `avatar-${name.replace(/\s+/g, '-')}-${job.replace(/\s+/g, '-')}`;
       const url = 'http://host.docker.internal:9002/api/cache';
 
       const response = await fetch(url, {
@@ -50,23 +50,23 @@ const generateAvatarFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
-          query: prompt,
-          cacheKey: cacheKey
+          apiKey: process.env.API_CACHE_SERVER_KEY,
+          model: 'google-ai',
+          prompt: prompt,
         }),
       });
 
-      const data: CacheApiResponse = await response.json();
+      const result: CacheResponse = await response.json();
       
-      if (!response.ok) {
-        const errorMessage = data.error || `API Error: ${response.status} - ${response.statusText}`;
+      if (!response.ok || result.source === 'error') {
+        const errorMessage = result.error || `API Error: ${response.status} - ${response.statusText}`;
         throw new Error(errorMessage);
       }
       
-      if (data.answer) {
-        return { avatarDataUri: data.answer };
+      if (result.data?.response) {
+        return { avatarDataUri: result.data.response };
       }
       
       throw new Error("Invalid response format from cache server for avatar generation.");
