@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8080:80"
     env_file:
       - .env
     # The 'extra_hosts' directive allows the container to resolve
