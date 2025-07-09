@@ -52,7 +52,7 @@ const generateCharacterBioFlow = ai.defineFlow(
       .replace('{job}', job);
 
     try {
-      const response = await fetch('http://host.docker.internal:11434/api/generate', {
+      const response = await fetch('http://host.docker.internal:9002/api/generate', {
         method: 'POST',
         cache: 'no-store',
         headers: {

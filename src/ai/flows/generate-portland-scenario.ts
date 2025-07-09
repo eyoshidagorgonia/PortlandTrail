@@ -77,7 +77,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       .replace('{location}', location); // second replace for the second template variable
 
     try {
-      const response = await fetch('http://host.docker.internal:11434/api/generate', {
+      const response = await fetch('http://host.docker.internal:9002/api/generate', {
         method: 'POST',
         cache: 'no-store',
         headers: {
