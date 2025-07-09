@@ -40,7 +40,7 @@ const generateAvatarFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer aica_live_lq80sjfqw8m3vvxxv5r32urd81kxn87a',
+          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY}`,
         },
         body: JSON.stringify({
           model: 'googleai/gemini-2.0-flash-preview-image-generation',
