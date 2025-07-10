@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
@@ -309,7 +309,7 @@ export default function PortlandTrailPage() {
   if (gameState === 'intro') {
     return (
       <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center">
-        <Card className="max-w-2xl w-full text-center shadow-xl border">
+        <Card className="max-w-2xl w-full text-center shadow-xl border relative">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
               <Coffee className="mx-auto h-12 w-12 text-primary mb-2" />
@@ -380,6 +380,9 @@ export default function PortlandTrailPage() {
                 <Button variant="link" className="text-muted-foreground mt-2">How to Play</Button>
             </Link>
           </CardContent>
+           <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono">
+                Build: {BUILD_NUMBER.toFixed(3)}
+            </div>
         </Card>
       </main>
     );
