@@ -31,6 +31,7 @@ export interface PlayerState {
   resources: PlayerResources;
   location: string;
   progress: number;
+  vibe: string;
 }
 
 export interface Choice {

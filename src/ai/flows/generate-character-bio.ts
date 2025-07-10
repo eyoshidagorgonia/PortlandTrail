@@ -21,6 +21,7 @@ type CacheResponse = {
 const GenerateCharacterBioInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
   job: z.string().describe('The job of the character.'),
+  vibe: z.string().describe('The current vibe or mood of the character (e.g., "Peak Vibe", "Aesthetically Fading").'),
 });
 export type GenerateCharacterBioInput = z.infer<typeof GenerateCharacterBioInputSchema>;
 
@@ -35,12 +36,13 @@ export async function generateCharacterBio(input: GenerateCharacterBioInput): Pr
 }
 
 const promptTemplate = `You are a character bio writer for a quirky video game.
-You will be given a character's name and job.
+You will be given a character's name, job, and current "vibe".
 Based on this, write a short, 1-2 sentence bio for them in a witty, third-person voice.
-The bio should capture a hipster or artisanal vibe. Do not use the character's name in the bio.
+The bio should capture a hipster or artisanal vibe and reflect their current state.
 
 Character Name: {name}
 Character Job: {job}
+Current Vibe: {vibe}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
@@ -54,10 +56,11 @@ const generateCharacterBioFlow = ai.defineFlow(
     inputSchema: GenerateCharacterBioInputSchema,
     outputSchema: GenerateCharacterBioOutputSchema,
   },
-  async ({ name, job }) => {
+  async ({ name, job, vibe }) => {
     const prompt = promptTemplate
       .replace('{name}', name)
-      .replace('{job}', job);
+      .replace('{job}', job)
+      .replace('{vibe}', vibe);
 
     try {
       const url = 'http://host.docker.internal:9002/api/cache';

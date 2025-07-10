@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { getIronicHealthStatus } from '@/lib/constants';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -86,14 +87,6 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
       (stats.irony / 200) +
       (stats.authenticity / 200)) /
     5 * 100;
-
-  const getIronicHealthStatus = (health: number): { text: string; variant: 'default' | 'secondary' | 'destructive' } => {
-    if (health > 80) return { text: 'Peak Vibe', variant: 'default' };
-    if (health > 60) return { text: 'Ironically Detached', variant: 'secondary' };
-    if (health > 40) return { text: 'Performatively Pained', variant: 'secondary' };
-    if (health > 20) return { text: 'Aesthetically Fading', variant: 'destructive' };
-    return { text: 'Basically Mainstream', variant: 'destructive' };
-  };
 
   const ironicStatus = getIronicHealthStatus(normalizedHealth);
 

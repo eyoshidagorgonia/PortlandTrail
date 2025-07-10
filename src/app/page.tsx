@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
@@ -48,6 +48,18 @@ export default function PortlandTrailPage() {
   const currentLocation = useMemo(() => {
     return TRAIL_WAYPOINTS[waypointIndex] || TRAIL_WAYPOINTS[TRAIL_WAYPOINTS.length - 1];
   }, [waypointIndex]);
+  
+  const currentVibe = useMemo(() => {
+    const normalizedHealth =
+      ((playerState.stats.hunger / 100) +
+        (playerState.resources.bikeHealth / 100) +
+        (playerState.stats.style / 200) +
+        (playerState.stats.irony / 200) +
+        (playerState.stats.authenticity / 200)) /
+      5 * 100;
+      return getIronicHealthStatus(normalizedHealth).text;
+  }, [playerState.stats, playerState.resources]);
+
 
   const addLog = useCallback((message: string) => {
     setEventLog(prev => [{ message, timestamp: new Date() }, ...prev.slice(0, 4)]);
@@ -81,9 +93,9 @@ export default function PortlandTrailPage() {
     setIsAvatarLoading(false);
   }, [name, job, toast]);
 
-  const handleGenerateBio = useCallback(async () => {
+  const handleGenerateBio = useCallback(async (vibe: string) => {
     setIsBioLoading(true);
-    const result = await generateCharacterBio({ name, job });
+    const result = await generateCharacterBio({ name, job, vibe });
     setBio(result.bio);
     if (result.isFallback) {
         toast({
@@ -107,9 +119,21 @@ export default function PortlandTrailPage() {
   useEffect(() => {
     if (gameState === 'intro' && name && job) {
       handleGenerateAvatar();
-      handleGenerateBio();
+      handleGenerateBio("Just starting out");
     }
   }, [gameState, name, job, handleGenerateAvatar, handleGenerateBio]);
+
+  // Regenerate bio when vibe changes
+  useEffect(() => {
+    if(gameState === 'playing') {
+      const newVibe = currentVibe;
+      if (newVibe !== playerState.vibe) {
+        generateCharacterBio(newVibe).then(result => {
+           setPlayerState(prevState => ({...prevState, bio: result.bio, vibe: newVibe }));
+        });
+      }
+    }
+  }, [currentVibe, gameState, playerState.vibe, generateCharacterBio]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -125,6 +149,7 @@ export default function PortlandTrailPage() {
       job: job,
       avatar: avatarUrl,
       bio: bio,
+      vibe: "Just starting out",
     };
     
     const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });

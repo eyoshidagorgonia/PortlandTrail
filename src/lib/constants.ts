@@ -1,6 +1,6 @@
 import type { PlayerState } from './types';
 
-export const BUILD_NUMBER = 1.008;
+export const BUILD_NUMBER = 1.009;
 
 export const HIPSTER_JOBS = [
   "Artisanal Pickle Maker",
@@ -34,6 +34,7 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
   },
   location: 'San Francisco',
   progress: 0,
+  vibe: 'Just starting out',
 };
 
 export const TRAIL_WAYPOINTS = [
@@ -45,3 +46,11 @@ export const TRAIL_WAYPOINTS = [
   'Salem',
   'Portland',
 ];
+
+export const getIronicHealthStatus = (health: number): { text: string; variant: 'default' | 'secondary' | 'destructive' } => {
+    if (health > 80) return { text: 'Peak Vibe', variant: 'default' };
+    if (health > 60) return { text: 'Ironically Detached', variant: 'secondary' };
+    if (health > 40) return { text: 'Performatively Pained', variant: 'secondary' };
+    if (health > 20) return { text: 'Aesthetically Fading', variant: 'destructive' };
+    return { text: 'Basically Mainstream', variant: 'destructive' };
+  };
