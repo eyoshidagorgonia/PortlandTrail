@@ -8,3 +8,4 @@ import '@/ai/flows/generate-hipster-name.ts';
 import '@/ai/flows/generate-scenario-image.ts';
 import '@/ai/flows/generate-badge-image.ts';
 import '@/ai/flows/generate-character-bio.ts';
+import '@/ai/flows/generate-transport-mode.ts';

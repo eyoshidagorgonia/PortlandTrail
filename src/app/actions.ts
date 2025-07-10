@@ -3,6 +3,7 @@
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
 import { generateScenarioImage } from '@/ai/flows/generate-scenario-image';
 import { generateBadgeImage } from '@/ai/flows/generate-badge-image';
+import { generateTransportMode } from '@/ai/flows/generate-transport-mode';
 import type { PlayerState, Scenario, Choice } from '@/lib/types';
 
 function createConsequences(): Omit<Choice['consequences'], 'badge'> {
@@ -27,13 +28,14 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
     
-    // Generate scenario image and badge image in parallel
-    const [imageResult, badgeImageResult] = await Promise.all([
+    // Generate scenario image, badge image and transport mode in parallel
+    const [imageResult, badgeImageResult, transportModeResult] = await Promise.all([
         generateScenarioImage({ prompt: scenarioDetails.imagePrompt }),
-        generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt })
+        generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt }),
+        generateTransportMode()
     ]);
 
-    const isAnyFallback = scenarioDetails.isFallback || imageResult.isFallback || badgeImageResult.isFallback;
+    const isAnyFallback = scenarioDetails.isFallback || imageResult.isFallback || badgeImageResult.isFallback || transportModeResult.isFallback;
 
     const choices: Choice[] = [
       {
@@ -55,7 +57,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         },
       },
       {
-        text: `Play it safe`,
+        text: transportModeResult.text,
         description: `This seems a bit too strange. You decide to observe from a safe distance and move on.`,
         consequences: {
           ...createConsequences(),
