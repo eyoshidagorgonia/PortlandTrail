@@ -69,18 +69,24 @@ const generateCharacterBioFlow = ai.defineFlow(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-          },
+            'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
+        },
         body: JSON.stringify({
-            apiKey: process.env.API_CACHE_SERVER_KEY || '',
             model: 'ollama',
             prompt: prompt,
         }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+      }
+
       const result: CacheResponse = await response.json();
 
-      if (!response.ok || result.source === 'error') {
-        const errorMessage = result.error || `API Error: ${response.status} - ${response.statusText}`;
+      if (result.source === 'error') {
+        const errorMessage = result.error || 'Unknown error from cache server';
         throw new Error(errorMessage);
       }
       
