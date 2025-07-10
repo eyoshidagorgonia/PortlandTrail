@@ -47,7 +47,6 @@ const generateAvatarFlow = ai.defineFlow(
 
       const response = await fetch(url, {
         method: 'POST',
-        cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
         },
