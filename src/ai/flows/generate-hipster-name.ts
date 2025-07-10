@@ -55,13 +55,12 @@ const generateHipsterNameFlow = ai.defineFlow(
         // Instruct fetch to not cache this request, ensuring we get a new name every time.
         cache: 'no-store',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
           'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
+          'x-cache-model': 'ollama',
+          'x-cache-ignore': 'true',
         },
-        body: JSON.stringify({
-            model: 'ollama',
-            prompt: promptTemplate,
-        }),
+        body: promptTemplate,
       });
       
       const result: CacheResponse = await response.json();

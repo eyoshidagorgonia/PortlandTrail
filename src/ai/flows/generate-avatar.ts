@@ -48,13 +48,11 @@ const generateAvatarFlow = ai.defineFlow(
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
           'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
+          'x-cache-model': 'google-ai',
         },
-        body: JSON.stringify({
-          model: 'google-ai',
-          prompt: prompt,
-        }),
+        body: prompt,
       });
 
       const result: CacheResponse = await response.json();

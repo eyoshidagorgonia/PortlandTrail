@@ -68,13 +68,11 @@ const generateCharacterBioFlow = ai.defineFlow(
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
-        },
-        body: JSON.stringify({
-            model: 'ollama',
-            prompt: prompt,
-        }),
+            'Content-Type': 'text/plain',
+            'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
+            'x-cache-model': 'ollama',
+          },
+        body: prompt,
       });
 
       const result: CacheResponse = await response.json();

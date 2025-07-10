@@ -91,13 +91,12 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         // Instruct fetch to not cache this request, ensuring we get a new scenario every time.
         cache: 'no-store',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
           'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
+          'x-cache-model': 'google-ai',
+          'x-cache-ignore': 'true',
         },
-        body: JSON.stringify({
-            model: 'google-ai',
-            prompt: prompt,
-        }),
+        body: prompt,
       });
 
       const result: CacheResponse = await response.json();
