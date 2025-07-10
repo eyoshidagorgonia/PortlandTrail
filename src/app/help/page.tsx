@@ -3,10 +3,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils } from 'lucide-react';
 import Link from 'next/link';
+import { BUILD_NUMBER } from '@/lib/constants';
 
 export default function HelpPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center">
+    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
       <Card className="max-w-4xl w-full shadow-xl border">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-headline">How to Play The Portland Trail</CardTitle>
@@ -83,6 +84,9 @@ export default function HelpPage() {
           </div>
         </CardContent>
       </Card>
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono">
+        Build: {BUILD_NUMBER.toFixed(3)}
+      </div>
     </main>
   );
 }

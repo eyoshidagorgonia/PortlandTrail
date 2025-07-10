@@ -128,12 +128,12 @@ export default function PortlandTrailPage() {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
-        generateCharacterBio(newVibe).then(result => {
+        generateCharacterBio({name: playerState.name, job: playerState.job, vibe: newVibe}).then(result => {
            setPlayerState(prevState => ({...prevState, bio: result.bio, vibe: newVibe }));
         });
       }
     }
-  }, [currentVibe, gameState, playerState.vibe, generateCharacterBio]);
+  }, [currentVibe, gameState, playerState.vibe, generateCharacterBio, playerState.name, playerState.job]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -418,7 +418,7 @@ export default function PortlandTrailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8">
+    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8 relative">
       <div className="container mx-auto border-2 shadow-xl p-4 md:p-6 bg-card/80 rounded-lg backdrop-blur-sm">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
@@ -445,6 +445,9 @@ export default function PortlandTrailPage() {
             </Card>
           </div>
         </div>
+      </div>
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono">
+        Build: {BUILD_NUMBER.toFixed(3)}
       </div>
     </main>
   );

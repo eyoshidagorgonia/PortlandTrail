@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlayerState } from '@/lib/types';
 import { Award, Bike, Frown, PartyPopper, RefreshCw } from 'lucide-react';
+import { BUILD_NUMBER } from '@/lib/constants';
 
 interface GameOverScreenProps {
   status: 'gameover' | 'won';
@@ -15,7 +16,7 @@ export default function GameOverScreen({ status, onRestart, finalState }: GameOv
   const isWin = status === 'won';
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center">
+    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
       <Card className="w-full max-w-md text-center shadow-xl border">
         <CardHeader>
           {isWin ? (
@@ -48,6 +49,9 @@ export default function GameOverScreen({ status, onRestart, finalState }: GameOv
           </Button>
         </CardContent>
       </Card>
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono">
+        Build: {BUILD_NUMBER.toFixed(3)}
+      </div>
     </main>
   );
 }
