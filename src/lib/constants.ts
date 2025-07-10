@@ -1,6 +1,6 @@
 import type { PlayerState } from './types';
 
-export const BUILD_NUMBER = 1.017;
+export const BUILD_NUMBER = 1.018;
 
 export const HIPSTER_JOBS = [
   "Artisanal Pickle Maker",
@@ -54,3 +54,5 @@ export const getIronicHealthStatus = (health: number): { text: string; variant: 
     if (health > 20) return { text: 'Aesthetically Fading', variant: 'destructive' };
     return { text: 'Basically Mainstream', variant: 'destructive' };
   };
+
+    

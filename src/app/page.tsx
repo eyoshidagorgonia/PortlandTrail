@@ -80,8 +80,9 @@ export default function PortlandTrailPage() {
   }, [toast]);
 
   const handleGenerateAvatar = useCallback(async () => {
+    if (!name || !job) return;
     setIsAvatarLoading(true);
-    const result = await generateAvatar({ name: name || 'A nameless wanderer', job });
+    const result = await generateAvatar({ name, job });
     setAvatarUrl(result.avatarDataUri);
     if (result.isFallback) {
         toast({
@@ -94,6 +95,7 @@ export default function PortlandTrailPage() {
   }, [name, job, toast]);
 
   const handleGenerateBio = useCallback(async (vibe: string) => {
+     if (!name || !job) return;
     setIsBioLoading(true);
     const result = await generateCharacterBio({ name, job, vibe });
     setBio(result.bio);
@@ -128,12 +130,13 @@ export default function PortlandTrailPage() {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
+        // Pass the full object to the generation function
         generateCharacterBio({name: playerState.name, job: playerState.job, vibe: newVibe}).then(result => {
            setPlayerState(prevState => ({...prevState, bio: result.bio, vibe: newVibe }));
         });
       }
     }
-  }, [currentVibe, gameState, playerState.vibe, generateCharacterBio, playerState.name, playerState.job]);
+  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -357,7 +360,7 @@ export default function PortlandTrailPage() {
                   variant="secondary" 
                   className="absolute bottom-0 -right-2 rounded-full h-10 w-10 border-2 border-background" 
                   onClick={handleGenerateAvatar} 
-                  disabled={isAvatarLoading}
+                  disabled={isAvatarLoading || !name || !job}
                   aria-label="Randomize Avatar"
                   >
                   {isAvatarLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
@@ -452,3 +455,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
