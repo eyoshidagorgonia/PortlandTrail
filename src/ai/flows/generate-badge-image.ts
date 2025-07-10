@@ -48,9 +48,9 @@ const generateBadgeImageFlow = ai.defineFlow(
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
             },
             body: JSON.stringify({
-                apiKey: process.env.API_CACHE_SERVER_KEY,
                 model: 'google-ai',
                 prompt: fullPrompt,
             }),
