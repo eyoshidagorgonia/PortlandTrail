@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -19,6 +20,16 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { getIronicHealthStatus } from '@/lib/constants';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -147,25 +158,49 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
             <TooltipProvider>
               <div className="flex flex-wrap gap-2">
                 {resources.badges.map((badge, index) => (
-                  <Tooltip key={index}>
-                    <TooltipTrigger>
-                       <div className={cn(
-                        "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 overflow-hidden bg-muted transition-all duration-300",
-                        badge.isUber && 'uber-badge-animation'
-                        )}>
-                        <Image
-                            src={badge.imageDataUri}
-                            alt={badge.description}
-                            width={48}
-                            height={48}
-                            className="rounded-full object-cover"
-                        />
-                       </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{badge.description}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <AlertDialog key={index}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <AlertDialogTrigger>
+                          <div className={cn(
+                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 overflow-hidden bg-muted transition-all duration-300 cursor-pointer",
+                            badge.isUber && 'uber-badge-animation'
+                          )}>
+                            <Image
+                              src={badge.imageDataUri}
+                              alt={badge.description}
+                              width={48}
+                              height={48}
+                              className="rounded-full object-cover"
+                            />
+                          </div>
+                        </AlertDialogTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{badge.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="font-headline text-2xl flex items-center gap-4">
+                            <Image
+                                src={badge.imageDataUri}
+                                alt={badge.description}
+                                width={48}
+                                height={48}
+                                className={cn("rounded-full object-cover border-2", badge.isUber && 'border-accent')}
+                            />
+                           Badge Earned!
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-left pt-4 text-base">
+                           {badge.description}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogAction>Nice</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 ))}
               </div>
             </TooltipProvider>
