@@ -1,6 +1,6 @@
 import type { PlayerState } from './types';
 
-export const BUILD_NUMBER = 1.012;
+export const BUILD_NUMBER = 1.013;
 
 export const HIPSTER_JOBS = [
   "Artisanal Pickle Maker",

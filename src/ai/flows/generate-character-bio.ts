@@ -72,7 +72,7 @@ const generateCharacterBioFlow = ai.defineFlow(
         },
         body: JSON.stringify({
             apiKey: process.env.API_CACHE_SERVER_KEY,
-            model: 'google-ai',
+            model: 'ollama',
             prompt: prompt,
         }),
       });
