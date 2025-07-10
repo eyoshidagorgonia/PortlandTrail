@@ -55,12 +55,16 @@ const generateTransportModeFlow = ai.defineFlow(
         // Instruct fetch to not cache this request, ensuring we get a new response every time.
         cache: 'no-store',
         headers: {
-            'Content-Type': 'text/plain',
-            'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
-            'x-cache-model': 'ollama',
-            'x-cache-ignore': 'true',
+            'Content-Type': 'application/json',
         },
-        body: promptTemplate,
+        body: JSON.stringify({
+            apiKey: process.env.API_CACHE_SERVER_KEY || '',
+            model: 'ollama',
+            prompt: promptTemplate,
+            options: {
+                ignoreCache: true,
+            }
+        }),
       });
 
       const result: CacheResponse = await response.json();

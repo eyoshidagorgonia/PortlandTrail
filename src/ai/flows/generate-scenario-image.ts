@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 // Define the shape of the expected response from the API cache server
 type CacheResponse = {
@@ -47,11 +47,13 @@ const generateScenarioImageFlow = ai.defineFlow(
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain',
-          'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
-          'x-cache-model': 'google-ai',
+          'Content-Type': 'application/json',
         },
-        body: fullPrompt,
+        body: JSON.stringify({
+            apiKey: process.env.API_CACHE_SERVER_KEY || '',
+            model: 'google-ai',
+            prompt: fullPrompt,
+        }),
       });
 
       const result: CacheResponse = await response.json();
