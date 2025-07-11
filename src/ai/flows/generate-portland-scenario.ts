@@ -11,12 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 // Define the shape of the expected response from the API cache server
-type CacheResponse = {
-    source: 'cache' | 'model' | 'error';
-    data?: { response: string };
+interface ProxyResponse {
+    content: string;
+    isCached: boolean;
     error?: string;
-    details?: any;
-}
+  }
 
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
@@ -85,7 +84,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
 
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
-      const url = `${baseUrl}/api/cache`;
+      const url = `${baseUrl}/api/proxy`;
 
       const response = await fetch(url, {
         method: 'POST',
@@ -93,35 +92,22 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
         body: JSON.stringify({
-          apiKey: process.env.API_CACHE_SERVER_KEY || '',
           model: 'google-ai',
           prompt: prompt,
-          options: {
-            ignoreCache: true,
-          }
         }),
       });
 
-      const responseText = await response.text();
+      const result: ProxyResponse = await response.json();
+
       if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, responseText);
-        throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
+        throw new Error(result.error || `API Error: ${response.status}`);
       }
 
-      const result: CacheResponse = JSON.parse(responseText);
-
-      if (result.source === 'error') {
-        const errorMessage = result.error || 'Unknown error from cache server';
-        throw new Error(errorMessage);
-      }
-      
-      let responseData = result.data?.response;
-      if (!responseData) {
-        throw new Error("No response data from cache server.");
-      }
-
+      let responseData = result.content;
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -134,7 +120,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
 
     } catch (error)
     {
-        console.error("Error calling cache server for scenario generation:", error);
+        console.error("Error calling proxy server for scenario generation:", error);
         // Provide a fallback scenario in case of an error
         return {
             scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",

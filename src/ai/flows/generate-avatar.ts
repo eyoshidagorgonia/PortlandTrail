@@ -11,12 +11,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 // Define the shape of the expected response from the API cache server
-type CacheResponse = {
-    source: 'cache' | 'model' | 'error';
-    data?: { response: string };
+interface ProxyResponse {
+    content: string;
+    isCached: boolean;
     error?: string;
-    details?: any;
-}
+  }
 
 const GenerateAvatarInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
@@ -44,41 +43,31 @@ const generateAvatarFlow = ai.defineFlow(
     const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
-      const url = `${baseUrl}/api/cache`;
+      const url = `${baseUrl}/api/proxy`;
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
         body: JSON.stringify({
-          apiKey: process.env.API_CACHE_SERVER_KEY || '',
           model: 'google-ai',
           prompt: prompt,
         }),
       });
 
-      const responseText = await response.text();
-      if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, responseText);
-        throw new Error(`API Error: ${response.status} - ${response.statusText}`);
-      }
+      const result: ProxyResponse = await response.json();
 
-      const result: CacheResponse = JSON.parse(responseText);
-      
-      if (result.source === 'error') {
-        const errorMessage = result.error || 'Unknown error from cache server';
-        throw new Error(errorMessage);
+      if (!response.ok) {
+        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
+        throw new Error(result.error || `API Error: ${response.status}`);
       }
       
-      if (result.data?.response) {
-        return { avatarDataUri: result.data.response };
-      }
-      
-      throw new Error("Invalid response format from cache server for avatar generation.");
+      return { avatarDataUri: result.content };
 
     } catch (error) {
-        console.error("Error calling cache server for avatar generation:", error);
+        console.error("Error calling proxy server for avatar generation:", error);
         return { 
             avatarDataUri: 'https://placehold.co/128x128.png',
             isFallback: true,
