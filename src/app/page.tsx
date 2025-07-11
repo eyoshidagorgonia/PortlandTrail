@@ -68,7 +68,13 @@ export default function PortlandTrailPage() {
   const handleGenerateName = useCallback(async () => {
     setIsNameLoading(true);
     const result = await generateHipsterName();
-    setName(result.name);
+    if (result.name) {
+        setName(result.name);
+    } else if (result.fallbackNames?.length) {
+        // This will be set in useEffect to avoid hydration issues
+        const randomName = result.fallbackNames[Math.floor(Math.random() * result.fallbackNames.length)];
+        setName(randomName);
+    }
     if (result.isFallback) {
         toast({
             variant: 'default',
@@ -112,11 +118,16 @@ export default function PortlandTrailPage() {
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
       handleGenerateName();
-      const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
-      setJob(randomJob);
       setHasInitialized(true);
     }
   }, [gameState, hasInitialized, handleGenerateName]);
+  
+  useEffect(() => {
+    if (gameState === 'intro' && !job) {
+       const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
+       setJob(randomJob);
+    }
+  }, [gameState, job]);
   
   useEffect(() => {
     if (gameState === 'intro' && name && job) {
@@ -455,5 +466,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    

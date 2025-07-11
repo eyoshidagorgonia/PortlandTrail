@@ -23,25 +23,28 @@ describe('generateHipsterName', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('should return a fallback name when the fetch call fails', async () => {
+  it('should return fallback names when the fetch call fails', async () => {
     (fetch as any).mockRejectedValue(new Error('Network error'));
 
     const result = await generateHipsterName();
 
-    expect(result.name).toBeTypeOf('string');
+    expect(result.fallbackNames).toBeInstanceOf(Array);
+    expect(result.fallbackNames?.length).toBeGreaterThan(0);
+    expect(result.name).toBeUndefined();
     expect(result.isFallback).toBe(true);
   });
 
-  it('should return a fallback name when the API response is not ok', async () => {
+  it('should return fallback names when the API response is not ok', async () => {
     (fetch as any).mockResolvedValue(createFetchResponse({}, false));
 
     const result = await generateHipsterName();
 
-    expect(result.name).toBeTypeOf('string');
+    expect(result.fallbackNames).toBeInstanceOf(Array);
+    expect(result.fallbackNames?.length).toBeGreaterThan(0);
     expect(result.isFallback).toBe(true);
   });
 
-  it('should return a fallback name when the response JSON is malformed', async () => {
+  it('should return fallback names when the response JSON is malformed', async () => {
     const mockResponse = {
         content: 'this is not json',
         isCached: false,
@@ -50,7 +53,8 @@ describe('generateHipsterName', () => {
 
     const result = await generateHipsterName();
     
-    expect(result.name).toBeTypeOf('string');
+    expect(result.fallbackNames).toBeInstanceOf(Array);
+    expect(result.fallbackNames?.length).toBeGreaterThan(0);
     expect(result.isFallback).toBe(true);
   });
 });
