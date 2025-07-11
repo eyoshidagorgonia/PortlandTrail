@@ -126,16 +126,47 @@ const generatePortlandScenarioFlow = ai.defineFlow(
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error(`[generatePortlandScenarioFlow] Failed to generate scenario for location ${location}. Error: ${errorMessage}. Returning fallback.`);
-        return {
-            scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
-            challenge: "Question your reality",
-            reward: "A fleeting sense of existential dread, which oddly increases your irony.",
-            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-            imagePrompt: "pigeons wearing fedoras",
-            badgeDescription: "Fedorapocalypse Witness",
-            badgeImagePrompt: "pigeon wearing fedora",
-            isFallback: true,
+        console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting direct Ollama fallback. Error: ${errorMessage}.`);
+        try {
+            console.log('[generatePortlandScenarioFlow] Attempting direct call to local Ollama server.');
+            const ollamaUrl = 'http://localhost:11434/api/generate';
+            const ollamaResponse = await fetch(ollamaUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'llama3',
+                    prompt: prompt,
+                    stream: false,
+                    format: 'json'
+                }),
+            });
+
+            if (!ollamaResponse.ok) {
+                const errorBody = await ollamaResponse.text();
+                throw new Error(`Ollama API request failed with status ${ollamaResponse.status}: ${errorBody}`);
+            }
+
+            const ollamaResult = await ollamaResponse.json();
+            console.log('[generatePortlandScenarioFlow] Ollama fallback successful.');
+            const parsedResult = JSON.parse(ollamaResult.response);
+
+            return {
+                ...GeneratePortlandScenarioOutputSchema.parse(parsedResult),
+                isFallback: true
+            };
+        } catch(fallbackError) {
+            const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+            console.error(`[generatePortlandScenarioFlow] Ollama fallback failed for location ${location}. Error: ${fallbackErrorMessage}. Returning hard-coded fallback.`);
+            return {
+                scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
+                challenge: "Question your reality",
+                reward: "A fleeting sense of existential dread, which oddly increases your irony.",
+                diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
+                imagePrompt: "pigeons wearing fedoras",
+                badgeDescription: "Fedorapocalypse Witness",
+                badgeImagePrompt: "pigeon wearing fedora",
+                isFallback: true,
+            }
         }
     }
   }

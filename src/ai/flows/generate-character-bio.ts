@@ -103,10 +103,40 @@ const generateCharacterBioFlow = ai.defineFlow(
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error(`[generateCharacterBioFlow] Failed to generate bio for ${name}. Error: ${errorMessage}. Returning fallback.`);
-        return {
-            bio: "They believe their artisanal pickles can change the world, one jar at a time.",
-            isFallback: true,
+        console.warn(`[generateCharacterBioFlow] Primary call failed, attempting direct Ollama fallback. Error: ${errorMessage}.`);
+        try {
+            console.log('[generateCharacterBioFlow] Attempting direct call to local Ollama server.');
+            const ollamaUrl = 'http://localhost:11434/api/generate';
+            const ollamaResponse = await fetch(ollamaUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'llama3',
+                    prompt: prompt,
+                    stream: false,
+                    format: 'json'
+                }),
+            });
+
+            if (!ollamaResponse.ok) {
+                const errorBody = await ollamaResponse.text();
+                throw new Error(`Ollama API request failed with status ${ollamaResponse.status}: ${errorBody}`);
+            }
+
+            const ollamaResult = await ollamaResponse.json();
+            console.log('[generateCharacterBioFlow] Ollama fallback successful.');
+            const parsedResult = JSON.parse(ollamaResult.response);
+            return {
+                ...GenerateCharacterBioOutputSchema.parse(parsedResult),
+                isFallback: true
+            };
+        } catch(fallbackError) {
+            const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+            console.error(`[generateCharacterBioFlow] Ollama fallback failed for ${name}. Error: ${fallbackErrorMessage}. Returning hard-coded fallback.`);
+            return {
+                bio: "They believe their artisanal pickles can change the world, one jar at a time.",
+                isFallback: true,
+            }
         }
     }
   }

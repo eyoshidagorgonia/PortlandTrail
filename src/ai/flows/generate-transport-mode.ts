@@ -89,12 +89,42 @@ const generateTransportModeFlow = ai.defineFlow(
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error(`[generateTransportModeFlow] Failed to generate transport mode. Error: ${errorMessage}. Returning fallback.`);
-        const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
-        const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
-        return {
-            text: fallbackText,
-            isFallback: true,
+        console.warn(`[generateTransportModeFlow] Primary call failed, attempting direct Ollama fallback. Error: ${errorMessage}.`);
+        try {
+            console.log('[generateTransportModeFlow] Attempting direct call to local Ollama server.');
+            const ollamaUrl = 'http://localhost:11434/api/generate';
+            const ollamaResponse = await fetch(ollamaUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'llama3',
+                    prompt: promptTemplate,
+                    stream: false,
+                    format: 'json'
+                }),
+            });
+
+            if (!ollamaResponse.ok) {
+                const errorBody = await ollamaResponse.text();
+                throw new Error(`Ollama API request failed with status ${ollamaResponse.status}: ${errorBody}`);
+            }
+            
+            const ollamaResult = await ollamaResponse.json();
+            console.log('[generateTransportModeFlow] Ollama fallback successful.');
+            const parsedResult = JSON.parse(ollamaResult.response);
+            return {
+                ...GenerateTransportModeOutputSchema.parse(parsedResult),
+                isFallback: true
+            };
+        } catch(fallbackError) {
+            const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+            console.error(`[generateTransportModeFlow] Ollama fallback failed. Error: ${fallbackErrorMessage}. Returning hard-coded fallback.`);
+            const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
+            const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
+            return {
+                text: fallbackText,
+                isFallback: true,
+            }
         }
     }
   }
