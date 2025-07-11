@@ -46,9 +46,11 @@ const generateHipsterNameFlow = ai.defineFlow(
     outputSchema: GenerateHipsterNameOutputSchema,
   },
   async () => {
+    console.log('[generateHipsterNameFlow] Started.');
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
+      console.log(`[generateHipsterNameFlow] Sending request to proxy server at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -71,13 +73,17 @@ const generateHipsterNameFlow = ai.defineFlow(
       }
       
       const result: ProxyResponse = await response.json();
+      console.log(`[generateHipsterNameFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       let responseData = result.content;
+      
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
+        console.log('[generateHipsterNameFlow] Extracted JSON from markdown response.');
         responseData = jsonMatch[0];
       }
       
+      console.log('[generateHipsterNameFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
       
       return GenerateHipsterNameOutputSchema.parse(parsedResult);

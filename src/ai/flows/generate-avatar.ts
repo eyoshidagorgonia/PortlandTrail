@@ -40,11 +40,14 @@ const generateAvatarFlow = ai.defineFlow(
     outputSchema: GenerateAvatarOutputSchema,
   },
   async ({name, job}) => {
+    console.log(`[generateAvatarFlow] Started for character: ${name}, Job: ${job}`);
     const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
+    console.log(`[generateAvatarFlow] Generated prompt: "${prompt}"`);
     
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
+      console.log(`[generateAvatarFlow] Sending request to proxy server at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -65,11 +68,13 @@ const generateAvatarFlow = ai.defineFlow(
       }
       
       const result: ProxyResponse = await response.json();
+      console.log(`[generateAvatarFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       return { avatarDataUri: result.content };
 
     } catch (error) {
         console.warn(`[generateAvatarFlow] Proxy call failed, attempting direct AI call. Error: ${error instanceof Error ? error.message : String(error)}`);
         try {
+            console.log('[generateAvatarFlow] Attempting direct call to image generation model.');
             const {media} = await ai.generate({
                 model: 'googleai/gemini-2.0-flash-preview-image-generation',
                 prompt: prompt,
@@ -77,12 +82,14 @@ const generateAvatarFlow = ai.defineFlow(
                     responseModalities: ['TEXT', 'IMAGE'],
                 },
             });
+            console.log('[generateAvatarFlow] Direct AI call successful.');
             return {
                 avatarDataUri: media.url,
                 isFallback: true,
             };
         } catch(fallbackError) {
             console.error(`[generateAvatarFlow] Direct AI call for avatar failed after proxy failure. Error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+            console.log('[generateAvatarFlow] Returning placeholder image.');
             return { 
                 avatarDataUri: 'https://placehold.co/128x128.png',
                 isFallback: true,

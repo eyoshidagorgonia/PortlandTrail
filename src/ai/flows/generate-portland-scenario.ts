@@ -77,14 +77,17 @@ const generatePortlandScenarioFlow = ai.defineFlow(
     outputSchema: GeneratePortlandScenarioOutputSchema,
   },
   async ({ playerStatus, location }) => {
+    console.log(`[generatePortlandScenarioFlow] Started for location: ${location}`);
     const prompt = promptTemplate
       .replace('{playerStatus}', playerStatus)
       .replace('{location}', location)
       .replace('{location}', location); // second replace for the second template variable
+    console.log(`[generatePortlandScenarioFlow] Generated prompt for player status: ${playerStatus}`);
 
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
+      console.log(`[generatePortlandScenarioFlow] Sending request to proxy server at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -107,13 +110,17 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       }
       
       const result: ProxyResponse = await response.json();
+      console.log(`[generatePortlandScenarioFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       let responseData = result.content;
+      
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
+        console.log('[generatePortlandScenarioFlow] Extracted JSON from markdown response.');
         responseData = jsonMatch[0];
       }
       
+      console.log('[generatePortlandScenarioFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
       return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
 

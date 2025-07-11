@@ -20,22 +20,33 @@ function createConsequences(): Omit<Choice['consequences'], 'badge'> {
 }
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
+  console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
   try {
     const scenarioInput = {
       playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Bio: ${playerState.bio}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
       location: playerState.location,
     };
     
+    console.log('[getScenarioAction] Calling generatePortlandScenario...');
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
+    console.log('[getScenarioAction] Scenario details received. Is fallback:', !!scenarioDetails.isFallback);
     
     // Generate scenario image, badge image and transport mode in parallel
+    console.log('[getScenarioAction] Generating images and transport mode in parallel...');
     const [imageResult, badgeImageResult, transportModeResult] = await Promise.all([
         generateScenarioImage({ prompt: scenarioDetails.imagePrompt }),
         generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt }),
         generateTransportMode()
     ]);
+    console.log('[getScenarioAction] Parallel generation complete.');
+    console.log(`  - Image fallback: ${!!imageResult.isFallback}`);
+    console.log(`  - Badge fallback: ${!!badgeImageResult.isFallback}`);
+    console.log(`  - Transport fallback: ${!!transportModeResult.isFallback}`);
 
     const isAnyFallback = scenarioDetails.isFallback || imageResult.isFallback || badgeImageResult.isFallback || transportModeResult.isFallback;
+    if (isAnyFallback) {
+        console.warn('[getScenarioAction] One or more AI generations used a fallback.');
+    }
 
     const choices: Choice[] = [
       {
@@ -78,9 +89,11 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       }
     ];
 
+    console.log('[getScenarioAction] Successfully constructed scenario object.');
     return { ...scenarioDetails, choices, image: imageResult.imageDataUri, isFallback: isAnyFallback };
   } catch (error) {
-    console.error('Error in getScenarioAction:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[getScenarioAction] Critical failure: ${errorMessage}`, { playerState });
     return {
       error: 'Failed to generate a new scenario. The path has grown cold and desolate.',
     };

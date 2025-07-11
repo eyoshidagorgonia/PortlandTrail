@@ -39,10 +39,13 @@ const generateBadgeImageFlow = ai.defineFlow(
     outputSchema: GenerateBadgeImageOutputSchema,
   },
   async ({prompt}) => {
+    console.log(`[generateBadgeImageFlow] Started for prompt: "${prompt}"`);
     const fullPrompt = `A small, circular, embroidered patch-style merit badge for a video game. The badge depicts: ${prompt}. The style should be slightly quirky and vintage, with a 16-bit pixel art aesthetic.`;
+    console.log(`[generateBadgeImageFlow] Generated full prompt: "${fullPrompt}"`);
     try {
         const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
         const url = `${baseUrl}/api/proxy`;
+        console.log(`[generateBadgeImageFlow] Sending request to proxy server at ${url}`);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -63,11 +66,13 @@ const generateBadgeImageFlow = ai.defineFlow(
           }
           
           const result: ProxyResponse = await response.json();
+          console.log(`[generateBadgeImageFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
           return { imageDataUri: result.content };
 
     } catch (error) {
         console.warn(`[generateBadgeImageFlow] Proxy call failed, attempting direct AI call. Error: ${error instanceof Error ? error.message : String(error)}`);
         try {
+            console.log('[generateBadgeImageFlow] Attempting direct call to image generation model.');
             const {media} = await ai.generate({
                 model: 'googleai/gemini-2.0-flash-preview-image-generation',
                 prompt: fullPrompt,
@@ -75,12 +80,14 @@ const generateBadgeImageFlow = ai.defineFlow(
                     responseModalities: ['TEXT', 'IMAGE'],
                 },
             });
+            console.log('[generateBadgeImageFlow] Direct AI call successful.');
             return {
                 imageDataUri: media.url,
                 isFallback: true,
             };
         } catch(fallbackError) {
             console.error(`[generateBadgeImageFlow] Direct AI call for badge image failed after proxy failure. Error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+            console.log('[generateBadgeImageFlow] Returning placeholder image.');
             return { 
                 imageDataUri: 'https://placehold.co/64x64.png',
                 isFallback: true,

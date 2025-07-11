@@ -56,14 +56,17 @@ const generateCharacterBioFlow = ai.defineFlow(
     outputSchema: GenerateCharacterBioOutputSchema,
   },
   async ({ name, job, vibe }) => {
+    console.log(`[generateCharacterBioFlow] Started for character: ${name}, Job: ${job}, Vibe: ${vibe}`);
     const prompt = promptTemplate
       .replace('{name}', name)
       .replace('{job}', job)
       .replace('{vibe}', vibe);
+    console.log(`[generateCharacterBioFlow] Generated prompt.`);
 
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
+      console.log(`[generateCharacterBioFlow] Sending request to proxy server at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -84,13 +87,17 @@ const generateCharacterBioFlow = ai.defineFlow(
       }
       
       const result: ProxyResponse = await response.json();
+      console.log(`[generateCharacterBioFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       let responseData = result.content;
+      
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
+        console.log('[generateCharacterBioFlow] Extracted JSON from markdown response.');
         responseData = jsonMatch[0];
       }
       
+      console.log('[generateCharacterBioFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
       return GenerateCharacterBioOutputSchema.parse(parsedResult);
 
