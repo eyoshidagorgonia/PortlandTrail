@@ -106,7 +106,7 @@ const generateCharacterBioFlow = ai.defineFlow(
         console.warn(`[generateCharacterBioFlow] Primary call failed, attempting direct Ollama fallback. Error: ${errorMessage}.`);
         try {
             console.log('[generateCharacterBioFlow] Attempting direct call to local Ollama server.');
-            const ollamaUrl = 'http://localhost:11434/api/generate';
+            const ollamaUrl = 'http://host.docker.internal:11434/api/generate';
             const ollamaResponse = await fetch(ollamaUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

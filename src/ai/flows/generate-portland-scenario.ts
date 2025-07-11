@@ -129,7 +129,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting direct Ollama fallback. Error: ${errorMessage}.`);
         try {
             console.log('[generatePortlandScenarioFlow] Attempting direct call to local Ollama server.');
-            const ollamaUrl = 'http://localhost:11434/api/generate';
+            const ollamaUrl = 'http://host.docker.internal:11434/api/generate';
             const ollamaResponse = await fetch(ollamaUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
