@@ -42,15 +42,15 @@ const generateBadgeImageFlow = ai.defineFlow(
   async ({prompt}) => {
     try {
         const fullPrompt = `A small, circular, embroidered patch-style merit badge for a video game. The badge depicts: ${prompt}. The style should be slightly quirky and vintage, with a 16-bit pixel art aesthetic.`;
-        const url = 'http://host.docker.internal:9002/api/cache';
+        const url = 'http://host.docker.internal:9001/api/cache';
 
         const response = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
             },
             body: JSON.stringify({
+              apiKey: process.env.API_CACHE_SERVER_KEY || '',
               model: 'google-ai',
               prompt: fullPrompt,
             }),

@@ -84,7 +84,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       .replace('{location}', location); // second replace for the second template variable
 
     try {
-      const url = 'http://host.docker.internal:9002/api/cache';
+      const url = 'http://host.docker.internal:9001/api/cache';
 
       const response = await fetch(url, {
         method: 'POST',
@@ -92,9 +92,9 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
         },
         body: JSON.stringify({
+          apiKey: process.env.API_CACHE_SERVER_KEY || '',
           model: 'google-ai',
           prompt: prompt,
           options: {

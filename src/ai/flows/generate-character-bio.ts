@@ -63,15 +63,15 @@ const generateCharacterBioFlow = ai.defineFlow(
       .replace('{vibe}', vibe);
 
     try {
-      const url = 'http://host.docker.internal:9002/api/cache';
+      const url = 'http://host.docker.internal:9001/api/cache';
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
         },
         body: JSON.stringify({
+            apiKey: process.env.API_CACHE_SERVER_KEY || '',
             model: 'ollama',
             prompt: prompt,
         }),

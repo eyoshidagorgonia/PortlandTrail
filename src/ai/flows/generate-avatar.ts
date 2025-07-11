@@ -43,15 +43,15 @@ const generateAvatarFlow = ai.defineFlow(
   async ({name, job}) => {
     const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
     try {
-      const url = 'http://host.docker.internal:9002/api/cache';
+      const url = 'http://host.docker.internal:9001/api/cache';
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': process.env.API_CACHE_SERVER_KEY || '',
         },
         body: JSON.stringify({
+          apiKey: process.env.API_CACHE_SERVER_KEY || '',
           model: 'google-ai',
           prompt: prompt,
         }),
