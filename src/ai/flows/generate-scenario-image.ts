@@ -46,7 +46,11 @@ const generateScenarioImageFlow = ai.defineFlow(
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
-      console.log(`[generateScenarioImageFlow] Sending request to proxy server at ${url}`);
+      const requestBody = {
+          model: 'google-ai',
+          prompt: fullPrompt,
+      };
+      console.log(`[generateScenarioImageFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
 
       const response = await fetch(url, {
         method: 'POST',
@@ -54,10 +58,7 @@ const generateScenarioImageFlow = ai.defineFlow(
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
-        body: JSON.stringify({
-            model: 'google-ai',
-            prompt: fullPrompt,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -71,7 +72,7 @@ const generateScenarioImageFlow = ai.defineFlow(
       return { imageDataUri: result.content };
       
     } catch (error) {
-        console.warn(`[generateScenarioImageFlow] Proxy call failed, attempting direct AI call. Error: ${error instanceof Error ? error.message : String(error)}`);
+        console.warn(`[generateScenarioImageFlow] Proxy call failed, attempting direct AI call.`, { error });
         try {
             console.log('[generateScenarioImageFlow] Attempting direct call to image generation model.');
             const {media} = await ai.generate({
@@ -87,7 +88,7 @@ const generateScenarioImageFlow = ai.defineFlow(
                 isFallback: true,
             };
         } catch(fallbackError) {
-            console.error(`[generateScenarioImageFlow] Direct AI call for scenario image failed after proxy failure. Error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+            console.error(`[generateScenarioImageFlow] Direct AI call for scenario image failed after proxy failure.`, { error: fallbackError });
             console.log('[generateScenarioImageFlow] Returning placeholder image.');
             return { 
                 imageDataUri: 'https://placehold.co/500x300.png',

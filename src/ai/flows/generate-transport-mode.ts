@@ -50,7 +50,11 @@ const generateTransportModeFlow = ai.defineFlow(
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
-      console.log(`[generateTransportModeFlow] Sending request to proxy server at ${url}`);
+      const requestBody = {
+          model: 'google-ai',
+          prompt: promptTemplate,
+      };
+      console.log(`[generateTransportModeFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
 
       const response = await fetch(url, {
         method: 'POST',
@@ -60,10 +64,7 @@ const generateTransportModeFlow = ai.defineFlow(
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
-        body: JSON.stringify({
-            model: 'google-ai',
-            prompt: promptTemplate,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -88,24 +89,27 @@ const generateTransportModeFlow = ai.defineFlow(
       return GenerateTransportModeOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`[generateTransportModeFlow] Primary call failed, attempting direct Ollama fallback. Error: ${errorMessage}.`);
+        console.warn(`[generateTransportModeFlow] Primary call failed, attempting direct Ollama fallback.`, { error });
         try {
             console.log('[generateTransportModeFlow] Attempting direct call to local Ollama server.');
             const ollamaUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:11434/api/generate' : 'http://localhost:11434/api/generate';
+            const requestBody = {
+                model: 'llama3',
+                prompt: promptTemplate,
+                stream: false,
+                format: 'json'
+            };
+            console.log(`[generateTransportModeFlow] Sending request to Ollama server at ${ollamaUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+            
             const ollamaResponse = await fetch(ollamaUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'llama3',
-                    prompt: promptTemplate,
-                    stream: false,
-                    format: 'json'
-                }),
+                body: JSON.stringify(requestBody),
             });
 
             if (!ollamaResponse.ok) {
                 const errorBody = await ollamaResponse.text();
+                console.error(`[generateTransportModeFlow] Ollama API Error: ${ollamaResponse.status} ${ollamaResponse.statusText}`, { url: ollamaUrl, errorBody });
                 throw new Error(`Ollama API request failed with status ${ollamaResponse.status}: ${errorBody}`);
             }
             
@@ -117,8 +121,7 @@ const generateTransportModeFlow = ai.defineFlow(
                 isFallback: true
             };
         } catch(fallbackError) {
-            const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
-            console.error(`[generateTransportModeFlow] Ollama fallback failed. Error: ${fallbackErrorMessage}. Returning hard-coded fallback.`);
+            console.error(`[generateTransportModeFlow] Ollama fallback failed. Returning hard-coded fallback.`, { error: fallbackError });
             const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
             const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
             return {

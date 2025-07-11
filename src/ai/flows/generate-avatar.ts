@@ -47,7 +47,11 @@ const generateAvatarFlow = ai.defineFlow(
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
-      console.log(`[generateAvatarFlow] Sending request to proxy server at ${url}`);
+      const requestBody = {
+        model: 'google-ai',
+        prompt: prompt,
+      };
+      console.log(`[generateAvatarFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
 
       const response = await fetch(url, {
         method: 'POST',
@@ -55,10 +59,7 @@ const generateAvatarFlow = ai.defineFlow(
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
-        body: JSON.stringify({
-          model: 'google-ai',
-          prompt: prompt,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -72,7 +73,7 @@ const generateAvatarFlow = ai.defineFlow(
       return { avatarDataUri: result.content };
 
     } catch (error) {
-        console.warn(`[generateAvatarFlow] Proxy call failed, attempting direct AI call. Error: ${error instanceof Error ? error.message : String(error)}`);
+        console.warn(`[generateAvatarFlow] Proxy call failed, attempting direct AI call.`, { error });
         try {
             console.log('[generateAvatarFlow] Attempting direct call to image generation model.');
             const {media} = await ai.generate({
@@ -88,7 +89,7 @@ const generateAvatarFlow = ai.defineFlow(
                 isFallback: true,
             };
         } catch(fallbackError) {
-            console.error(`[generateAvatarFlow] Direct AI call for avatar failed after proxy failure. Error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+            console.error(`[generateAvatarFlow] Direct AI call for avatar failed after proxy failure.`, { error: fallbackError });
             console.log('[generateAvatarFlow] Returning placeholder image.');
             return { 
                 avatarDataUri: 'https://placehold.co/128x128.png',

@@ -51,7 +51,11 @@ const generateHipsterNameFlow = ai.defineFlow(
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
-      console.log(`[generateHipsterNameFlow] Sending request to proxy server at ${url}`);
+      const requestBody = {
+          model: 'google-ai',
+          prompt: promptTemplate,
+      };
+      console.log(`[generateHipsterNameFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
 
       const response = await fetch(url, {
         method: 'POST',
@@ -61,10 +65,7 @@ const generateHipsterNameFlow = ai.defineFlow(
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
-        body: JSON.stringify({
-            model: 'google-ai',
-            prompt: promptTemplate,
-        }),
+        body: JSON.stringify(requestBody),
       });
       
       if (!response.ok) {
@@ -90,8 +91,7 @@ const generateHipsterNameFlow = ai.defineFlow(
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`[generateHipsterNameFlow] Primary call failed. Error: ${errorMessage}. Returning hard-coded fallback.`);
+        console.warn(`[generateHipsterNameFlow] Primary call failed. Returning hard-coded fallback.`, { error });
         const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
         return {
             fallbackNames: fallbackNames,
