@@ -65,9 +65,9 @@ const generateHipsterNameFlow = ai.defineFlow(
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
-        throw new Error(errorText || `API Error: ${response.status}`);
+        const errorBody = await response.text();
+        console.error(`[generateHipsterNameFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
       }
       
       const result: ProxyResponse = await response.json();
@@ -83,7 +83,8 @@ const generateHipsterNameFlow = ai.defineFlow(
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.error("Could not generate hipster name, using fallback.", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[generateHipsterNameFlow] Failed to generate name. Error: ${errorMessage}. Returning fallback.`);
         const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
         const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
         return {

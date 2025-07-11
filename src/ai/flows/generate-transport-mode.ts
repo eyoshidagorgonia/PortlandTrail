@@ -65,9 +65,9 @@ const generateTransportModeFlow = ai.defineFlow(
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
-        throw new Error(errorText || `API Error: ${response.status}`);
+        const errorBody = await response.text();
+        console.error(`[generateTransportModeFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
       }
 
       const result: ProxyResponse = await response.json();
@@ -82,7 +82,8 @@ const generateTransportModeFlow = ai.defineFlow(
       return GenerateTransportModeOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.error("Could not generate transport mode, using fallback.", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[generateTransportModeFlow] Failed to generate transport mode. Error: ${errorMessage}. Returning fallback.`);
         const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
         const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
         return {

@@ -78,9 +78,9 @@ const generateCharacterBioFlow = ai.defineFlow(
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
-        throw new Error(errorText || `API Error: ${response.status}`);
+        const errorBody = await response.text();
+        console.error(`[generateCharacterBioFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
       }
       
       const result: ProxyResponse = await response.json();
@@ -95,7 +95,8 @@ const generateCharacterBioFlow = ai.defineFlow(
       return GenerateCharacterBioOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.error("Could not generate bio, using fallback.", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[generateCharacterBioFlow] Failed to generate bio for ${name}. Error: ${errorMessage}. Returning fallback.`);
         return {
             bio: "They believe their artisanal pickles can change the world, one jar at a time.",
             isFallback: true,

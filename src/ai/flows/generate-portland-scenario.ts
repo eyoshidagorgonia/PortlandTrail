@@ -101,9 +101,9 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
-        throw new Error(errorText || `API Error: ${response.status}`);
+        const errorBody = await response.text();
+        console.error(`[generatePortlandScenarioFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
       }
       
       const result: ProxyResponse = await response.json();
@@ -119,7 +119,8 @@ const generatePortlandScenarioFlow = ai.defineFlow(
 
     } catch (error)
     {
-        console.error("Could not generate scenario, using fallback.", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[generatePortlandScenarioFlow] Failed to generate scenario for location ${location}. Error: ${errorMessage}. Returning fallback.`);
         return {
             scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
             challenge: "Question your reality",

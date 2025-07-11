@@ -59,16 +59,16 @@ const generateAvatarFlow = ai.defineFlow(
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
-        throw new Error(errorText || `API Error: ${response.status}`);
+        const errorBody = await response.text();
+        console.error(`[generateAvatarFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
       }
       
       const result: ProxyResponse = await response.json();
       return { avatarDataUri: result.content };
 
     } catch (error) {
-        console.warn("Could not connect to proxy for avatar generation, falling back to direct AI call.", error);
+        console.warn(`[generateAvatarFlow] Proxy call failed, attempting direct AI call. Error: ${error instanceof Error ? error.message : String(error)}`);
         try {
             const {media} = await ai.generate({
                 model: 'googleai/gemini-2.0-flash-preview-image-generation',
@@ -82,7 +82,7 @@ const generateAvatarFlow = ai.defineFlow(
                 isFallback: true,
             };
         } catch(fallbackError) {
-            console.error("Direct AI call for avatar failed after proxy failure:", fallbackError);
+            console.error(`[generateAvatarFlow] Direct AI call for avatar failed after proxy failure. Error: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
             return { 
                 avatarDataUri: 'https://placehold.co/128x128.png',
                 isFallback: true,
