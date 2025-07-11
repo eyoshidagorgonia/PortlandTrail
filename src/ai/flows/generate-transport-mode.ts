@@ -64,13 +64,13 @@ const generateTransportModeFlow = ai.defineFlow(
         }),
       });
 
-      const result: ProxyResponse = await response.json();
-
       if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
-        throw new Error(result.error || `API Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        throw new Error(errorText || `API Error: ${response.status}`);
       }
 
+      const result: ProxyResponse = await response.json();
       let responseData = result.content;
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
@@ -79,16 +79,22 @@ const generateTransportModeFlow = ai.defineFlow(
       }
       
       const parsedResult = JSON.parse(responseData);
-      
       return GenerateTransportModeOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.error("Error calling proxy server for transport mode generation:", error);
-        const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
-        const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
-        return {
-            text: fallbackText,
-            isFallback: true,
+        console.warn("Could not connect to proxy for transport mode generation, falling back to direct AI call.", error);
+        try {
+            const fallbackPrompt = `You are a creative writer for a hipster video game. Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation. The phrase will be used as button text. It should be an action. Examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away". Return only the phrase.`;
+            const {text} = await ai.generate({ model: 'googleai/gemini-1.5-flash', prompt: fallbackPrompt });
+            return { text: text.replace(/["\.]/g, '').trim(), isFallback: true };
+        } catch(fallbackError) {
+            console.error("Direct AI call for transport mode failed after proxy failure:", fallbackError);
+            const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
+            const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
+            return {
+                text: fallbackText,
+                isFallback: true,
+            }
         }
     }
   }

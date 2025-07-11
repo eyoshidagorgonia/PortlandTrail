@@ -77,13 +77,13 @@ const generateCharacterBioFlow = ai.defineFlow(
         }),
       });
 
-      const result: ProxyResponse = await response.json();
-
       if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
-        throw new Error(result.error || `API Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        throw new Error(errorText || `API Error: ${response.status}`);
       }
-
+      
+      const result: ProxyResponse = await response.json();
       let responseData = result.content;
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
@@ -92,15 +92,28 @@ const generateCharacterBioFlow = ai.defineFlow(
       }
       
       const parsedResult = JSON.parse(responseData);
-      
       return GenerateCharacterBioOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.error("Error calling proxy server for bio generation:", error);
-        // Provide a fallback bio
-        return {
-            bio: "They believe their artisanal pickles can change the world, one jar at a time.",
-            isFallback: true,
+        console.warn("Could not connect to proxy for bio generation, falling back to direct AI call.", error);
+        try {
+            const fallbackPrompt = `You are a character bio writer for a quirky video game. You will be given a character's name, job, and current "vibe". Based on this, write a short, 1-2 sentence bio for them in a witty, third-person voice. The bio should capture a hipster or artisanal vibe and reflect their current state.
+            Character Name: ${name}
+            Character Job: ${job}
+            Current Vibe: ${vibe}
+            Your response must be the bio as a simple string, and nothing else.`;
+
+            const {text} = await ai.generate({ model: 'googleai/gemini-1.5-flash', prompt: fallbackPrompt });
+            return {
+                bio: text,
+                isFallback: true,
+            };
+        } catch(fallbackError) {
+            console.error("Direct AI call for bio failed after proxy failure:", fallbackError);
+            return {
+                bio: "They believe their artisanal pickles can change the world, one jar at a time.",
+                isFallback: true,
+            }
         }
     }
   }

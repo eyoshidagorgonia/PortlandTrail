@@ -64,11 +64,10 @@ const generateHipsterNameFlow = ai.defineFlow(
         }),
       });
       
-      const result: ProxyResponse = await response.json();
-
       if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
-        throw new Error(result.error || `API Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        throw new Error(errorText || `API Error: ${response.status}`);
       }
       
       let responseData = result.content;
@@ -83,13 +82,19 @@ const generateHipsterNameFlow = ai.defineFlow(
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.error("Error calling proxy server for name generation:", error);
-        // Provide a random fallback name from a predefined list
-        const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
-        const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
-        return {
-            name: fallbackName,
-            isFallback: true,
+        console.warn("Could not connect to proxy for name generation, falling back to direct AI call.", error);
+        try {
+            const fallbackPrompt = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name. Do not provide any explanation or extra text.`;
+            const {text} = await ai.generate({ model: 'googleai/gemini-1.5-flash', prompt: fallbackPrompt });
+            return { name: text.replace(/["\.]/g, '').trim(), isFallback: true };
+        } catch(fallbackError) {
+            console.error("Direct AI call for name failed after proxy failure:", fallbackError);
+            const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+            const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
+            return {
+                name: fallbackName,
+                isFallback: true,
+            }
         }
     }
   }

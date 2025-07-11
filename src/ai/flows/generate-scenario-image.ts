@@ -39,8 +39,8 @@ const generateScenarioImageFlow = ai.defineFlow(
     outputSchema: GenerateScenarioImageOutputSchema,
   },
   async ({prompt}) => {
+    const fullPrompt = `A 16-bit pixel art image for a video game that combines Diablo II with hipster culture. The scene is: ${prompt}. The style should be dark and gritty, but with a quirky, ironic twist.`;
     try {
-      const fullPrompt = `A 16-bit pixel art image for a video game that combines Diablo II with hipster culture. The scene is: ${prompt}. The style should be dark and gritty, but with a quirky, ironic twist.`;
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
 
@@ -56,22 +56,36 @@ const generateScenarioImageFlow = ai.defineFlow(
         }),
       });
 
-      const result: ProxyResponse = await response.json();
-
       if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
-        throw new Error(result.error || `API Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        throw new Error(errorText || `API Error: ${response.status}`);
       }
 
+      const result: ProxyResponse = await response.json();
       return { imageDataUri: result.content };
       
     } catch (error) {
-        console.error("Error calling proxy server for scenario image:", error);
-        // Return a placeholder image on error
-        return { 
-            imageDataUri: 'https://placehold.co/500x300.png',
-            isFallback: true,
-        };
+        console.warn("Could not connect to proxy for scenario image generation, falling back to direct AI call.", error);
+        try {
+            const {media} = await ai.generate({
+                model: 'googleai/gemini-2.0-flash-preview-image-generation',
+                prompt: fullPrompt,
+                config: {
+                    responseModalities: ['TEXT', 'IMAGE'],
+                },
+            });
+            return {
+                imageDataUri: media.url,
+                isFallback: true,
+            };
+        } catch(fallbackError) {
+            console.error("Direct AI call for scenario image failed after proxy failure:", fallbackError);
+            return { 
+                imageDataUri: 'https://placehold.co/500x300.png',
+                isFallback: true,
+            };
+        }
     }
   }
 );

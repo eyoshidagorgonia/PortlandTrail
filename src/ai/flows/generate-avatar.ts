@@ -41,6 +41,7 @@ const generateAvatarFlow = ai.defineFlow(
   },
   async ({name, job}) => {
     const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
+    
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
@@ -57,21 +58,36 @@ const generateAvatarFlow = ai.defineFlow(
         }),
       });
 
-      const result: ProxyResponse = await response.json();
-
       if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
-        throw new Error(result.error || `API Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        throw new Error(errorText || `API Error: ${response.status}`);
       }
       
+      const result: ProxyResponse = await response.json();
       return { avatarDataUri: result.content };
 
     } catch (error) {
-        console.error("Error calling proxy server for avatar generation:", error);
-        return { 
-            avatarDataUri: 'https://placehold.co/128x128.png',
-            isFallback: true,
-        };
+        console.warn("Could not connect to proxy for avatar generation, falling back to direct AI call.", error);
+        try {
+            const {media} = await ai.generate({
+                model: 'googleai/gemini-2.0-flash-preview-image-generation',
+                prompt: prompt,
+                config: {
+                    responseModalities: ['TEXT', 'IMAGE'],
+                },
+            });
+            return {
+                avatarDataUri: media.url,
+                isFallback: true,
+            };
+        } catch(fallbackError) {
+            console.error("Direct AI call for avatar failed after proxy failure:", fallbackError);
+            return { 
+                avatarDataUri: 'https://placehold.co/128x128.png',
+                isFallback: true,
+            };
+        }
     }
   }
 );

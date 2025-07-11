@@ -100,13 +100,13 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         }),
       });
 
-      const result: ProxyResponse = await response.json();
-
       if (!response.ok) {
-        console.error(`API Error: ${response.status} - ${response.statusText}`, result.error);
-        throw new Error(result.error || `API Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        throw new Error(errorText || `API Error: ${response.status}`);
       }
-
+      
+      const result: ProxyResponse = await response.json();
       let responseData = result.content;
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
@@ -115,22 +115,34 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       }
       
       const parsedResult = JSON.parse(responseData);
-      
       return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
 
     } catch (error)
     {
-        console.error("Error calling proxy server for scenario generation:", error);
-        // Provide a fallback scenario in case of an error
-        return {
-            scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
-            challenge: "Question your reality",
-            reward: "A fleeting sense of existential dread, which oddly increases your irony.",
-            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-            imagePrompt: "pigeons wearing fedoras",
-            badgeDescription: "Fedorapocalypse Witness",
-            badgeImagePrompt: "pigeon wearing fedora",
-            isFallback: true,
+        console.warn("Could not connect to proxy for scenario generation, falling back to direct AI call.", error);
+        try {
+            const fallbackPrompt = ai.definePrompt({
+                name: 'portlandScenarioFallbackPrompt',
+                input: { schema: GeneratePortlandScenarioInputSchema },
+                output: { schema: GeneratePortlandScenarioOutputSchema },
+                prompt: promptTemplate.replace('You MUST respond with a valid JSON object only, with no other text before or after it.', '') // Remove JSON enforcement for direct call
+            });
+            const { output } = await fallbackPrompt({ playerStatus, location });
+            if (!output) throw new Error("Fallback AI call returned no output.");
+
+            return { ...output, isFallback: true };
+        } catch (fallbackError) {
+            console.error("Direct AI call for scenario failed after proxy failure:", fallbackError);
+            return {
+                scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
+                challenge: "Question your reality",
+                reward: "A fleeting sense of existential dread, which oddly increases your irony.",
+                diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
+                imagePrompt: "pigeons wearing fedoras",
+                badgeDescription: "Fedorapocalypse Witness",
+                badgeImagePrompt: "pigeon wearing fedora",
+                isFallback: true,
+            }
         }
     }
   }
