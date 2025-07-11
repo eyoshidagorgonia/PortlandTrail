@@ -42,7 +42,7 @@ const generateBadgeImageFlow = ai.defineFlow(
   async ({prompt}) => {
     try {
         const fullPrompt = `A small, circular, embroidered patch-style merit badge for a video game. The badge depicts: ${prompt}. The style should be slightly quirky and vintage, with a 16-bit pixel art aesthetic.`;
-        const url = 'http://host.docker.internal:9001/api/cache';
+        const url = 'http://host.docker.internal:9002/api/cache';
 
         const response = await fetch(url, {
             method: 'POST',
@@ -56,13 +56,13 @@ const generateBadgeImageFlow = ai.defineFlow(
             }),
           });
           
+          const responseText = await response.text();
           if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+            console.error(`API Error: ${response.status} - ${response.statusText}`, responseText);
             throw new Error(`API Error: ${response.status} - ${response.statusText}`);
           }
 
-          const result: CacheResponse = await response.json();
+          const result: CacheResponse = JSON.parse(responseText);
 
           if (result.source === 'error') {
             const errorMessage = result.error || 'Unknown error from cache server';

@@ -43,7 +43,7 @@ const generateAvatarFlow = ai.defineFlow(
   async ({name, job}) => {
     const prompt = `Generate a quirky, 16-bit pixel art portrait of a hipster character for a video game. The character's name is ${name} and they are a ${job}. The background should be a simple, single color.`;
     try {
-      const url = 'http://host.docker.internal:9001/api/cache';
+      const url = 'http://host.docker.internal:9002/api/cache';
 
       const response = await fetch(url, {
         method: 'POST',
@@ -57,13 +57,13 @@ const generateAvatarFlow = ai.defineFlow(
         }),
       });
 
+      const responseText = await response.text();
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        console.error(`API Error: ${response.status} - ${response.statusText}`, responseText);
         throw new Error(`API Error: ${response.status} - ${response.statusText}`);
       }
 
-      const result: CacheResponse = await response.json();
+      const result: CacheResponse = JSON.parse(responseText);
       
       if (result.source === 'error') {
         const errorMessage = result.error || 'Unknown error from cache server';

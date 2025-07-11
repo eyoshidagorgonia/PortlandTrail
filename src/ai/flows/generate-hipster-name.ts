@@ -48,7 +48,7 @@ const generateHipsterNameFlow = ai.defineFlow(
   },
   async () => {
     try {
-      const url = 'http://host.docker.internal:9001/api/cache';
+      const url = 'http://host.docker.internal:9002/api/cache';
 
       const response = await fetch(url, {
         method: 'POST',
@@ -67,31 +67,31 @@ const generateHipsterNameFlow = ai.defineFlow(
         }),
       });
       
+      const responseText = await response.text();
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} - ${response.statusText}`, errorText);
+        console.error(`API Error: ${response.status} - ${response.statusText}`, responseText);
         throw new Error(`API Error: ${response.status} - ${response.statusText}`);
       }
 
-      const result: CacheResponse = await response.json();
+      const result: CacheResponse = JSON.parse(responseText);
 
       if (result.source === 'error') {
         const errorMessage = result.error || 'Unknown error from cache server';
         throw new Error(errorMessage);
       }
       
-      let responseText = result.data?.response;
-      if (!responseText) {
+      let responseData = result.data?.response;
+      if (!responseData) {
         throw new Error("No response data from cache server.");
       }
 
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        responseText = jsonMatch[0];
+        responseData = jsonMatch[0];
       }
       
-      const parsedResult = JSON.parse(responseText);
+      const parsedResult = JSON.parse(responseData);
       
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
