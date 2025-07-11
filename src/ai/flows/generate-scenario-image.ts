@@ -42,7 +42,8 @@ const generateScenarioImageFlow = ai.defineFlow(
   async ({prompt}) => {
     try {
       const fullPrompt = `A 16-bit pixel art image for a video game that combines Diablo II with hipster culture. The scene is: ${prompt}. The style should be dark and gritty, but with a quirky, ironic twist.`;
-      const url = 'http://host.docker.internal:9002/api/cache';
+      const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
+      const url = `${baseUrl}/api/cache`;
 
       const response = await fetch(url, {
         method: 'POST',

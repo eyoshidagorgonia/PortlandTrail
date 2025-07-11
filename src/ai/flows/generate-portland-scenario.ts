@@ -84,7 +84,8 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       .replace('{location}', location); // second replace for the second template variable
 
     try {
-      const url = 'http://host.docker.internal:9002/api/cache';
+      const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
+      const url = `${baseUrl}/api/cache`;
 
       const response = await fetch(url, {
         method: 'POST',
