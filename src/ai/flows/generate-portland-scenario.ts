@@ -117,8 +117,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       const parsedResult = JSON.parse(responseData);
       return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
 
-    } catch (error)
-    {
+    } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[generatePortlandScenarioFlow] Failed to generate scenario for location ${location}. Error: ${errorMessage}. Returning fallback.`);
         return {
