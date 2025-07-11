@@ -119,30 +119,16 @@ const generatePortlandScenarioFlow = ai.defineFlow(
 
     } catch (error)
     {
-        console.warn("Could not connect to proxy for scenario generation, falling back to direct AI call.", error);
-        try {
-            const fallbackPrompt = ai.definePrompt({
-                name: 'portlandScenarioFallbackPrompt',
-                input: { schema: GeneratePortlandScenarioInputSchema },
-                output: { schema: GeneratePortlandScenarioOutputSchema },
-                prompt: promptTemplate.replace('You MUST respond with a valid JSON object only, with no other text before or after it.', '') // Remove JSON enforcement for direct call
-            });
-            const { output } = await fallbackPrompt({ playerStatus, location });
-            if (!output) throw new Error("Fallback AI call returned no output.");
-
-            return { ...output, isFallback: true };
-        } catch (fallbackError) {
-            console.error("Direct AI call for scenario failed after proxy failure:", fallbackError);
-            return {
-                scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
-                challenge: "Question your reality",
-                reward: "A fleeting sense of existential dread, which oddly increases your irony.",
-                diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-                imagePrompt: "pigeons wearing fedoras",
-                badgeDescription: "Fedorapocalypse Witness",
-                badgeImagePrompt: "pigeon wearing fedora",
-                isFallback: true,
-            }
+        console.error("Could not generate scenario, using fallback.", error);
+        return {
+            scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
+            challenge: "Question your reality",
+            reward: "A fleeting sense of existential dread, which oddly increases your irony.",
+            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
+            imagePrompt: "pigeons wearing fedoras",
+            badgeDescription: "Fedorapocalypse Witness",
+            badgeImagePrompt: "pigeon wearing fedora",
+            isFallback: true,
         }
     }
   }

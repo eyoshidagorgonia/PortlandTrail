@@ -59,7 +59,7 @@ const generateHipsterNameFlow = ai.defineFlow(
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
         body: JSON.stringify({
-            model: 'ollama',
+            model: 'google-ai',
             prompt: promptTemplate,
         }),
       });
@@ -70,6 +70,7 @@ const generateHipsterNameFlow = ai.defineFlow(
         throw new Error(errorText || `API Error: ${response.status}`);
       }
       
+      const result: ProxyResponse = await response.json();
       let responseData = result.content;
       // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
@@ -82,19 +83,12 @@ const generateHipsterNameFlow = ai.defineFlow(
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.warn("Could not connect to proxy for name generation, falling back to direct AI call.", error);
-        try {
-            const fallbackPrompt = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name. Do not provide any explanation or extra text.`;
-            const {text} = await ai.generate({ model: 'googleai/gemini-1.5-flash', prompt: fallbackPrompt });
-            return { name: text.replace(/["\.]/g, '').trim(), isFallback: true };
-        } catch(fallbackError) {
-            console.error("Direct AI call for name failed after proxy failure:", fallbackError);
-            const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
-            const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
-            return {
-                name: fallbackName,
-                isFallback: true,
-            }
+        console.error("Could not generate hipster name, using fallback.", error);
+        const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+        const fallbackName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
+        return {
+            name: fallbackName,
+            isFallback: true,
         }
     }
   }

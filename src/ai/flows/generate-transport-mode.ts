@@ -59,7 +59,7 @@ const generateTransportModeFlow = ai.defineFlow(
             'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
         },
         body: JSON.stringify({
-            model: 'ollama',
+            model: 'google-ai',
             prompt: promptTemplate,
         }),
       });
@@ -82,19 +82,12 @@ const generateTransportModeFlow = ai.defineFlow(
       return GenerateTransportModeOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.warn("Could not connect to proxy for transport mode generation, falling back to direct AI call.", error);
-        try {
-            const fallbackPrompt = `You are a creative writer for a hipster video game. Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation. The phrase will be used as button text. It should be an action. Examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away". Return only the phrase.`;
-            const {text} = await ai.generate({ model: 'googleai/gemini-1.5-flash', prompt: fallbackPrompt });
-            return { text: text.replace(/["\.]/g, '').trim(), isFallback: true };
-        } catch(fallbackError) {
-            console.error("Direct AI call for transport mode failed after proxy failure:", fallbackError);
-            const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
-            const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
-            return {
-                text: fallbackText,
-                isFallback: true,
-            }
+        console.error("Could not generate transport mode, using fallback.", error);
+        const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
+        const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
+        return {
+            text: fallbackText,
+            isFallback: true,
         }
     }
   }
