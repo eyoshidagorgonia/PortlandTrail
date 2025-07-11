@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A scenario generator for the Portland Trail game.
