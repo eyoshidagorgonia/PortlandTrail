@@ -127,40 +127,49 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting direct Ollama fallback.`, { error });
+        console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting direct Nexis.ai fallback.`, { error });
         try {
-            console.log('[generatePortlandScenarioFlow] Attempting direct call to local Ollama server.');
-            const ollamaUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:11434/api/generate' : 'http://localhost:11434/api/generate';
+            console.log('[generatePortlandScenarioFlow] Attempting direct call to Nexis.ai server.');
+            const nexisUrl = 'http://modelapi.nexix.ai/api/generate';
+            const apiKey = process.env.NEXIS_API_KEY;
+
+            if (!apiKey) {
+              throw new Error('NEXIS_API_KEY is not set.');
+            }
+            
             const requestBody = {
-                model: 'llama3',
+                model: 'llama3.1:8b',
                 prompt: prompt,
                 stream: false,
                 format: 'json'
             };
-            console.log(`[generatePortlandScenarioFlow] Sending request to Ollama server at ${ollamaUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+            console.log(`[generatePortlandScenarioFlow] Sending request to Nexis.ai server at ${nexisUrl}`, { body: JSON.stringify(requestBody, null, 2) });
             
-            const ollamaResponse = await fetch(ollamaUrl, {
+            const nexisResponse = await fetch(nexisUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${apiKey}`,
+                },
                 body: JSON.stringify(requestBody),
             });
 
-            if (!ollamaResponse.ok) {
-                const errorBody = await ollamaResponse.text();
-                console.error(`[generatePortlandScenarioFlow] Ollama API Error: ${ollamaResponse.status} ${ollamaResponse.statusText}`, { url: ollamaUrl, errorBody });
-                throw new Error(`Ollama API request failed with status ${ollamaResponse.status}: ${errorBody}`);
+            if (!nexisResponse.ok) {
+                const errorBody = await nexisResponse.text();
+                console.error(`[generatePortlandScenarioFlow] Nexis.ai API Error: ${nexisResponse.status} ${nexisResponse.statusText}`, { url: nexisUrl, errorBody });
+                throw new Error(`Nexis.ai API request failed with status ${nexisResponse.status}: ${errorBody}`);
             }
 
-            const ollamaResult = await ollamaResponse.json();
-            console.log('[generatePortlandScenarioFlow] Ollama fallback successful.');
-            const parsedResult = JSON.parse(ollamaResult.response);
+            const nexisResult = await nexisResponse.json();
+            console.log('[generatePortlandScenarioFlow] Nexis.ai fallback successful.');
+            const parsedResult = JSON.parse(nexisResult.response);
 
             return {
                 ...GeneratePortlandScenarioOutputSchema.parse(parsedResult),
                 isFallback: true
             };
         } catch(fallbackError) {
-            console.error(`[generatePortlandScenarioFlow] Ollama fallback failed for location ${location}. Returning hard-coded fallback.`, { error: fallbackError });
+            console.error(`[generatePortlandScenarioFlow] Nexis.ai fallback failed for location ${location}. Returning hard-coded fallback.`, { error: fallbackError });
             return {
                 scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
                 challenge: "Question your reality",

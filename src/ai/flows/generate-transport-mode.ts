@@ -90,39 +90,48 @@ const generateTransportModeFlow = ai.defineFlow(
       return GenerateTransportModeOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.warn(`[generateTransportModeFlow] Primary call failed, attempting direct Ollama fallback.`, { error });
+        console.warn(`[generateTransportModeFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
         try {
-            console.log('[generateTransportModeFlow] Attempting direct call to local Ollama server.');
-            const ollamaUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:11434/api/generate' : 'http://localhost:11434/api/generate';
+            console.log('[generateTransportModeFlow] Attempting direct call to Nexis.ai server.');
+            const nexisUrl = 'http://modelapi.nexix.ai/api/generate';
+            const apiKey = process.env.NEXIS_API_KEY;
+
+            if (!apiKey) {
+              throw new Error('NEXIS_API_KEY is not set.');
+            }
+
             const requestBody = {
-                model: 'llama3',
+                model: 'llama3.1:8b',
                 prompt: promptTemplate,
                 stream: false,
                 format: 'json'
             };
-            console.log(`[generateTransportModeFlow] Sending request to Ollama server at ${ollamaUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+            console.log(`[generateTransportModeFlow] Sending request to Nexis.ai server at ${nexisUrl}`, { body: JSON.stringify(requestBody, null, 2) });
             
-            const ollamaResponse = await fetch(ollamaUrl, {
+            const nexisResponse = await fetch(nexisUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${apiKey}`,
+                },
                 body: JSON.stringify(requestBody),
             });
 
-            if (!ollamaResponse.ok) {
-                const errorBody = await ollamaResponse.text();
-                console.error(`[generateTransportModeFlow] Ollama API Error: ${ollamaResponse.status} ${ollamaResponse.statusText}`, { url: ollamaUrl, errorBody });
-                throw new Error(`Ollama API request failed with status ${ollamaResponse.status}: ${errorBody}`);
+            if (!nexisResponse.ok) {
+                const errorBody = await nexisResponse.text();
+                console.error(`[generateTransportModeFlow] Nexis.ai API Error: ${nexisResponse.status} ${nexisResponse.statusText}`, { url: nexisUrl, errorBody });
+                throw new Error(`Nexis.ai API request failed with status ${nexisResponse.status}: ${errorBody}`);
             }
             
-            const ollamaResult = await ollamaResponse.json();
-            console.log('[generateTransportModeFlow] Ollama fallback successful.');
-            const parsedResult = JSON.parse(ollamaResult.response);
+            const nexisResult = await nexisResponse.json();
+            console.log('[generateTransportModeFlow] Nexis.ai fallback successful.');
+            const parsedResult = JSON.parse(nexisResult.response);
             return {
                 ...GenerateTransportModeOutputSchema.parse(parsedResult),
                 isFallback: true
             };
         } catch(fallbackError) {
-            console.error(`[generateTransportModeFlow] Ollama fallback failed. Returning hard-coded fallback.`, { error: fallbackError });
+            console.error(`[generateTransportModeFlow] Nexis.ai fallback failed. Returning hard-coded fallback.`, { error: fallbackError });
             const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
             const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
             return {

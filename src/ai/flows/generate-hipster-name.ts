@@ -92,11 +92,54 @@ const generateHipsterNameFlow = ai.defineFlow(
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.warn(`[generateHipsterNameFlow] Primary call failed. Returning hard-coded fallback.`, { error });
-        const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
-        return {
-            fallbackNames: fallbackNames,
+        console.warn(`[generateHipsterNameFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
+        try {
+          console.log('[generateHipsterNameFlow] Attempting direct call to Nexis.ai server.');
+          const nexisUrl = 'http://modelapi.nexix.ai/api/generate';
+          const apiKey = process.env.NEXIS_API_KEY;
+
+          if (!apiKey) {
+            throw new Error('NEXIS_API_KEY is not set.');
+          }
+
+          const requestBody = {
+            model: 'llama3.1:8b',
+            prompt: promptTemplate,
+            stream: false,
+            format: 'json',
+          };
+          console.log(`[generateHipsterNameFlow] Sending request to Nexis.ai server at ${nexisUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+
+          const nexisResponse = await fetch(nexisUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify(requestBody),
+          });
+
+          if (!nexisResponse.ok) {
+            const errorBody = await nexisResponse.text();
+            console.error(`[generateHipsterNameFlow] Nexis.ai API Error: ${nexisResponse.status} ${nexisResponse.statusText}`, { url: nexisUrl, errorBody });
+            throw new Error(`Nexis.ai API request failed with status ${nexisResponse.status}: ${errorBody}`);
+          }
+
+          const nexisResult = await nexisResponse.json();
+          console.log('[generateHipsterNameFlow] Nexis.ai fallback successful.');
+          const parsedResult = JSON.parse(nexisResult.response);
+
+          return {
+            ...GenerateHipsterNameOutputSchema.parse(parsedResult),
             isFallback: true,
+          };
+        } catch (fallbackError) {
+          console.error(`[generateHipsterNameFlow] Nexis.ai fallback failed. Returning hard-coded fallback.`, { error: fallbackError });
+          const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+          return {
+              fallbackNames: fallbackNames,
+              isFallback: true,
+          }
         }
     }
   }
