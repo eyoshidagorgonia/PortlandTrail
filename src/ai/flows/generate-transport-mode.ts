@@ -42,9 +42,9 @@ const generateTransportModeFlow = ai.defineFlow(
     console.log('[generateTransportModeFlow] Started.');
     const promptTemplate = `You are a creative writer for a hipster video game.
 Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
-The phrase will be used as button text. It should be an action.
+The phrase will be used as button text. It should be an action. You MUST generate a different phrase each time.
 
-Good examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away", "Jog ironically", "Unicycle to safety", "Drift away on a longboard".
+Good examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away", "Jog ironically", "Unicycle to safety", "Drift away on a longboard", "Fade into the mist", "Catch a passing bird", "Summon a vintage scooter".
 
 To ensure a unique phrase, use this random seed in your generation process: ${Math.random()}
 

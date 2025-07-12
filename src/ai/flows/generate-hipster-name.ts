@@ -43,7 +43,7 @@ const generateHipsterNameFlow = ai.defineFlow(
     const promptTemplate = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name.
 You MUST generate a different name every time. Do not repeat yourself.
 
-Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage".
+Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage", "Indigo", "Juniper", "Rowan", "Linden".
 
 Do not provide any explanation or extra text.
 
