@@ -59,8 +59,7 @@ const generateHipsterNameFlow = ai.defineFlow(
 
       const response = await fetch(url, {
         method: 'POST',
-        // Instruct fetch to not cache this request, ensuring we get a new name every time.
-        cache: 'no-store',
+        cache: 'no-store', // This was the missing piece to prevent caching
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
@@ -78,7 +77,6 @@ const generateHipsterNameFlow = ai.defineFlow(
       console.log(`[generateHipsterNameFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       let responseData = result.content;
       
-      // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         console.log('[generateHipsterNameFlow] Extracted JSON from markdown response.');
@@ -88,7 +86,6 @@ const generateHipsterNameFlow = ai.defineFlow(
       console.log('[generateHipsterNameFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
       
-      // No isFallback property here, because this is the primary success path
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
@@ -128,10 +125,9 @@ const generateHipsterNameFlow = ai.defineFlow(
 
           const nexisResult = await nexisResponse.json();
           console.log('[generateHipsterNameFlow] Nexis.ai fallback successful. Response:', nexisResult);
-          // The response from nexis is a stringified JSON inside the 'response' field.
+          
           const parsedResult = JSON.parse(nexisResult.response);
 
-          // No isFallback property here, because the fallback succeeded.
           return GenerateHipsterNameOutputSchema.parse(parsedResult);
         } catch (fallbackError) {
           console.error(`[generateHipsterNameFlow] Fallback call to Nexis.ai also failed. Returning hard-coded name.`, { error: fallbackError });
@@ -139,7 +135,7 @@ const generateHipsterNameFlow = ai.defineFlow(
           const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
           return {
               name: randomName,
-              isFallback: true, // Only set isFallback to true when all services fail
+              isFallback: true,
           }
         }
     }
