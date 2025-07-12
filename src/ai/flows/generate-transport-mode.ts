@@ -18,11 +18,16 @@ interface ProxyResponse {
 
 const GenerateTransportModeOutputSchema = z.object({
   text: z.string().describe('A 2-4 word phrase for a button describing a quirky way to leave a situation.'),
-  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateTransportModeOutput = z.infer<typeof GenerateTransportModeOutputSchema>;
 
-export async function generateTransportMode(): Promise<GenerateTransportModeOutput> {
+const GenerateTransportModeAndSourceOutputSchema = GenerateTransportModeOutputSchema.extend({
+    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+});
+type GenerateTransportModeAndSourceOutput = z.infer<typeof GenerateTransportModeAndSourceOutputSchema>;
+
+
+export async function generateTransportMode(): Promise<GenerateTransportModeAndSourceOutput> {
   return generateTransportModeFlow();
 }
 
@@ -44,7 +49,7 @@ const generateTransportModeFlow = ai.defineFlow(
   {
     name: 'generateTransportModeFlow',
     inputSchema: z.void(),
-    outputSchema: GenerateTransportModeOutputSchema,
+    outputSchema: GenerateTransportModeAndSourceOutputSchema,
   },
   async () => {
     console.log('[generateTransportModeFlow] Started.');
@@ -124,8 +129,8 @@ const generateTransportModeFlow = ai.defineFlow(
             
             const nexisResult = await nexisResponse.json();
             console.log('[generateTransportModeFlow] Nexis.ai fallback successful.');
-            const parsedResult = JSON.parse(nexisResult.response);
-            return { ...GenerateTransportModeOutputSchema.parse(parsedResult), dataSource: 'fallback' };
+            const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(nexisResult.response));
+            return { ...parsedResult, dataSource: 'fallback' };
         } catch(fallbackError) {
             console.error(`[generateTransportModeFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];

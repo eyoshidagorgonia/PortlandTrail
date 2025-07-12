@@ -2,6 +2,9 @@
 'use server';
 
 import type { GeneratePortlandScenarioOutput } from "@/ai/flows/generate-portland-scenario";
+import type { GenerateHipsterNameOutput } from "@/ai/flows/generate-hipster-name";
+import type { GenerateCharacterBioOutput } from "@/ai/flows/generate-character-bio";
+import type { GenerateTransportModeOutput } from "@/ai/flows/generate-transport-mode";
 
 export interface PlayerStats {
   hunger: number;
@@ -67,12 +70,13 @@ export interface PlayerAction {
     };
 }
 
-export type Scenario = (GeneratePortlandScenarioOutput & {
+export type ScenarioData = Omit<GeneratePortlandScenarioOutput, 'dataSource'>;
+
+export type Scenario = (ScenarioData & {
   choices: Choice[];
   image: string;
   dataSources?: Record<string, 'primary' | 'fallback' | 'hardcoded'>;
-  error?: undefined;
-}) | { error: string };
+});
 
 export interface SystemStatus {
     isPrimaryDegraded: boolean;

@@ -190,7 +190,7 @@ export default function PortlandTrailPage() {
     };
     
     const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
-    if (result.error) {
+    if ('error' in result && result.error) {
       toast({
         variant: 'destructive',
         title: 'A Rocky Start',
@@ -251,7 +251,7 @@ export default function PortlandTrailPage() {
     // Fetch next scenario
     const getNextScenario = async () => {
       const result = await getScenarioAction(tempState);
-      if (result.error) {
+      if ('error' in result && result.error) {
         addLog(result.error);
         toast({
             variant: "destructive",

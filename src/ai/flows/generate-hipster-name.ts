@@ -19,11 +19,16 @@ interface ProxyResponse {
 
 const GenerateHipsterNameOutputSchema = z.object({
   name: z.string().describe('A single, quirky, gender-neutral hipster name.'),
-  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateHipsterNameOutput = z.infer<typeof GenerateHipsterNameOutputSchema>;
 
-export async function generateHipsterName(): Promise<GenerateHipsterNameOutput> {
+const GenerateHipsterNameAndSourceOutputSchema = GenerateHipsterNameOutputSchema.extend({
+    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+});
+type GenerateHipsterNameAndSourceOutput = z.infer<typeof GenerateHipsterNameAndSourceOutputSchema>;
+
+
+export async function generateHipsterName(): Promise<GenerateHipsterNameAndSourceOutput> {
   return generateHipsterNameFlow();
 }
 
@@ -44,13 +49,12 @@ const generateHipsterNameFlow = ai.defineFlow(
   {
     name: 'generateHipsterNameFlow',
     inputSchema: z.void(),
-    outputSchema: GenerateHipsterNameOutputSchema,
+    outputSchema: GenerateHipsterNameAndSourceOutputSchema,
   },
   async () => {
     console.log('[generateHipsterNameFlow] Started.');
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
-      // Add a cache-busting query parameter to ensure a new name is generated every time.
       const url = `${baseUrl}/api/proxy?cb=${Date.now()}`;
       const requestBody = {
           model: 'google-ai',
@@ -60,7 +64,7 @@ const generateHipsterNameFlow = ai.defineFlow(
 
       const response = await fetch(url, {
         method: 'POST',
-        cache: 'no-store', // This prevents client/Next.js caching
+        cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
@@ -127,9 +131,9 @@ const generateHipsterNameFlow = ai.defineFlow(
           const nexisResult = await nexisResponse.json();
           console.log('[generateHipsterNameFlow] Nexis.ai fallback successful.');
           
-          const parsedResult = JSON.parse(nexisResult.response);
+          const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nexisResult.response));
 
-          return { ...GenerateHipsterNameOutputSchema.parse(parsedResult), dataSource: 'fallback' };
+          return { ...parsedResult, dataSource: 'fallback' };
         } catch (fallbackError) {
           console.error(`[generateHipsterNameFlow] Fallback call to Nexis.ai also failed. Returning hard-coded name.`, { error: fallbackError });
           const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];

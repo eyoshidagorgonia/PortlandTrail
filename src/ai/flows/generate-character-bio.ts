@@ -27,11 +27,15 @@ export type GenerateCharacterBioInput = z.infer<typeof GenerateCharacterBioInput
 
 const GenerateCharacterBioOutputSchema = z.object({
   bio: z.string().describe('A short, 1-2 sentence, quirky bio for the character in the third person.'),
-  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateCharacterBioOutput = z.infer<typeof GenerateCharacterBioOutputSchema>;
 
-export async function generateCharacterBio(input: GenerateCharacterBioInput): Promise<GenerateCharacterBioOutput> {
+const GenerateCharacterBioAndSourceOutputSchema = GenerateCharacterBioOutputSchema.extend({
+    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+});
+type GenerateCharacterBioAndSourceOutput = z.infer<typeof GenerateCharacterBioAndSourceOutputSchema>;
+
+export async function generateCharacterBio(input: GenerateCharacterBioInput): Promise<GenerateCharacterBioAndSourceOutput> {
   return generateCharacterBioFlow(input);
 }
 
@@ -54,7 +58,7 @@ const generateCharacterBioFlow = ai.defineFlow(
   {
     name: 'generateCharacterBioFlow',
     inputSchema: GenerateCharacterBioInputSchema,
-    outputSchema: GenerateCharacterBioOutputSchema,
+    outputSchema: GenerateCharacterBioAndSourceOutputSchema,
   },
   async ({ name, job, vibe }) => {
     console.log(`[generateCharacterBioFlow] Started for character: ${name}, Job: ${job}, Vibe: ${vibe}`);
@@ -138,8 +142,8 @@ const generateCharacterBioFlow = ai.defineFlow(
 
             const nexisResult = await nexisResponse.json();
             console.log('[generateCharacterBioFlow] Nexis.ai fallback successful.');
-            const parsedResult = JSON.parse(nexisResult.response);
-            return { ...GenerateCharacterBioOutputSchema.parse(parsedResult), dataSource: 'fallback' };
+            const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(nexisResult.response));
+            return { ...parsedResult, dataSource: 'fallback' };
         } catch(fallbackError) {
             console.error(`[generateCharacterBioFlow] Nexis.ai fallback failed. Returning hard-coded bio.`, { error: fallbackError });
             return {

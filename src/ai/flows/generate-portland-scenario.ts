@@ -36,13 +36,17 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   imagePrompt: z.string().describe('A short, 2-4 word prompt for an image generator to create a visual for this scenario. e.g. "Pigeons in hats" or "Man with handlebar mustache"'),
   badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
   badgeImagePrompt: z.string().describe('A 2-3 word prompt for an image generator to create a small, circular, embroidered patch-style badge for this scenario.'),
-  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
+const GeneratePortlandScenarioAndSourceOutputSchema = GeneratePortlandScenarioOutputSchema.extend({
+    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+});
+type GeneratePortlandScenarioAndSourceOutput = z.infer<typeof GeneratePortlandScenarioAndSourceOutputSchema>;
+
 export async function generatePortlandScenario(
   input: GeneratePortlandScenarioInput
-): Promise<GeneratePortlandScenarioOutput> {
+): Promise<GeneratePortlandScenarioAndSourceOutput> {
   return generatePortlandScenarioFlow(input);
 }
 
@@ -75,7 +79,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
   {
     name: 'generatePortlandScenarioFlow',
     inputSchema: GeneratePortlandScenarioInputSchema,
-    outputSchema: GeneratePortlandScenarioOutputSchema,
+    outputSchema: GeneratePortlandScenarioAndSourceOutputSchema,
   },
   async ({ playerStatus, location }) => {
     console.log(`[generatePortlandScenarioFlow] Started for location: ${location}`);
@@ -161,9 +165,9 @@ const generatePortlandScenarioFlow = ai.defineFlow(
 
             const nexisResult = await nexisResponse.json();
             console.log('[generatePortlandScenarioFlow] Nexis.ai fallback successful.');
-            const parsedResult = JSON.parse(nexisResult.response);
+            const parsedResult = GeneratePortlandScenarioOutputSchema.parse(JSON.parse(nexisResult.response));
 
-            return { ...GeneratePortlandScenarioOutputSchema.parse(parsedResult), dataSource: 'fallback' };
+            return { ...parsedResult, dataSource: 'fallback' };
         } catch(fallbackError) {
             console.error(`[generatePortlandScenarioFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             return {
