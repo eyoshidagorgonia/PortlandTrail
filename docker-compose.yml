@@ -2,11 +2,12 @@
 version: '3.8'
 services:
   app:
+    container_name: portlandtrail
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "8081:3000"
     env_file:
       - .env
     environment:
