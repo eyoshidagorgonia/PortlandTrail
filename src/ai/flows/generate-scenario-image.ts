@@ -29,6 +29,14 @@ const GenerateScenarioImageOutputSchema = z.object({
 });
 export type GenerateScenarioImageOutput = z.infer<typeof GenerateScenarioImageOutputSchema>;
 
+// A stock of hardcoded fallback images for when all systems fail.
+const FALLBACK_SCENARIOS = [
+    'https://placehold.co/500x300/212121/FFFFFF.png', // Dark Grey
+    'https://placehold.co/500x300/424242/FFFFFF.png', // Grey
+    'https://placehold.co/500x300/616161/FFFFFF.png', // Lighter Grey
+    'https://placehold.co/500x300/757575/FFFFFF.png', // Even Lighter Grey
+];
+
 export async function generateScenarioImage(input: GenerateScenarioImageInput): Promise<GenerateScenarioImageOutput> {
   return generateScenarioImageFlow(input);
 }
@@ -91,8 +99,9 @@ const generateScenarioImageFlow = ai.defineFlow(
         } catch(fallbackError) {
             console.error(`[generateScenarioImageFlow] Direct AI call for scenario image failed after primary failure.`, { error: fallbackError });
             console.log('[generateScenarioImageFlow] Returning hardcoded placeholder image.');
+            const fallbackImage = FALLBACK_SCENARIOS[Math.floor(Math.random() * FALLBACK_SCENARIOS.length)];
             return { 
-                imageDataUri: 'https://placehold.co/500x300.png',
+                imageDataUri: fallbackImage,
                 dataSource: 'hardcoded',
             };
         }

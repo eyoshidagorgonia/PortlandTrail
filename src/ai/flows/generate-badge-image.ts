@@ -29,6 +29,14 @@ const GenerateBadgeImageOutputSchema = z.object({
 });
 export type GenerateBadgeImageOutput = z.infer<typeof GenerateBadgeImageOutputSchema>;
 
+// A stock of hardcoded fallback images for when all systems fail.
+const FALLBACK_BADGES = [
+    'https://placehold.co/64x64/E91E63/FFFFFF.png', // Pink
+    'https://placehold.co/64x64/9C27B0/FFFFFF.png', // Purple
+    'https://placehold.co/64x64/3F51B5/FFFFFF.png', // Indigo
+    'https://placehold.co/64x64/FF9800/FFFFFF.png', // Orange
+];
+
 export async function generateBadgeImage(input: GenerateBadgeImageInput): Promise<GenerateBadgeImageOutput> {
   return generateBadgeImageFlow(input);
 }
@@ -90,8 +98,9 @@ const generateBadgeImageFlow = ai.defineFlow(
         } catch(fallbackError) {
             console.error(`[generateBadgeImageFlow] Direct AI call for badge image failed after primary failure.`, { error: fallbackError });
             console.log('[generateBadgeImageFlow] Returning hardcoded placeholder image.');
+            const fallbackImage = FALLBACK_BADGES[Math.floor(Math.random() * FALLBACK_BADGES.length)];
             return { 
-                imageDataUri: 'https://placehold.co/64x64.png',
+                imageDataUri: fallbackImage,
                 dataSource: 'hardcoded',
             };
         }

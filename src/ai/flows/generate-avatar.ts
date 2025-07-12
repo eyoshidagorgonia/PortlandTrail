@@ -30,6 +30,14 @@ const GenerateAvatarOutputSchema = z.object({
 });
 export type GenerateAvatarOutput = z.infer<typeof GenerateAvatarOutputSchema>;
 
+// A stock of hardcoded fallback images for when all systems fail.
+const FALLBACK_AVATARS = [
+    'https://placehold.co/128x128/795548/FFFFFF.png', // Brown
+    'https://placehold.co/128x128/607D8B/FFFFFF.png', // Blue Grey
+    'https://placehold.co/128x128/4CAF50/FFFFFF.png', // Green
+    'https://placehold.co/128x128/009688/FFFFFF.png', // Teal
+];
+
 export async function generateAvatar(input: GenerateAvatarInput): Promise<GenerateAvatarOutput> {
   return generateAvatarFlow(input);
 }
@@ -92,8 +100,9 @@ const generateAvatarFlow = ai.defineFlow(
         } catch(fallbackError) {
             console.error(`[generateAvatarFlow] Direct AI call for avatar failed after primary failure.`, { error: fallbackError });
             console.log('[generateAvatarFlow] Returning hardcoded placeholder image.');
+            const fallbackImage = FALLBACK_AVATARS[Math.floor(Math.random() * FALLBACK_AVATARS.length)];
             return { 
-                avatarDataUri: 'https://placehold.co/128x128.png',
+                avatarDataUri: fallbackImage,
                 dataSource: 'hardcoded',
             };
         }
