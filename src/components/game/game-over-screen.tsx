@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlayerState, SystemStatus } from '@/lib/types';
-import { BadgeCheck, CloudCog, CloudOff, Frown, PartyPopper, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Frown, PartyPopper, RefreshCw } from 'lucide-react';
 import { BUILD_NUMBER } from '@/lib/constants';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
@@ -19,41 +19,18 @@ export default function GameOverScreen({ status, onRestart, finalState, systemSt
   const isWin = status === 'won';
   
   const StatusIcons = () => {
-    const isHealthy = systemStatus.healthyServices.size > 0 && systemStatus.primaryDegradedServices.size === 0 && systemStatus.fullyOfflineServices.size === 0;
     return (
         <div className="flex items-center gap-2">
             <TooltipProvider>
-                {isHealthy && (
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <BadgeCheck className="h-3 w-3 text-green-500" />
-                        </TooltipTrigger>
-                        <TooltipContent><p>All AI systems were operational.</p></TooltipContent>
-                    </Tooltip>
-                )}
-                {systemStatus.primaryDegradedServices.size > 0 && (
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <CloudCog className="h-3 w-3 text-yellow-500" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <div className="space-y-1 text-center">
-                                <p className="font-bold">Primary AI Was Degraded</p>
-                                <ul className="list-disc list-inside text-xs">
-                                    {Array.from(systemStatus.primaryDegradedServices).map(s => <li key={s}>{s}</li>)}
-                                </ul>
-                            </div>
-                        </TooltipContent>
-                    </Tooltip>
-                )}
                 {systemStatus.fullyOfflineServices.size > 0 && (
                     <Tooltip>
                         <TooltipTrigger>
-                            <CloudOff className="h-3 w-3 text-destructive" />
+                            <AlertTriangle className="h-4 w-4 text-destructive" />
                         </TooltipTrigger>
                         <TooltipContent>
                              <div className="space-y-1 text-center">
                                 <p className="font-bold">AI Systems Were Offline</p>
+                                <p className="text-xs text-muted-foreground">Used hardcoded data for:</p>
                                 <ul className="list-disc list-inside text-xs">
                                     {Array.from(systemStatus.fullyOfflineServices).map(s => <li key={s}>{s}</li>)}
                                 </ul>

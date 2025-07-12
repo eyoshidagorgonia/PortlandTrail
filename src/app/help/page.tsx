@@ -5,21 +5,17 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils, CloudOff, CloudCog } from 'lucide-react';
+import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { BUILD_NUMBER, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function HelpPage() {
-    const [healthyServices, setHealthyServices] = useState<string[]>([]);
-    const [primaryDegradedServices, setPrimaryDegradedServices] = useState<string[]>([]);
     const [fullyOfflineServices, setFullyOfflineServices] = useState<string[]>([]);
 
   useEffect(() => {
     // Check local storage on the client side for system status.
     try {
-        setHealthyServices(JSON.parse(localStorage.getItem('healthyServices') || '[]'));
-        setPrimaryDegradedServices(JSON.parse(localStorage.getItem('primaryDegradedServices') || '[]'));
         setFullyOfflineServices(JSON.parse(localStorage.getItem('fullyOfflineServices') || '[]'));
     } catch (e) {
         console.error("Failed to parse system status from local storage", e);
@@ -27,41 +23,18 @@ export default function HelpPage() {
   }, []);
 
   const StatusIcons = () => {
-    const isHealthy = healthyServices.length > 0 && primaryDegradedServices.length === 0 && fullyOfflineServices.length === 0;
     return (
         <div className="flex items-center gap-2">
             <TooltipProvider>
-                {isHealthy && (
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <BadgeCheck className="h-3 w-3 text-green-500" />
-                        </TooltipTrigger>
-                        <TooltipContent><p>All AI systems operational.</p></TooltipContent>
-                    </Tooltip>
-                )}
-                {primaryDegradedServices.length > 0 && (
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <CloudCog className="h-3 w-3 text-yellow-500" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <div className="space-y-1 text-center">
-                                <p className="font-bold">Primary AI Degraded</p>
-                                <ul className="list-disc list-inside text-xs">
-                                    {primaryDegradedServices.map(s => <li key={s}>{s}</li>)}
-                                </ul>
-                            </div>
-                        </TooltipContent>
-                    </Tooltip>
-                )}
                 {fullyOfflineServices.length > 0 && (
                     <Tooltip>
                         <TooltipTrigger>
-                            <CloudOff className="h-3 w-3 text-destructive" />
+                            <AlertTriangle className="h-4 w-4 text-destructive" />
                         </TooltipTrigger>
                         <TooltipContent>
                              <div className="space-y-1 text-center">
                                 <p className="font-bold">AI Systems Offline</p>
+                                <p className="text-xs text-muted-foreground">Using hardcoded data for:</p>
                                 <ul className="list-disc list-inside text-xs">
                                     {fullyOfflineServices.map(s => <li key={s}>{s}</li>)}
                                 </ul>
