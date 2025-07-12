@@ -51,32 +51,32 @@ describe('generateHipsterName', () => {
     expect(secondCallBody.format).toBe('json');
   });
 
-  it('should return hardcoded fallback names when both primary and nexis services fail', async () => {
+  it('should return a hardcoded fallback name when both primary and nexis services fail', async () => {
     (fetch as any)
         .mockRejectedValueOnce(new Error('Primary service failed'))
         .mockRejectedValueOnce(new Error('Nexis service failed'));
 
     const result = await generateHipsterName();
-
-    expect(result.fallbackNames).toBeInstanceOf(Array);
-    expect(result.fallbackNames?.length).toBeGreaterThan(0);
-    expect(result.name).toBeUndefined();
+    
+    // Check that one of the hardcoded names is returned
+    const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+    expect(fallbackNames).toContain(result.name);
     expect(result.isFallback).toBe(true);
+    expect(result.fallbackNames).toBeUndefined(); // Should not return the array anymore
   });
 
-  it('should return hardcoded fallback names when the primary response is not ok and nexis fails', async () => {
+  it('should return a hardcoded fallback name when the primary response is not ok and nexis fails', async () => {
     (fetch as any)
         .mockResolvedValueOnce(createFetchResponse({}, false))
         .mockRejectedValueOnce(new Error('Nexis service failed'));
 
     const result = await generateHipsterName();
-
-    expect(result.fallbackNames).toBeInstanceOf(Array);
-    expect(result.fallbackNames?.length).toBeGreaterThan(0);
+    const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+    expect(fallbackNames).toContain(result.name);
     expect(result.isFallback).toBe(true);
   });
 
-  it('should return hardcoded fallback names when the response JSON is malformed and nexis fails', async () => {
+  it('should return a hardcoded fallback name when the response JSON is malformed and nexis fails', async () => {
     const mockResponse = {
         content: 'this is not json',
         isCached: false,
@@ -87,8 +87,8 @@ describe('generateHipsterName', () => {
 
     const result = await generateHipsterName();
     
-    expect(result.fallbackNames).toBeInstanceOf(Array);
-    expect(result.fallbackNames?.length).toBeGreaterThan(0);
+    const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+    expect(fallbackNames).toContain(result.name);
     expect(result.isFallback).toBe(true);
   });
 });
