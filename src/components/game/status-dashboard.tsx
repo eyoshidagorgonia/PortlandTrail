@@ -110,20 +110,18 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
             <AvatarImage src={avatar} alt={name} />
             <AvatarFallback>{name?.charAt(0) || 'H'}</AvatarFallback>
           </Avatar>
-          <div className="flex-grow space-y-1">
-            <div className="flex items-center gap-3">
-                 <CardTitle className="font-headline text-2xl">{name}</CardTitle>
-                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Badge variant={ironicStatus.variant} className="cursor-help whitespace-nowrap">{ironicStatus.text}</Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Your overall vibe, based on an average of your vitals and social stats.</p>
-                        </TooltipContent>
-                    </Tooltip>
-                 </TooltipProvider>
-            </div>
+          <div className="flex-grow space-y-1.5">
+            <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Badge variant={ironicStatus.variant} className="cursor-help whitespace-nowrap">{ironicStatus.text}</Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Your overall vibe, based on an average of your vitals and social stats.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <CardDescription>{job}</CardDescription>
           </div>
         </div>
