@@ -50,7 +50,8 @@ const generateHipsterNameFlow = ai.defineFlow(
     console.log('[generateHipsterNameFlow] Started.');
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
-      const url = `${baseUrl}/api/proxy`;
+      // Add a cache-busting query parameter to ensure a new name is generated every time.
+      const url = `${baseUrl}/api/proxy?cb=${Date.now()}`;
       const requestBody = {
           model: 'google-ai',
           prompt: promptTemplate,
@@ -59,7 +60,7 @@ const generateHipsterNameFlow = ai.defineFlow(
 
       const response = await fetch(url, {
         method: 'POST',
-        cache: 'no-store', // This was the missing piece to prevent caching
+        cache: 'no-store', // This prevents client/Next.js caching
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
