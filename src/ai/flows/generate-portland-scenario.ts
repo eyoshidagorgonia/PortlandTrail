@@ -127,7 +127,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting direct Nexis.ai fallback.`, { error });
+        console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
         try {
             console.log('[generatePortlandScenarioFlow] Attempting direct call to Nexis.ai server.');
             const nexisUrl = 'http://modelapi.nexix.ai/api/generate';
@@ -162,6 +162,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
 
             const nexisResult = await nexisResponse.json();
             console.log('[generatePortlandScenarioFlow] Nexis.ai fallback successful.');
+             // The response from nexis is a stringified JSON inside the 'response' field.
             const parsedResult = JSON.parse(nexisResult.response);
 
             return {

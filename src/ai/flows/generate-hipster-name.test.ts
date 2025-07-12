@@ -29,7 +29,9 @@ describe('generateHipsterName', () => {
   });
 
   it('should use the Nexis.ai fallback if the primary service fails', async () => {
+    // This is the expected response from the Nexis.ai service
     const mockNexisResponse = {
+        // The actual content is a stringified JSON object
         response: JSON.stringify({ name: 'Fennel' }),
     };
 

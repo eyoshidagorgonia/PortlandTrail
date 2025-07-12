@@ -104,7 +104,7 @@ const generateCharacterBioFlow = ai.defineFlow(
       return GenerateCharacterBioOutputSchema.parse(parsedResult);
 
     } catch (error) {
-        console.warn(`[generateCharacterBioFlow] Primary call failed, attempting direct Nexis.ai fallback.`, { error });
+        console.warn(`[generateCharacterBioFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
         try {
             console.log('[generateCharacterBioFlow] Attempting direct call to Nexis.ai server.');
             const nexisUrl = 'http://modelapi.nexix.ai/api/generate';
@@ -139,6 +139,7 @@ const generateCharacterBioFlow = ai.defineFlow(
 
             const nexisResult = await nexisResponse.json();
             console.log('[generateCharacterBioFlow] Nexis.ai fallback successful.');
+            // The response from nexis is a stringified JSON inside the 'response' field.
             const parsedResult = JSON.parse(nexisResult.response);
             return {
                 ...GenerateCharacterBioOutputSchema.parse(parsedResult),
