@@ -18,7 +18,7 @@ interface ProxyResponse {
 
 const GenerateTransportModeOutputSchema = z.object({
   text: z.string().describe('A 2-4 word phrase for a button describing a quirky way to leave a situation.'),
-  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateTransportModeOutput = z.infer<typeof GenerateTransportModeOutputSchema>;
 
@@ -78,7 +78,6 @@ const generateTransportModeFlow = ai.defineFlow(
       console.log(`[generateTransportModeFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       let responseData = result.content;
       
-      // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         console.log('[generateTransportModeFlow] Extracted JSON from markdown response.');
@@ -87,7 +86,7 @@ const generateTransportModeFlow = ai.defineFlow(
       
       console.log('[generateTransportModeFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
-      return GenerateTransportModeOutputSchema.parse(parsedResult);
+      return { ...GenerateTransportModeOutputSchema.parse(parsedResult), dataSource: 'primary' };
 
     } catch (error) {
         console.warn(`[generateTransportModeFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
@@ -124,17 +123,16 @@ const generateTransportModeFlow = ai.defineFlow(
             }
             
             const nexisResult = await nexisResponse.json();
-            console.log('[generateTransportModeFlow] Nexis.ai fallback successful. Response:', nexisResult);
-            // The response from nexis is a stringified JSON inside the 'response' field.
+            console.log('[generateTransportModeFlow] Nexis.ai fallback successful.');
             const parsedResult = JSON.parse(nexisResult.response);
-            return GenerateTransportModeOutputSchema.parse(parsedResult);
+            return { ...GenerateTransportModeOutputSchema.parse(parsedResult), dataSource: 'fallback' };
         } catch(fallbackError) {
             console.error(`[generateTransportModeFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
             const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
             return {
                 text: fallbackText,
-                isFallback: true,
+                dataSource: 'hardcoded',
             }
         }
     }

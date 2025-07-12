@@ -1,3 +1,4 @@
+
 'use server';
 
 import type { GeneratePortlandScenarioOutput } from "@/ai/flows/generate-portland-scenario";
@@ -69,6 +70,11 @@ export interface PlayerAction {
 export type Scenario = (GeneratePortlandScenarioOutput & {
   choices: Choice[];
   image: string;
-  isFallback?: boolean;
+  dataSources?: Record<string, 'primary' | 'fallback' | 'hardcoded'>;
   error?: undefined;
 }) | { error: string };
+
+export interface SystemStatus {
+    isPrimaryDegraded: boolean;
+    isFullyOffline: boolean;
+}

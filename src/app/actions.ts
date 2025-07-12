@@ -1,3 +1,4 @@
+
 'use server';
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
@@ -29,7 +30,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     
     console.log('[getScenarioAction] Calling generatePortlandScenario...');
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
-    console.log('[getScenarioAction] Scenario details received. Hard fallback:', !!scenarioDetails.isFallback);
+    console.log(`[getScenarioAction] Scenario details received. Source: ${scenarioDetails.dataSource}`);
     
     // Generate scenario image, badge image and transport mode in parallel
     console.log('[getScenarioAction] Generating images and transport mode in parallel...');
@@ -39,14 +40,10 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         generateTransportMode()
     ]);
     console.log('[getScenarioAction] Parallel generation complete.');
-    console.log(`  - Image hard fallback: ${!!imageResult.isFallback}`);
-    console.log(`  - Badge hard fallback: ${!!badgeImageResult.isFallback}`);
-    console.log(`  - Transport hard fallback: ${!!transportModeResult.isFallback}`);
-
-    const isHardFallback = scenarioDetails.isFallback || imageResult.isFallback || badgeImageResult.isFallback || transportModeResult.isFallback;
-    if (isHardFallback) {
-        console.warn('[getScenarioAction] One or more AI generations used a hard fallback.');
-    }
+    console.log(`  - Scenario Source: ${scenarioDetails.dataSource}`);
+    console.log(`  - Image Source: ${imageResult.dataSource}`);
+    console.log(`  - Badge Source: ${badgeImageResult.dataSource}`);
+    console.log(`  - Transport Source: ${transportModeResult.dataSource}`);
 
     const choices: Choice[] = [
       {
@@ -90,7 +87,18 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     ];
 
     console.log('[getScenarioAction] Successfully constructed scenario object.');
-    return { ...scenarioDetails, choices, image: imageResult.imageDataUri, isFallback: isHardFallback };
+    return { 
+        ...scenarioDetails, 
+        choices, 
+        image: imageResult.imageDataUri,
+        // Pass all data sources back to the client for granular status updates
+        dataSources: {
+            scenario: scenarioDetails.dataSource,
+            image: imageResult.dataSource,
+            badge: badgeImageResult.dataSource,
+            transport: transportModeResult.dataSource,
+        }
+    };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[getScenarioAction] Critical failure: ${errorMessage}`, { playerState });

@@ -3,8 +3,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlayerState } from '@/lib/types';
-import { AlertTriangle, Award, Bike, Frown, PartyPopper, RefreshCw } from 'lucide-react';
+import { PlayerState, SystemStatus } from '@/lib/types';
+import { CloudCog, CloudOff, Frown, PartyPopper, RefreshCw } from 'lucide-react';
 import { BUILD_NUMBER } from '@/lib/constants';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
@@ -12,10 +12,10 @@ interface GameOverScreenProps {
   status: 'gameover' | 'won';
   onRestart: () => void;
   finalState: PlayerState;
-  isSystemDegraded: boolean;
+  systemStatus: SystemStatus;
 }
 
-export default function GameOverScreen({ status, onRestart, finalState, isSystemDegraded }: GameOverScreenProps) {
+export default function GameOverScreen({ status, onRestart, finalState, systemStatus }: GameOverScreenProps) {
   const isWin = status === 'won';
 
   return (
@@ -52,19 +52,29 @@ export default function GameOverScreen({ status, onRestart, finalState, isSystem
           </Button>
         </CardContent>
       </Card>
-      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-1">
-        {isSystemDegraded && (
-          <TooltipProvider>
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
+        <TooltipProvider>
+            {systemStatus.isPrimaryDegraded && (
             <Tooltip>
-              <TooltipTrigger>
-                <AlertTriangle className="h-3 w-3 text-destructive" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>AI systems were degraded. Used fallback data.</p>
-              </TooltipContent>
+                <TooltipTrigger>
+                <CloudCog className="h-3 w-3 text-yellow-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                <p>Primary AI was degraded. Used fallback system.</p>
+                </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-        )}
+            )}
+            {systemStatus.isFullyOffline && (
+            <Tooltip>
+                <TooltipTrigger>
+                <CloudOff className="h-3 w-3 text-destructive" />
+                </TooltipTrigger>
+                <TooltipContent>
+                <p>All AI systems were offline. Used hardcoded data.</p>
+                </TooltipContent>
+            </Tooltip>
+            )}
+        </TooltipProvider>
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>

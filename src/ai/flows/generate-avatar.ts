@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An avatar generator for the Portland Trail game.
@@ -25,7 +26,7 @@ export type GenerateAvatarInput = z.infer<typeof GenerateAvatarInputSchema>;
 
 const GenerateAvatarOutputSchema = z.object({
   avatarDataUri: z.string().describe("A generated avatar image for the character, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
-  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateAvatarOutput = z.infer<typeof GenerateAvatarOutputSchema>;
 
@@ -70,10 +71,10 @@ const generateAvatarFlow = ai.defineFlow(
       
       const result: ProxyResponse = await response.json();
       console.log(`[generateAvatarFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
-      return { avatarDataUri: result.content };
+      return { avatarDataUri: result.content, dataSource: 'primary' };
 
     } catch (error) {
-        console.warn(`[generateAvatarFlow] Proxy call failed, attempting direct AI call.`, { error });
+        console.warn(`[generateAvatarFlow] Primary call failed, attempting direct AI call as fallback.`, { error });
         try {
             console.log('[generateAvatarFlow] Attempting direct call to image generation model.');
             const {media} = await ai.generate({
@@ -85,14 +86,15 @@ const generateAvatarFlow = ai.defineFlow(
             });
             console.log('[generateAvatarFlow] Direct AI call successful.');
             return {
-                avatarDataUri: media.url
+                avatarDataUri: media.url,
+                dataSource: 'fallback',
             };
         } catch(fallbackError) {
-            console.error(`[generateAvatarFlow] Direct AI call for avatar failed after proxy failure.`, { error: fallbackError });
-            console.log('[generateAvatarFlow] Returning placeholder image.');
+            console.error(`[generateAvatarFlow] Direct AI call for avatar failed after primary failure.`, { error: fallbackError });
+            console.log('[generateAvatarFlow] Returning hardcoded placeholder image.');
             return { 
                 avatarDataUri: 'https://placehold.co/128x128.png',
-                isFallback: true,
+                dataSource: 'hardcoded',
             };
         }
     }

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An image generator for scenarios in the Portland Trail game.
@@ -24,7 +25,7 @@ export type GenerateScenarioImageInput = z.infer<typeof GenerateScenarioImageInp
 
 const GenerateScenarioImageOutputSchema = z.object({
   imageDataUri: z.string().describe("A generated image for the scenario, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
-  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateScenarioImageOutput = z.infer<typeof GenerateScenarioImageOutputSchema>;
 
@@ -69,10 +70,10 @@ const generateScenarioImageFlow = ai.defineFlow(
 
       const result: ProxyResponse = await response.json();
       console.log(`[generateScenarioImageFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
-      return { imageDataUri: result.content };
+      return { imageDataUri: result.content, dataSource: 'primary' };
       
     } catch (error) {
-        console.warn(`[generateScenarioImageFlow] Proxy call failed, attempting direct AI call.`, { error });
+        console.warn(`[generateScenarioImageFlow] Primary call failed, attempting direct AI call as fallback.`, { error });
         try {
             console.log('[generateScenarioImageFlow] Attempting direct call to image generation model.');
             const {media} = await ai.generate({
@@ -84,14 +85,15 @@ const generateScenarioImageFlow = ai.defineFlow(
             });
             console.log('[generateScenarioImageFlow] Direct AI call successful.');
             return {
-                imageDataUri: media.url
+                imageDataUri: media.url,
+                dataSource: 'fallback',
             };
         } catch(fallbackError) {
-            console.error(`[generateScenarioImageFlow] Direct AI call for scenario image failed after proxy failure.`, { error: fallbackError });
-            console.log('[generateScenarioImageFlow] Returning placeholder image.');
+            console.error(`[generateScenarioImageFlow] Direct AI call for scenario image failed after primary failure.`, { error: fallbackError });
+            console.log('[generateScenarioImageFlow] Returning hardcoded placeholder image.');
             return { 
                 imageDataUri: 'https://placehold.co/500x300.png',
-                isFallback: true,
+                dataSource: 'hardcoded',
             };
         }
     }

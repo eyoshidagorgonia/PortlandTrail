@@ -27,7 +27,7 @@ export type GenerateCharacterBioInput = z.infer<typeof GenerateCharacterBioInput
 
 const GenerateCharacterBioOutputSchema = z.object({
   bio: z.string().describe('A short, 1-2 sentence, quirky bio for the character in the third person.'),
-  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateCharacterBioOutput = z.infer<typeof GenerateCharacterBioOutputSchema>;
 
@@ -92,7 +92,6 @@ const generateCharacterBioFlow = ai.defineFlow(
       console.log(`[generateCharacterBioFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       let responseData = result.content;
       
-      // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         console.log('[generateCharacterBioFlow] Extracted JSON from markdown response.');
@@ -101,7 +100,7 @@ const generateCharacterBioFlow = ai.defineFlow(
       
       console.log('[generateCharacterBioFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
-      return GenerateCharacterBioOutputSchema.parse(parsedResult);
+      return { ...GenerateCharacterBioOutputSchema.parse(parsedResult), dataSource: 'primary' };
 
     } catch (error) {
         console.warn(`[generateCharacterBioFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
@@ -138,15 +137,14 @@ const generateCharacterBioFlow = ai.defineFlow(
             }
 
             const nexisResult = await nexisResponse.json();
-            console.log('[generateCharacterBioFlow] Nexis.ai fallback successful. Response:', nexisResult);
-            // The response from nexis is a stringified JSON inside the 'response' field.
+            console.log('[generateCharacterBioFlow] Nexis.ai fallback successful.');
             const parsedResult = JSON.parse(nexisResult.response);
-            return GenerateCharacterBioOutputSchema.parse(parsedResult);
+            return { ...GenerateCharacterBioOutputSchema.parse(parsedResult), dataSource: 'fallback' };
         } catch(fallbackError) {
             console.error(`[generateCharacterBioFlow] Nexis.ai fallback failed. Returning hard-coded bio.`, { error: fallbackError });
             return {
                 bio: "They believe their artisanal pickles can change the world, one jar at a time.",
-                isFallback: true,
+                dataSource: 'hardcoded',
             }
         }
     }

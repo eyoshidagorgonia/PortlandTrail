@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A badge image generator for the Portland Trail game.
@@ -24,7 +25,7 @@ export type GenerateBadgeImageInput = z.infer<typeof GenerateBadgeImageInputSche
 
 const GenerateBadgeImageOutputSchema = z.object({
   imageDataUri: z.string().describe("A generated image for the badge, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
-  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateBadgeImageOutput = z.infer<typeof GenerateBadgeImageOutputSchema>;
 
@@ -68,10 +69,10 @@ const generateBadgeImageFlow = ai.defineFlow(
           
           const result: ProxyResponse = await response.json();
           console.log(`[generateBadgeImageFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
-          return { imageDataUri: result.content };
+          return { imageDataUri: result.content, dataSource: 'primary' };
 
     } catch (error) {
-        console.warn(`[generateBadgeImageFlow] Proxy call failed, attempting direct AI call.`, { error });
+        console.warn(`[generateBadgeImageFlow] Primary call failed, attempting direct AI call as fallback.`, { error });
         try {
             console.log('[generateBadgeImageFlow] Attempting direct call to image generation model.');
             const {media} = await ai.generate({
@@ -83,14 +84,15 @@ const generateBadgeImageFlow = ai.defineFlow(
             });
             console.log('[generateBadgeImageFlow] Direct AI call successful.');
             return {
-                imageDataUri: media.url
+                imageDataUri: media.url,
+                dataSource: 'fallback',
             };
         } catch(fallbackError) {
-            console.error(`[generateBadgeImageFlow] Direct AI call for badge image failed after proxy failure.`, { error: fallbackError });
-            console.log('[generateBadgeImageFlow] Returning placeholder image.');
+            console.error(`[generateBadgeImageFlow] Direct AI call for badge image failed after primary failure.`, { error: fallbackError });
+            console.log('[generateBadgeImageFlow] Returning hardcoded placeholder image.');
             return { 
                 imageDataUri: 'https://placehold.co/64x64.png',
-                isFallback: true,
+                dataSource: 'hardcoded',
             };
         }
     }

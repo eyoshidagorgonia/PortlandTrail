@@ -19,7 +19,7 @@ interface ProxyResponse {
 
 const GenerateHipsterNameOutputSchema = z.object({
   name: z.string().describe('A single, quirky, gender-neutral hipster name.'),
-  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateHipsterNameOutput = z.infer<typeof GenerateHipsterNameOutputSchema>;
 
@@ -87,7 +87,7 @@ const generateHipsterNameFlow = ai.defineFlow(
       console.log('[generateHipsterNameFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
       
-      return GenerateHipsterNameOutputSchema.parse(parsedResult);
+      return { ...GenerateHipsterNameOutputSchema.parse(parsedResult), dataSource: 'primary' };
 
     } catch (error) {
         console.warn(`[generateHipsterNameFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
@@ -125,18 +125,18 @@ const generateHipsterNameFlow = ai.defineFlow(
           }
 
           const nexisResult = await nexisResponse.json();
-          console.log('[generateHipsterNameFlow] Nexis.ai fallback successful. Response:', nexisResult);
+          console.log('[generateHipsterNameFlow] Nexis.ai fallback successful.');
           
           const parsedResult = JSON.parse(nexisResult.response);
 
-          return GenerateHipsterNameOutputSchema.parse(parsedResult);
+          return { ...GenerateHipsterNameOutputSchema.parse(parsedResult), dataSource: 'fallback' };
         } catch (fallbackError) {
           console.error(`[generateHipsterNameFlow] Fallback call to Nexis.ai also failed. Returning hard-coded name.`, { error: fallbackError });
           const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
           const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
           return {
               name: randomName,
-              isFallback: true,
+              dataSource: 'hardcoded',
           }
         }
     }

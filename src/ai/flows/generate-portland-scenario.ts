@@ -36,7 +36,7 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   imagePrompt: z.string().describe('A short, 2-4 word prompt for an image generator to create a visual for this scenario. e.g. "Pigeons in hats" or "Man with handlebar mustache"'),
   badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
   badgeImagePrompt: z.string().describe('A 2-3 word prompt for an image generator to create a small, circular, embroidered patch-style badge for this scenario.'),
-  isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
@@ -115,7 +115,6 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       console.log(`[generatePortlandScenarioFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
       let responseData = result.content;
       
-      // Sometimes the model returns markdown with the JSON inside, so we extract it.
       const jsonMatch = responseData.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         console.log('[generatePortlandScenarioFlow] Extracted JSON from markdown response.');
@@ -124,7 +123,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       
       console.log('[generatePortlandScenarioFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
-      return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
+      return { ...GeneratePortlandScenarioOutputSchema.parse(parsedResult), dataSource: 'primary' };
 
     } catch (error) {
         console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
@@ -161,11 +160,10 @@ const generatePortlandScenarioFlow = ai.defineFlow(
             }
 
             const nexisResult = await nexisResponse.json();
-            console.log('[generatePortlandScenarioFlow] Nexis.ai fallback successful. Response:', nexisResult);
-             // The response from nexis is a stringified JSON inside the 'response' field.
+            console.log('[generatePortlandScenarioFlow] Nexis.ai fallback successful.');
             const parsedResult = JSON.parse(nexisResult.response);
 
-            return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
+            return { ...GeneratePortlandScenarioOutputSchema.parse(parsedResult), dataSource: 'fallback' };
         } catch(fallbackError) {
             console.error(`[generatePortlandScenarioFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             return {
@@ -176,7 +174,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
                 imagePrompt: "pigeons wearing fedoras",
                 badgeDescription: "Fedorapocalypse Witness",
                 badgeImagePrompt: "pigeon wearing fedora",
-                isFallback: true,
+                dataSource: 'hardcoded',
             }
         }
     }

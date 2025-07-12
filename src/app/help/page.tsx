@@ -5,19 +5,24 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils, CloudOff, CloudCog } from 'lucide-react';
 import Link from 'next/link';
 import { BUILD_NUMBER } from '@/lib/constants';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function HelpPage() {
-  const [isSystemDegraded, setIsSystemDegraded] = useState(false);
+  const [isPrimaryDegraded, setIsPrimaryDegraded] = useState(false);
+  const [isFullyOffline, setIsFullyOffline] = useState(false);
 
   useEffect(() => {
-    // Check local storage on the client side to see if the system is degraded.
-    const degradedStatus = localStorage.getItem('isSystemDegraded');
-    if (degradedStatus === 'true') {
-      setIsSystemDegraded(true);
+    // Check local storage on the client side for system status.
+    const primaryDegraded = localStorage.getItem('isPrimaryDegraded');
+    if (primaryDegraded === 'true') {
+      setIsPrimaryDegraded(true);
+    }
+    const fullyOffline = localStorage.getItem('isFullyOffline');
+    if (fullyOffline === 'true') {
+      setIsFullyOffline(true);
     }
   }, []);
 
@@ -99,19 +104,29 @@ export default function HelpPage() {
           </div>
         </CardContent>
       </Card>
-      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-1">
-        {isSystemDegraded && (
-          <TooltipProvider>
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
+        <TooltipProvider>
+            {isPrimaryDegraded && (
             <Tooltip>
-              <TooltipTrigger>
-                <AlertTriangle className="h-3 w-3 text-destructive" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>AI systems are degraded. Using fallback data.</p>
-              </TooltipContent>
+                <TooltipTrigger>
+                <CloudCog className="h-3 w-3 text-yellow-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                <p>Primary AI degraded. Using fallback system.</p>
+                </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-        )}
+            )}
+            {isFullyOffline && (
+            <Tooltip>
+                <TooltipTrigger>
+                <CloudOff className="h-3 w-3 text-destructive" />
+                </TooltipTrigger>
+                <TooltipContent>
+                <p>All AI systems offline. Using hardcoded data.</p>
+                </TooltipContent>
+            </Tooltip>
+            )}
+        </TooltipProvider>
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>

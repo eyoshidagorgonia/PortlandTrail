@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice, PlayerAction } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
@@ -21,7 +21,7 @@ import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
-import { Coffee, Route, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
+import { Coffee, Route, RefreshCw, Loader2, CloudCog, CloudOff } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -40,16 +40,49 @@ export default function PortlandTrailPage() {
   const [isNameLoading, setIsNameLoading] = useState(true);
   const [isBioLoading, setIsBioLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [isSystemDegraded, setIsSystemDegraded] = useState(false);
+  const [systemStatus, setSystemStatus] = useState<SystemStatus>({ isPrimaryDegraded: false, isFullyOffline: false });
 
   const { toast } = useToast();
 
-  const setSystemDegraded = useCallback((isDegraded: boolean) => {
-    setIsSystemDegraded(isDegraded);
-    if (isDegraded) {
-        localStorage.setItem('isSystemDegraded', 'true');
+  const updateSystemStatus = useCallback((sources: Record<string, 'primary' | 'fallback' | 'hardcoded'>) => {
+    let isPrimaryDegraded = false;
+    let isFullyOffline = false;
+
+    Object.values(sources).forEach(source => {
+        if (source === 'fallback') {
+            isPrimaryDegraded = true;
+        }
+        if (source === 'hardcoded') {
+            isPrimaryDegraded = true;
+            isFullyOffline = true;
+        }
+    });
+
+    setSystemStatus(prevStatus => {
+        const newStatus = {
+            isPrimaryDegraded: prevStatus.isPrimaryDegraded || isPrimaryDegraded,
+            isFullyOffline: prevStatus.isFullyOffline || isFullyOffline
+        };
+        // Persist to local storage for other pages
+        if (newStatus.isPrimaryDegraded) localStorage.setItem('isPrimaryDegraded', 'true');
+        if (newStatus.isFullyOffline) localStorage.setItem('isFullyOffline', 'true');
+        return newStatus;
+    });
+
+    if (isFullyOffline) {
+        toast({
+            variant: 'destructive',
+            title: 'All AI Systems Offline',
+            description: "The game is running on emergency hardcoded data.",
+        });
+    } else if (isPrimaryDegraded) {
+        toast({
+            variant: 'destructive',
+            title: 'Primary AI Degraded',
+            description: "Using fallback AI system. You may notice differences.",
+        });
     }
-  }, []);
+  }, [toast]);
 
   const waypointIndex = useMemo(() => {
     return Math.floor(playerState.progress / (100 / (TRAIL_WAYPOINTS.length - 1)));
@@ -81,48 +114,27 @@ export default function PortlandTrailPage() {
     if (result.name) {
         setName(result.name);
     }
-    if (result.isFallback) {
-        toast({
-            variant: 'destructive',
-            title: 'AI Systems Offline',
-            description: "The name generator failed. We've assigned you a name.",
-        });
-        setSystemDegraded(true);
-    }
+    updateSystemStatus({ name: result.dataSource });
     setIsNameLoading(false);
-  }, [toast, setSystemDegraded]);
+  }, [updateSystemStatus]);
 
   const handleGenerateAvatar = useCallback(async () => {
     if (!name || !job) return;
     setIsAvatarLoading(true);
     const result = await generateAvatar({ name, job });
     setAvatarUrl(result.avatarDataUri);
-    if (result.isFallback) {
-        toast({
-            variant: 'destructive',
-            title: 'AI Systems Offline',
-            description: 'Could not generate a custom avatar. Using a default image.',
-        });
-        setSystemDegraded(true);
-    }
+    updateSystemStatus({ avatar: result.dataSource });
     setIsAvatarLoading(false);
-  }, [name, job, toast, setSystemDegraded]);
+  }, [name, job, updateSystemStatus]);
 
   const handleGenerateBio = useCallback(async (vibe: string) => {
      if (!name || !job) return;
     setIsBioLoading(true);
     const result = await generateCharacterBio({ name, job, vibe });
     setBio(result.bio);
-    if (result.isFallback) {
-        toast({
-            variant: 'destructive',
-            title: 'AI Systems Offline',
-            description: 'The bio writer failed. Using a stock bio.',
-        });
-        setSystemDegraded(true);
-    }
+    updateSystemStatus({ bio: result.dataSource });
     setIsBioLoading(false);
-  }, [name, job, toast, setSystemDegraded]);
+  }, [name, job, updateSystemStatus]);
 
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
@@ -152,21 +164,13 @@ export default function PortlandTrailPage() {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
-        // Pass the full object to the generation function
         generateCharacterBio({name: playerState.name, job: playerState.job, vibe: newVibe}).then(result => {
            setPlayerState(prevState => ({...prevState, bio: result.bio, vibe: newVibe }));
-           if (result.isFallback) {
-                toast({
-                    variant: "destructive",
-                    title: "AI Systems Offline",
-                    description: "Your bio couldn't be updated. The old one remains."
-                });
-                setSystemDegraded(true);
-            }
+           updateSystemStatus({ bio: result.dataSource });
         });
       }
     }
-  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, toast, setSystemDegraded]);
+  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, updateSystemStatus]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -203,18 +207,13 @@ export default function PortlandTrailPage() {
     const scenarioResult = result as Scenario;
     setScenario(scenarioResult);
     addLog(`An event unfolds: ${scenarioResult.scenario}`);
-    if (scenarioResult.isFallback) {
-        toast({
-            title: "AI Systems Offline",
-            description: "The game is running on emergency pre-canned data.",
-            variant: 'destructive',
-        });
-        setSystemDegraded(true);
+    if (scenarioResult.dataSources) {
+        updateSystemStatus(scenarioResult.dataSources);
     }
 
     setGameState('playing');
     setIsLoading(false);
-  }, [name, job, avatarUrl, bio, toast, addLog, setSystemDegraded]);
+  }, [name, job, avatarUrl, bio, toast, addLog, updateSystemStatus]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
@@ -223,8 +222,9 @@ export default function PortlandTrailPage() {
     setBio('');
     setJob('');
     setHasInitialized(false);
-    setSystemDegraded(false);
-    localStorage.removeItem('isSystemDegraded');
+    setSystemStatus({ isPrimaryDegraded: false, isFullyOffline: false });
+    localStorage.removeItem('isPrimaryDegraded');
+    localStorage.removeItem('isFullyOffline');
   }, []);
 
   const advanceTurn = (tempState: PlayerState) => {
@@ -262,13 +262,8 @@ export default function PortlandTrailPage() {
         const scenarioResult = result as Scenario;
         setScenario(scenarioResult);
         addLog(`A new event unfolds: ${scenarioResult.scenario}`);
-        if (scenarioResult.isFallback) {
-            toast({
-                title: "AI Systems Offline",
-                description: "The game is using an emergency pre-canned event.",
-                variant: 'destructive',
-            });
-            setSystemDegraded(true);
+        if (scenarioResult.dataSources) {
+            updateSystemStatus(scenarioResult.dataSources);
         }
       }
       setIsLoading(false);
@@ -328,14 +323,9 @@ export default function PortlandTrailPage() {
             };
             tempState.resources.badges = [...tempState.resources.badges, newBadge];
             tempState.stats.style += 20; // A nice bonus
-            if (uberBadgeImage.isFallback) {
+            updateSystemStatus({ uberBadge: uberBadgeImage.dataSource });
+            if (uberBadgeImage.dataSource === 'hardcoded') {
                 addLog("The cosmos glitched, providing a standard-issue badge instead of something truly epic.");
-                toast({
-                    variant: 'destructive',
-                    title: 'Cosmic Miscalculation',
-                    description: 'Your uber-rare badge looks suspiciously like a normal one. The AI signal must have dropped.',
-                });
-                setSystemDegraded(true);
             }
         } else { // 80% chance of failure
             addLog('You went for broke and got broken. A significant, but not devastating, failure.');
@@ -443,19 +433,29 @@ export default function PortlandTrailPage() {
                 <Button variant="link" className="text-muted-foreground mt-2">How to Play</Button>
             </Link>
           </CardContent>
-           <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-1">
-                {isSystemDegraded && (
-                  <TooltipProvider>
+           <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
+                <TooltipProvider>
+                    {systemStatus.isPrimaryDegraded && (
                     <Tooltip>
-                      <TooltipTrigger>
-                        <AlertTriangle className="h-3 w-3 text-destructive" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>AI systems are degraded. Using fallback data.</p>
-                      </TooltipContent>
+                        <TooltipTrigger>
+                        <CloudCog className="h-3 w-3 text-yellow-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                        <p>Primary AI degraded. Using fallback system.</p>
+                        </TooltipContent>
                     </Tooltip>
-                  </TooltipProvider>
-                )}
+                    )}
+                    {systemStatus.isFullyOffline && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                        <CloudOff className="h-3 w-3 text-destructive" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                        <p>All AI systems offline. Using hardcoded data.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    )}
+                </TooltipProvider>
                 <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
             </div>
         </Card>
@@ -464,7 +464,7 @@ export default function PortlandTrailPage() {
   }
 
   if (gameState === 'gameover' || gameState === 'won') {
-    return <GameOverScreen status={gameState} onRestart={restartGame} finalState={playerState} isSystemDegraded={isSystemDegraded} />;
+    return <GameOverScreen status={gameState} onRestart={restartGame} finalState={playerState} systemStatus={systemStatus} />;
   }
 
   return (
@@ -496,19 +496,29 @@ export default function PortlandTrailPage() {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-1">
-        {isSystemDegraded && (
-          <TooltipProvider>
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
+        <TooltipProvider>
+            {systemStatus.isPrimaryDegraded && (
             <Tooltip>
-              <TooltipTrigger>
-                <AlertTriangle className="h-3 w-3 text-destructive" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>AI systems are degraded. Using fallback data.</p>
-              </TooltipContent>
+                <TooltipTrigger>
+                <CloudCog className="h-3 w-3 text-yellow-500" />
+                </TooltipTrigger>
+                <TooltipContent>
+                <p>Primary AI degraded. Using fallback system.</p>
+                </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-        )}
+            )}
+            {systemStatus.isFullyOffline && (
+            <Tooltip>
+                <TooltipTrigger>
+                <CloudOff className="h-3 w-3 text-destructive" />
+                </TooltipTrigger>
+                <TooltipContent>
+                <p>All AI systems offline. Using hardcoded data.</p>
+                </TooltipContent>
+            </Tooltip>
+            )}
+        </TooltipProvider>
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>
