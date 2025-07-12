@@ -44,6 +44,7 @@ const generateHipsterNameFlow = ai.defineFlow(
 You MUST generate a different name every time. Do not repeat yourself.
 
 Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage", "Indigo", "Juniper", "Rowan", "Linden".
+Bad examples to avoid: "Sawyer", "Jasper", "Ezra", "Milo".
 
 Do not provide any explanation or extra text.
 
