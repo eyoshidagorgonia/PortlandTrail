@@ -1,11 +1,26 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils } from 'lucide-react';
+import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { BUILD_NUMBER } from '@/lib/constants';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function HelpPage() {
+  const [isSystemDegraded, setIsSystemDegraded] = useState(false);
+
+  useEffect(() => {
+    // Check local storage on the client side to see if the system is degraded.
+    const degradedStatus = localStorage.getItem('isSystemDegraded');
+    if (degradedStatus === 'true') {
+      setIsSystemDegraded(true);
+    }
+  }, []);
+
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
       <Card className="max-w-4xl w-full shadow-xl border">
@@ -84,8 +99,20 @@ export default function HelpPage() {
           </div>
         </CardContent>
       </Card>
-      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono">
-        Build: {BUILD_NUMBER.toFixed(3)}
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-1">
+        {isSystemDegraded && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <AlertTriangle className="h-3 w-3 text-destructive" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>AI systems are degraded. Using fallback data.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>
   );

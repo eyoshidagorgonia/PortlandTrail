@@ -1,18 +1,21 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlayerState } from '@/lib/types';
-import { Award, Bike, Frown, PartyPopper, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Award, Bike, Frown, PartyPopper, RefreshCw } from 'lucide-react';
 import { BUILD_NUMBER } from '@/lib/constants';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface GameOverScreenProps {
   status: 'gameover' | 'won';
   onRestart: () => void;
   finalState: PlayerState;
+  isSystemDegraded: boolean;
 }
 
-export default function GameOverScreen({ status, onRestart, finalState }: GameOverScreenProps) {
+export default function GameOverScreen({ status, onRestart, finalState, isSystemDegraded }: GameOverScreenProps) {
   const isWin = status === 'won';
 
   return (
@@ -49,8 +52,20 @@ export default function GameOverScreen({ status, onRestart, finalState }: GameOv
           </Button>
         </CardContent>
       </Card>
-      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono">
-        Build: {BUILD_NUMBER.toFixed(3)}
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-1">
+        {isSystemDegraded && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <AlertTriangle className="h-3 w-3 text-destructive" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>AI systems were degraded. Used fallback data.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>
   );
