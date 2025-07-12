@@ -146,7 +146,7 @@ const generateCharacterBioFlow = ai.defineFlow(
                 isFallback: true
             };
         } catch(fallbackError) {
-            console.error(`[generateCharacterBioFlow] Nexis.ai fallback failed for ${name}. Returning hard-coded fallback.`, { error: fallbackError });
+            console.error(`[generateCharacterBioFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             return {
                 bio: "They believe their artisanal pickles can change the world, one jar at a time.",
                 isFallback: true,

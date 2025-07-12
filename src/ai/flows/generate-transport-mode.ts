@@ -132,7 +132,7 @@ const generateTransportModeFlow = ai.defineFlow(
                 isFallback: true
             };
         } catch(fallbackError) {
-            console.error(`[generateTransportModeFlow] Nexis.ai fallback failed. Returning hard-coded fallback.`, { error: fallbackError });
+            console.error(`[generateTransportModeFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
             const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
             return {

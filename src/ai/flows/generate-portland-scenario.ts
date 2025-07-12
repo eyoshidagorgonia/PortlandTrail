@@ -170,7 +170,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
                 isFallback: true
             };
         } catch(fallbackError) {
-            console.error(`[generatePortlandScenarioFlow] Nexis.ai fallback failed for location ${location}. Returning hard-coded fallback.`, { error: fallbackError });
+            console.error(`[generatePortlandScenarioFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             return {
                 scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
                 challenge: "Question your reality",

@@ -135,7 +135,7 @@ const generateHipsterNameFlow = ai.defineFlow(
             isFallback: true,
           };
         } catch (fallbackError) {
-          console.error(`[generateHipsterNameFlow] Nexis.ai fallback failed. Returning hard-coded fallback.`, { error: fallbackError });
+          console.error(`[generateHipsterNameFlow] Nexis.ai fallback failed.`, { error: fallbackError });
           const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
           return {
               fallbackNames: fallbackNames,
