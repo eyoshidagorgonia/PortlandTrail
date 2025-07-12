@@ -46,7 +46,7 @@ describe('generateHipsterName', () => {
     expect(fetch).toHaveBeenCalledTimes(2);
     // Check that the second call was to the nexis URL
     const secondCall = (fetch as any).mock.calls[1];
-    expect(secondCall[0]).toBe('http://modelapi.nexix.ai/api/generate');
+    expect(secondCall[0]).toBe('http://modelapi.nexix.ai/api/v1/proxy/generate');
   });
 
   it('should return hardcoded fallback names when both primary and nexis services fail', async () => {
