@@ -11,19 +11,15 @@ import { BUILD_NUMBER } from '@/lib/constants';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function HelpPage() {
+  const [isHealthy, setIsHealthy] = useState(false);
   const [isPrimaryDegraded, setIsPrimaryDegraded] = useState(false);
   const [isFullyOffline, setIsFullyOffline] = useState(false);
 
   useEffect(() => {
     // Check local storage on the client side for system status.
-    const primaryDegraded = localStorage.getItem('isPrimaryDegraded');
-    if (primaryDegraded === 'true') {
-      setIsPrimaryDegraded(true);
-    }
-    const fullyOffline = localStorage.getItem('isFullyOffline');
-    if (fullyOffline === 'true') {
-      setIsFullyOffline(true);
-    }
+    setIsHealthy(localStorage.getItem('isSystemHealthy') === 'true');
+    setIsPrimaryDegraded(localStorage.getItem('isPrimaryDegraded') === 'true');
+    setIsFullyOffline(localStorage.getItem('isFullyOffline') === 'true');
   }, []);
 
   return (
@@ -106,6 +102,14 @@ export default function HelpPage() {
       </Card>
       <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
         <TooltipProvider>
+            {isHealthy && !isPrimaryDegraded && !isFullyOffline && (
+              <Tooltip>
+                  <TooltipTrigger>
+                      <BadgeCheck className="h-3 w-3 text-green-500" />
+                  </TooltipTrigger>
+                  <TooltipContent><p>All AI systems operational.</p></TooltipContent>
+              </Tooltip>
+            )}
             {isPrimaryDegraded && (
             <Tooltip>
                 <TooltipTrigger>

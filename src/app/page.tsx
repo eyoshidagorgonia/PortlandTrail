@@ -21,7 +21,7 @@ import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
-import { Coffee, Route, RefreshCw, Loader2, CloudCog, CloudOff } from 'lucide-react';
+import { Coffee, Route, RefreshCw, Loader2, CloudCog, CloudOff, BadgeCheck } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -40,30 +40,35 @@ export default function PortlandTrailPage() {
   const [isNameLoading, setIsNameLoading] = useState(true);
   const [isBioLoading, setIsBioLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [systemStatus, setSystemStatus] = useState<SystemStatus>({ isPrimaryDegraded: false, isFullyOffline: false });
+  const [systemStatus, setSystemStatus] = useState<SystemStatus>({ isHealthy: false, isPrimaryDegraded: false, isFullyOffline: false });
 
   const { toast } = useToast();
 
   const updateSystemStatus = useCallback((sources: Record<string, 'primary' | 'fallback' | 'hardcoded'>) => {
     let isPrimaryDegraded = false;
     let isFullyOffline = false;
+    let allPrimary = Object.values(sources).every(s => s === 'primary');
 
     Object.values(sources).forEach(source => {
         if (source === 'fallback') {
             isPrimaryDegraded = true;
+            allPrimary = false;
         }
         if (source === 'hardcoded') {
             isPrimaryDegraded = true;
             isFullyOffline = true;
+            allPrimary = false;
         }
     });
 
     setSystemStatus(prevStatus => {
-        const newStatus = {
+        const newStatus: SystemStatus = {
+            isHealthy: prevStatus.isHealthy || (allPrimary && !isPrimaryDegraded && !isFullyOffline),
             isPrimaryDegraded: prevStatus.isPrimaryDegraded || isPrimaryDegraded,
             isFullyOffline: prevStatus.isFullyOffline || isFullyOffline
         };
         // Persist to local storage for other pages
+        if (newStatus.isHealthy) localStorage.setItem('isSystemHealthy', 'true');
         if (newStatus.isPrimaryDegraded) localStorage.setItem('isPrimaryDegraded', 'true');
         if (newStatus.isFullyOffline) localStorage.setItem('isFullyOffline', 'true');
         return newStatus;
@@ -222,7 +227,8 @@ export default function PortlandTrailPage() {
     setBio('');
     setJob('');
     setHasInitialized(false);
-    setSystemStatus({ isPrimaryDegraded: false, isFullyOffline: false });
+    setSystemStatus({ isHealthy: false, isPrimaryDegraded: false, isFullyOffline: false });
+    localStorage.removeItem('isSystemHealthy');
     localStorage.removeItem('isPrimaryDegraded');
     localStorage.removeItem('isFullyOffline');
   }, []);
@@ -329,11 +335,9 @@ export default function PortlandTrailPage() {
             }
         } else { // 80% chance of failure
             addLog('You went for broke and got broken. A significant, but not devastating, failure.');
-            tempState.stats.hunger = Math.max(0, tempState.stats.hunger - 15);
-            tempState.resources.bikeHealth = Math.max(0, tempState.resources.bikeHealth - 20);
-            tempState.stats.style = Math.max(0, tempState.stats.style - 10);
-            tempState.stats.irony = Math.max(0, tempState.stats.irony - 10);
-            tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity - 10);
+            tempState.stats.hunger = Math.max(0, tempState.stats.hunger - 10);
+            tempState.resources.bikeHealth = Math.max(0, tempState.resources.bikeHealth - 15);
+            tempState.stats.style = Math.max(0, tempState.stats.style - 5);
         }
     } else {
         // Apply normal consequences
@@ -435,6 +439,14 @@ export default function PortlandTrailPage() {
           </CardContent>
            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
                 <TooltipProvider>
+                    {systemStatus.isHealthy && !systemStatus.isPrimaryDegraded && !systemStatus.isFullyOffline && (
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <BadgeCheck className="h-3 w-3 text-green-500" />
+                            </TooltipTrigger>
+                            <TooltipContent><p>All AI systems operational.</p></TooltipContent>
+                        </Tooltip>
+                    )}
                     {systemStatus.isPrimaryDegraded && (
                     <Tooltip>
                         <TooltipTrigger>
@@ -498,6 +510,14 @@ export default function PortlandTrailPage() {
       </div>
       <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
         <TooltipProvider>
+            {systemStatus.isHealthy && !systemStatus.isPrimaryDegraded && !systemStatus.isFullyOffline && (
+                <Tooltip>
+                    <TooltipTrigger>
+                        <BadgeCheck className="h-3 w-3 text-green-500" />
+                    </TooltipTrigger>
+                    <TooltipContent><p>All AI systems operational.</p></TooltipContent>
+                </Tooltip>
+            )}
             {systemStatus.isPrimaryDegraded && (
             <Tooltip>
                 <TooltipTrigger>

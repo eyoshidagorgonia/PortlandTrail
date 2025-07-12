@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PlayerState, SystemStatus } from '@/lib/types';
-import { CloudCog, CloudOff, Frown, PartyPopper, RefreshCw } from 'lucide-react';
+import { BadgeCheck, CloudCog, CloudOff, Frown, PartyPopper, RefreshCw } from 'lucide-react';
 import { BUILD_NUMBER } from '@/lib/constants';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
@@ -54,6 +54,14 @@ export default function GameOverScreen({ status, onRestart, finalState, systemSt
       </Card>
       <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
         <TooltipProvider>
+            {systemStatus.isHealthy && !systemStatus.isPrimaryDegraded && !systemStatus.isFullyOffline && (
+                <Tooltip>
+                    <TooltipTrigger>
+                        <BadgeCheck className="h-3 w-3 text-green-500" />
+                    </TooltipTrigger>
+                    <TooltipContent><p>All AI systems were operational.</p></TooltipContent>
+                </Tooltip>
+            )}
             {systemStatus.isPrimaryDegraded && (
             <Tooltip>
                 <TooltipTrigger>
