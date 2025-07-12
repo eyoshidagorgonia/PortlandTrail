@@ -32,19 +32,6 @@ export async function generateHipsterName(): Promise<GenerateHipsterNameAndSourc
   return generateHipsterNameFlow();
 }
 
-const promptTemplate = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name.
-You MUST generate a different name every time. Do not repeat yourself.
-
-Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage".
-
-Do not provide any explanation or extra text.
-
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
-{
-  "name": "The generated name"
-}
-`;
-
 const generateHipsterNameFlow = ai.defineFlow(
   {
     name: 'generateHipsterNameFlow',
@@ -53,9 +40,23 @@ const generateHipsterNameFlow = ai.defineFlow(
   },
   async () => {
     console.log('[generateHipsterNameFlow] Started.');
+    const promptTemplate = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name.
+You MUST generate a different name every time. Do not repeat yourself.
+
+Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage".
+
+Do not provide any explanation or extra text.
+
+To ensure a unique name, use this random seed in your generation process: ${Math.random()}
+
+You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
+{
+  "name": "The generated name"
+}
+`;
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
-      const url = `${baseUrl}/api/proxy?cb=${Date.now()}`;
+      const url = `${baseUrl}/api/proxy`;
       const requestBody = {
           model: 'google-ai',
           prompt: promptTemplate,
@@ -89,9 +90,9 @@ const generateHipsterNameFlow = ai.defineFlow(
       }
       
       console.log('[generateHipsterNameFlow] Parsing JSON response.');
-      const parsedResult = JSON.parse(responseData);
+      const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(responseData));
       
-      return { ...GenerateHipsterNameOutputSchema.parse(parsedResult), dataSource: 'primary' };
+      return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
         console.warn(`[generateHipsterNameFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });

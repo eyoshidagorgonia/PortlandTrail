@@ -31,19 +31,6 @@ export async function generateTransportMode(): Promise<GenerateTransportModeAndS
   return generateTransportModeFlow();
 }
 
-const promptTemplate = `You are a creative writer for a hipster video game.
-Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
-The phrase will be used as button text. It should be an action.
-
-Good examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away", "Jog ironically", "Unicycle to safety", "Drift away on a longboard".
-
-Do not provide any explanation or extra text.
-
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
-{
-  "text": "The generated phrase."
-}
-`;
 
 const generateTransportModeFlow = ai.defineFlow(
   {
@@ -53,6 +40,21 @@ const generateTransportModeFlow = ai.defineFlow(
   },
   async () => {
     console.log('[generateTransportModeFlow] Started.');
+    const promptTemplate = `You are a creative writer for a hipster video game.
+Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
+The phrase will be used as button text. It should be an action.
+
+Good examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away", "Jog ironically", "Unicycle to safety", "Drift away on a longboard".
+
+To ensure a unique phrase, use this random seed in your generation process: ${Math.random()}
+
+Do not provide any explanation or extra text.
+
+You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
+{
+  "text": "The generated phrase."
+}
+`;
     try {
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
@@ -90,8 +92,8 @@ const generateTransportModeFlow = ai.defineFlow(
       }
       
       console.log('[generateTransportModeFlow] Parsing JSON response.');
-      const parsedResult = JSON.parse(responseData);
-      return { ...GenerateTransportModeOutputSchema.parse(parsedResult), dataSource: 'primary' };
+      const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(responseData));
+      return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
         console.warn(`[generateTransportModeFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
