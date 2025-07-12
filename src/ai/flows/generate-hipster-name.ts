@@ -88,6 +88,7 @@ const generateHipsterNameFlow = ai.defineFlow(
       console.log('[generateHipsterNameFlow] Parsing JSON response.');
       const parsedResult = JSON.parse(responseData);
       
+      // No isFallback property here, because this is the primary success path
       return GenerateHipsterNameOutputSchema.parse(parsedResult);
 
     } catch (error) {
@@ -111,6 +112,7 @@ const generateHipsterNameFlow = ai.defineFlow(
 
           const nexisResponse = await fetch(nexisUrl, {
             method: 'POST',
+            cache: 'no-store',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${apiKey}`,
@@ -129,14 +131,15 @@ const generateHipsterNameFlow = ai.defineFlow(
           // The response from nexis is a stringified JSON inside the 'response' field.
           const parsedResult = JSON.parse(nexisResult.response);
 
+          // No isFallback property here, because the fallback succeeded.
           return GenerateHipsterNameOutputSchema.parse(parsedResult);
         } catch (fallbackError) {
-          console.error(`[generateHipsterNameFlow] Nexis.ai fallback failed. Returning hard-coded name.`, { error: fallbackError });
+          console.error(`[generateHipsterNameFlow] Fallback call to Nexis.ai also failed. Returning hard-coded name.`, { error: fallbackError });
           const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
           const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
           return {
               name: randomName,
-              isFallback: true,
+              isFallback: true, // Only set isFallback to true when all services fail
           }
         }
     }

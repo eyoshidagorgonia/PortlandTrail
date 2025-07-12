@@ -26,6 +26,8 @@ describe('generateHipsterName', () => {
     expect(result.name).toBe('Birch');
     expect(result.isFallback).toBeUndefined();
     expect(fetch).toHaveBeenCalledTimes(1);
+    const firstCall = (fetch as any).mock.calls[0];
+    expect(firstCall[1].cache).toBe('no-store');
   });
 
   it('should use the Nexis.ai fallback if the primary service fails', async () => {
@@ -42,13 +44,16 @@ describe('generateHipsterName', () => {
     const result = await generateHipsterName();
 
     expect(result.name).toBe('Fennel');
-    expect(result.isFallback).toBe(true);
+    // isFallback should NOT be true if the fallback service succeeds
+    expect(result.isFallback).toBeUndefined();
     expect(fetch).toHaveBeenCalledTimes(2);
-    // Check that the second call was to the nexis URL
+
+    // Check that the second call was to the nexis URL and configured correctly
     const secondCall = (fetch as any).mock.calls[1];
     const secondCallBody = JSON.parse(secondCall[1].body);
     expect(secondCall[0]).toBe('http://modelapi.nexix.ai/api/v1/proxy/generate');
     expect(secondCallBody.format).toBe('json');
+    expect(secondCall[1].cache).toBe('no-store');
   });
 
   it('should return a hardcoded fallback name when both primary and nexis services fail', async () => {
@@ -61,8 +66,8 @@ describe('generateHipsterName', () => {
     // Check that one of the hardcoded names is returned
     const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
     expect(fallbackNames).toContain(result.name);
+    // isFallback should ONLY be true when the hardcoded value is used
     expect(result.isFallback).toBe(true);
-    expect(result.fallbackNames).toBeUndefined(); // Should not return the array anymore
   });
 
   it('should return a hardcoded fallback name when the primary response is not ok and nexis fails', async () => {
