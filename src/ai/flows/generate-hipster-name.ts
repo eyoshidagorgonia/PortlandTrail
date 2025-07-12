@@ -126,7 +126,7 @@ const generateHipsterNameFlow = ai.defineFlow(
           }
 
           const nexisResult = await nexisResponse.json();
-          console.log('[generateHipsterNameFlow] Nexis.ai fallback successful.');
+          console.log('[generateHipsterNameFlow] Nexis.ai fallback successful.', nexisResult);
           // The response from nexis is a stringified JSON inside the 'response' field.
           const parsedResult = JSON.parse(nexisResult.response);
 
