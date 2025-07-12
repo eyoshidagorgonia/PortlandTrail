@@ -7,20 +7,72 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Award, Bike, Coffee, DiscAlbum, Frown, Heart, Map, MessageSquare, Quote, BadgeCheck, ShoppingBag, Utensils, CloudOff, CloudCog } from 'lucide-react';
 import Link from 'next/link';
-import { BUILD_NUMBER } from '@/lib/constants';
+import { BUILD_NUMBER, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function HelpPage() {
-  const [isHealthy, setIsHealthy] = useState(false);
-  const [isPrimaryDegraded, setIsPrimaryDegraded] = useState(false);
-  const [isFullyOffline, setIsFullyOffline] = useState(false);
+    const [healthyServices, setHealthyServices] = useState<string[]>([]);
+    const [primaryDegradedServices, setPrimaryDegradedServices] = useState<string[]>([]);
+    const [fullyOfflineServices, setFullyOfflineServices] = useState<string[]>([]);
 
   useEffect(() => {
     // Check local storage on the client side for system status.
-    setIsHealthy(localStorage.getItem('isSystemHealthy') === 'true');
-    setIsPrimaryDegraded(localStorage.getItem('isPrimaryDegraded') === 'true');
-    setIsFullyOffline(localStorage.getItem('isFullyOffline') === 'true');
+    try {
+        setHealthyServices(JSON.parse(localStorage.getItem('healthyServices') || '[]'));
+        setPrimaryDegradedServices(JSON.parse(localStorage.getItem('primaryDegradedServices') || '[]'));
+        setFullyOfflineServices(JSON.parse(localStorage.getItem('fullyOfflineServices') || '[]'));
+    } catch (e) {
+        console.error("Failed to parse system status from local storage", e);
+    }
   }, []);
+
+  const StatusIcons = () => {
+    const isHealthy = healthyServices.length > 0 && primaryDegradedServices.length === 0 && fullyOfflineServices.length === 0;
+    return (
+        <div className="flex items-center gap-2">
+            <TooltipProvider>
+                {isHealthy && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <BadgeCheck className="h-3 w-3 text-green-500" />
+                        </TooltipTrigger>
+                        <TooltipContent><p>All AI systems operational.</p></TooltipContent>
+                    </Tooltip>
+                )}
+                {primaryDegradedServices.length > 0 && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <CloudCog className="h-3 w-3 text-yellow-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <div className="space-y-1 text-center">
+                                <p className="font-bold">Primary AI Degraded</p>
+                                <ul className="list-disc list-inside text-xs">
+                                    {primaryDegradedServices.map(s => <li key={s}>{s}</li>)}
+                                </ul>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+                {fullyOfflineServices.length > 0 && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <CloudOff className="h-3 w-3 text-destructive" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                             <div className="space-y-1 text-center">
+                                <p className="font-bold">AI Systems Offline</p>
+                                <ul className="list-disc list-inside text-xs">
+                                    {fullyOfflineServices.map(s => <li key={s}>{s}</li>)}
+                                </ul>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+            </TooltipProvider>
+        </div>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
@@ -101,36 +153,7 @@ export default function HelpPage() {
         </CardContent>
       </Card>
       <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
-        <TooltipProvider>
-            {isHealthy && !isPrimaryDegraded && !isFullyOffline && (
-              <Tooltip>
-                  <TooltipTrigger>
-                      <BadgeCheck className="h-3 w-3 text-green-500" />
-                  </TooltipTrigger>
-                  <TooltipContent><p>All AI systems operational.</p></TooltipContent>
-              </Tooltip>
-            )}
-            {isPrimaryDegraded && (
-            <Tooltip>
-                <TooltipTrigger>
-                <CloudCog className="h-3 w-3 text-yellow-500" />
-                </TooltipTrigger>
-                <TooltipContent>
-                <p>Primary AI degraded. Using fallback system.</p>
-                </TooltipContent>
-            </Tooltip>
-            )}
-            {isFullyOffline && (
-            <Tooltip>
-                <TooltipTrigger>
-                <CloudOff className="h-3 w-3 text-destructive" />
-                </TooltipTrigger>
-                <TooltipContent>
-                <p>All AI systems offline. Using hardcoded data.</p>
-                </TooltipContent>
-            </Tooltip>
-            )}
-        </TooltipProvider>
+        <StatusIcons />
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>

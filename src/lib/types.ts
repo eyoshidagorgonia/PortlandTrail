@@ -79,7 +79,7 @@ export type Scenario = (ScenarioData & {
 });
 
 export interface SystemStatus {
-    isHealthy: boolean;
-    isPrimaryDegraded: boolean;
-    isFullyOffline: boolean;
+    healthyServices: Set<string>;
+    primaryDegradedServices: Set<string>;
+    fullyOfflineServices: Set<string>;
 }

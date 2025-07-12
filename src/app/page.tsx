@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
 import { generateAvatar } from '@/ai/flows/generate-avatar';
@@ -24,6 +24,12 @@ import ActionsCard from '@/components/game/actions-card';
 import { Coffee, Route, RefreshCw, Loader2, CloudCog, CloudOff, BadgeCheck } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+const INITIAL_SYSTEM_STATUS: SystemStatus = {
+    healthyServices: new Set(),
+    primaryDegradedServices: new Set(),
+    fullyOfflineServices: new Set(),
+};
 
 export default function PortlandTrailPage() {
   const [playerState, setPlayerState] = useState<PlayerState>(INITIAL_PLAYER_STATE);
@@ -40,51 +46,62 @@ export default function PortlandTrailPage() {
   const [isNameLoading, setIsNameLoading] = useState(true);
   const [isBioLoading, setIsBioLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [systemStatus, setSystemStatus] = useState<SystemStatus>({ isHealthy: false, isPrimaryDegraded: false, isFullyOffline: false });
+  const [systemStatus, setSystemStatus] = useState<SystemStatus>(INITIAL_SYSTEM_STATUS);
 
   const { toast } = useToast();
 
   const updateSystemStatus = useCallback((sources: Record<string, 'primary' | 'fallback' | 'hardcoded'>) => {
-    let isPrimaryDegraded = false;
-    let isFullyOffline = false;
-    let allPrimary = Object.values(sources).every(s => s === 'primary');
-
-    Object.values(sources).forEach(source => {
-        if (source === 'fallback') {
-            isPrimaryDegraded = true;
-            allPrimary = false;
-        }
-        if (source === 'hardcoded') {
-            isPrimaryDegraded = true;
-            isFullyOffline = true;
-            allPrimary = false;
-        }
-    });
+    let showDegradedToast = false;
+    let showOfflineToast = false;
 
     setSystemStatus(prevStatus => {
         const newStatus: SystemStatus = {
-            isHealthy: prevStatus.isHealthy || (allPrimary && !isPrimaryDegraded && !isFullyOffline),
-            isPrimaryDegraded: prevStatus.isPrimaryDegraded || isPrimaryDegraded,
-            isFullyOffline: prevStatus.isFullyOffline || isFullyOffline
+            healthyServices: new Set(prevStatus.healthyServices),
+            primaryDegradedServices: new Set(prevStatus.primaryDegradedServices),
+            fullyOfflineServices: new Set(prevStatus.fullyOfflineServices),
         };
+
+        for (const [service, source] of Object.entries(sources)) {
+            const serviceName = SERVICE_DISPLAY_NAMES[service] || service;
+            // Remove from all sets first to handle status changes
+            newStatus.healthyServices.delete(serviceName);
+            newStatus.primaryDegradedServices.delete(serviceName);
+            newStatus.fullyOfflineServices.delete(serviceName);
+
+            if (source === 'primary') {
+                newStatus.healthyServices.add(serviceName);
+            } else if (source === 'fallback') {
+                newStatus.primaryDegradedServices.add(serviceName);
+                if (!prevStatus.primaryDegradedServices.has(serviceName) && !prevStatus.fullyOfflineServices.has(serviceName)) {
+                    showDegradedToast = true;
+                }
+            } else if (source === 'hardcoded') {
+                newStatus.fullyOfflineServices.add(serviceName);
+                 if (!prevStatus.fullyOfflineServices.has(serviceName)) {
+                    showOfflineToast = true;
+                }
+            }
+        }
+        
         // Persist to local storage for other pages
-        if (newStatus.isHealthy) localStorage.setItem('isSystemHealthy', 'true');
-        if (newStatus.isPrimaryDegraded) localStorage.setItem('isPrimaryDegraded', 'true');
-        if (newStatus.isFullyOffline) localStorage.setItem('isFullyOffline', 'true');
+        localStorage.setItem('healthyServices', JSON.stringify(Array.from(newStatus.healthyServices)));
+        localStorage.setItem('primaryDegradedServices', JSON.stringify(Array.from(newStatus.primaryDegradedServices)));
+        localStorage.setItem('fullyOfflineServices', JSON.stringify(Array.from(newStatus.fullyOfflineServices)));
+        
         return newStatus;
     });
 
-    if (isFullyOffline) {
+    if (showOfflineToast) {
         toast({
             variant: 'destructive',
-            title: 'All AI Systems Offline',
-            description: "The game is running on emergency hardcoded data.",
+            title: 'An AI System is Offline',
+            description: "Using hardcoded data. The experience will be less dynamic.",
         });
-    } else if (isPrimaryDegraded) {
+    } else if (showDegradedToast) {
         toast({
             variant: 'destructive',
-            title: 'Primary AI Degraded',
-            description: "Using fallback AI system. You may notice differences.",
+            title: 'An AI System is Degraded',
+            description: "Using fallback AI. You may notice differences.",
         });
     }
   }, [toast]);
@@ -227,10 +244,10 @@ export default function PortlandTrailPage() {
     setBio('');
     setJob('');
     setHasInitialized(false);
-    setSystemStatus({ isHealthy: false, isPrimaryDegraded: false, isFullyOffline: false });
-    localStorage.removeItem('isSystemHealthy');
-    localStorage.removeItem('isPrimaryDegraded');
-    localStorage.removeItem('isFullyOffline');
+    setSystemStatus(INITIAL_SYSTEM_STATUS);
+    localStorage.removeItem('healthyServices');
+    localStorage.removeItem('primaryDegradedServices');
+    localStorage.removeItem('fullyOfflineServices');
   }, []);
 
   const advanceTurn = (tempState: PlayerState) => {
@@ -362,6 +379,54 @@ export default function PortlandTrailPage() {
     setPlayerState(tempState);
     advanceTurn(tempState);
   };
+  
+  const StatusIcons = () => {
+    const isHealthy = systemStatus.healthyServices.size > 0 && systemStatus.primaryDegradedServices.size === 0 && systemStatus.fullyOfflineServices.size === 0;
+    return (
+        <div className="flex items-center gap-2">
+            <TooltipProvider>
+                {isHealthy && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <BadgeCheck className="h-3 w-3 text-green-500" />
+                        </TooltipTrigger>
+                        <TooltipContent><p>All AI systems operational.</p></TooltipContent>
+                    </Tooltip>
+                )}
+                {systemStatus.primaryDegradedServices.size > 0 && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <CloudCog className="h-3 w-3 text-yellow-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <div className="space-y-1 text-center">
+                                <p className="font-bold">Primary AI Degraded</p>
+                                <ul className="list-disc list-inside text-xs">
+                                    {Array.from(systemStatus.primaryDegradedServices).map(s => <li key={s}>{s}</li>)}
+                                </ul>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+                {systemStatus.fullyOfflineServices.size > 0 && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <CloudOff className="h-3 w-3 text-destructive" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                             <div className="space-y-1 text-center">
+                                <p className="font-bold">AI Systems Offline</p>
+                                <ul className="list-disc list-inside text-xs">
+                                    {Array.from(systemStatus.fullyOfflineServices).map(s => <li key={s}>{s}</li>)}
+                                </ul>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+            </TooltipProvider>
+        </div>
+    )
+  }
 
   if (gameState === 'intro') {
     return (
@@ -438,36 +503,7 @@ export default function PortlandTrailPage() {
             </Link>
           </CardContent>
            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
-                <TooltipProvider>
-                    {systemStatus.isHealthy && !systemStatus.isPrimaryDegraded && !systemStatus.isFullyOffline && (
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <BadgeCheck className="h-3 w-3 text-green-500" />
-                            </TooltipTrigger>
-                            <TooltipContent><p>All AI systems operational.</p></TooltipContent>
-                        </Tooltip>
-                    )}
-                    {systemStatus.isPrimaryDegraded && (
-                    <Tooltip>
-                        <TooltipTrigger>
-                        <CloudCog className="h-3 w-3 text-yellow-500" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>Primary AI degraded. Using fallback system.</p>
-                        </TooltipContent>
-                    </Tooltip>
-                    )}
-                    {systemStatus.isFullyOffline && (
-                    <Tooltip>
-                        <TooltipTrigger>
-                        <CloudOff className="h-3 w-3 text-destructive" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>All AI systems offline. Using hardcoded data.</p>
-                        </TooltipContent>
-                    </Tooltip>
-                    )}
-                </TooltipProvider>
+                <StatusIcons />
                 <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
             </div>
         </Card>
@@ -509,36 +545,7 @@ export default function PortlandTrailPage() {
         </div>
       </div>
       <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
-        <TooltipProvider>
-            {systemStatus.isHealthy && !systemStatus.isPrimaryDegraded && !systemStatus.isFullyOffline && (
-                <Tooltip>
-                    <TooltipTrigger>
-                        <BadgeCheck className="h-3 w-3 text-green-500" />
-                    </TooltipTrigger>
-                    <TooltipContent><p>All AI systems operational.</p></TooltipContent>
-                </Tooltip>
-            )}
-            {systemStatus.isPrimaryDegraded && (
-            <Tooltip>
-                <TooltipTrigger>
-                <CloudCog className="h-3 w-3 text-yellow-500" />
-                </TooltipTrigger>
-                <TooltipContent>
-                <p>Primary AI degraded. Using fallback system.</p>
-                </TooltipContent>
-            </Tooltip>
-            )}
-            {systemStatus.isFullyOffline && (
-            <Tooltip>
-                <TooltipTrigger>
-                <CloudOff className="h-3 w-3 text-destructive" />
-                </TooltipTrigger>
-                <TooltipContent>
-                <p>All AI systems offline. Using hardcoded data.</p>
-                </TooltipContent>
-            </Tooltip>
-            )}
-        </TooltipProvider>
+        <StatusIcons />
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>

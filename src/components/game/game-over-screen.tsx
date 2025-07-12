@@ -17,6 +17,54 @@ interface GameOverScreenProps {
 
 export default function GameOverScreen({ status, onRestart, finalState, systemStatus }: GameOverScreenProps) {
   const isWin = status === 'won';
+  
+  const StatusIcons = () => {
+    const isHealthy = systemStatus.healthyServices.size > 0 && systemStatus.primaryDegradedServices.size === 0 && systemStatus.fullyOfflineServices.size === 0;
+    return (
+        <div className="flex items-center gap-2">
+            <TooltipProvider>
+                {isHealthy && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <BadgeCheck className="h-3 w-3 text-green-500" />
+                        </TooltipTrigger>
+                        <TooltipContent><p>All AI systems were operational.</p></TooltipContent>
+                    </Tooltip>
+                )}
+                {systemStatus.primaryDegradedServices.size > 0 && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <CloudCog className="h-3 w-3 text-yellow-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <div className="space-y-1 text-center">
+                                <p className="font-bold">Primary AI Was Degraded</p>
+                                <ul className="list-disc list-inside text-xs">
+                                    {Array.from(systemStatus.primaryDegradedServices).map(s => <li key={s}>{s}</li>)}
+                                </ul>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+                {systemStatus.fullyOfflineServices.size > 0 && (
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <CloudOff className="h-3 w-3 text-destructive" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                             <div className="space-y-1 text-center">
+                                <p className="font-bold">AI Systems Were Offline</p>
+                                <ul className="list-disc list-inside text-xs">
+                                    {Array.from(systemStatus.fullyOfflineServices).map(s => <li key={s}>{s}</li>)}
+                                </ul>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+            </TooltipProvider>
+        </div>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
@@ -53,36 +101,7 @@ export default function GameOverScreen({ status, onRestart, finalState, systemSt
         </CardContent>
       </Card>
       <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
-        <TooltipProvider>
-            {systemStatus.isHealthy && !systemStatus.isPrimaryDegraded && !systemStatus.isFullyOffline && (
-                <Tooltip>
-                    <TooltipTrigger>
-                        <BadgeCheck className="h-3 w-3 text-green-500" />
-                    </TooltipTrigger>
-                    <TooltipContent><p>All AI systems were operational.</p></TooltipContent>
-                </Tooltip>
-            )}
-            {systemStatus.isPrimaryDegraded && (
-            <Tooltip>
-                <TooltipTrigger>
-                <CloudCog className="h-3 w-3 text-yellow-500" />
-                </TooltipTrigger>
-                <TooltipContent>
-                <p>Primary AI was degraded. Used fallback system.</p>
-                </TooltipContent>
-            </Tooltip>
-            )}
-            {systemStatus.isFullyOffline && (
-            <Tooltip>
-                <TooltipTrigger>
-                <CloudOff className="h-3 w-3 text-destructive" />
-                </TooltipTrigger>
-                <TooltipContent>
-                <p>All AI systems were offline. Used hardcoded data.</p>
-                </TooltipContent>
-            </Tooltip>
-            )}
-        </TooltipProvider>
+        <StatusIcons />
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>
     </main>

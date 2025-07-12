@@ -55,4 +55,14 @@ export const getIronicHealthStatus = (health: number): { text: string; variant: 
     return { text: 'Basically Mainstream', variant: 'destructive' };
   };
 
+export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
+    name: "Name Generation",
+    avatar: "Avatar Image",
+    bio: "Character Bio",
+    scenario: "Scenario Generation",
+    image: "Scenario Image",
+    badge: "Badge Image",
+    transport: "Transport Mode",
+    uberBadge: "Uber Badge Image",
+}
     
