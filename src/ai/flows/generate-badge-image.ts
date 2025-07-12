@@ -83,8 +83,7 @@ const generateBadgeImageFlow = ai.defineFlow(
             });
             console.log('[generateBadgeImageFlow] Direct AI call successful.');
             return {
-                imageDataUri: media.url,
-                isFallback: true,
+                imageDataUri: media.url
             };
         } catch(fallbackError) {
             console.error(`[generateBadgeImageFlow] Direct AI call for badge image failed after proxy failure.`, { error: fallbackError });

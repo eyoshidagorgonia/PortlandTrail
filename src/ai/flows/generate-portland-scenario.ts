@@ -165,10 +165,7 @@ const generatePortlandScenarioFlow = ai.defineFlow(
              // The response from nexis is a stringified JSON inside the 'response' field.
             const parsedResult = JSON.parse(nexisResult.response);
 
-            return {
-                ...GeneratePortlandScenarioOutputSchema.parse(parsedResult),
-                isFallback: true
-            };
+            return GeneratePortlandScenarioOutputSchema.parse(parsedResult);
         } catch(fallbackError) {
             console.error(`[generatePortlandScenarioFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             return {

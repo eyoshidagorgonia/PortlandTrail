@@ -85,8 +85,7 @@ const generateAvatarFlow = ai.defineFlow(
             });
             console.log('[generateAvatarFlow] Direct AI call successful.');
             return {
-                avatarDataUri: media.url,
-                isFallback: true,
+                avatarDataUri: media.url
             };
         } catch(fallbackError) {
             console.error(`[generateAvatarFlow] Direct AI call for avatar failed after proxy failure.`, { error: fallbackError });

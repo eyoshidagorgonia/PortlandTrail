@@ -29,7 +29,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     
     console.log('[getScenarioAction] Calling generatePortlandScenario...');
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
-    console.log('[getScenarioAction] Scenario details received. Is fallback:', !!scenarioDetails.isFallback);
+    console.log('[getScenarioAction] Scenario details received. Hard fallback:', !!scenarioDetails.isFallback);
     
     // Generate scenario image, badge image and transport mode in parallel
     console.log('[getScenarioAction] Generating images and transport mode in parallel...');
@@ -39,13 +39,13 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         generateTransportMode()
     ]);
     console.log('[getScenarioAction] Parallel generation complete.');
-    console.log(`  - Image fallback: ${!!imageResult.isFallback}`);
-    console.log(`  - Badge fallback: ${!!badgeImageResult.isFallback}`);
-    console.log(`  - Transport fallback: ${!!transportModeResult.isFallback}`);
+    console.log(`  - Image hard fallback: ${!!imageResult.isFallback}`);
+    console.log(`  - Badge hard fallback: ${!!badgeImageResult.isFallback}`);
+    console.log(`  - Transport hard fallback: ${!!transportModeResult.isFallback}`);
 
-    const isAnyFallback = scenarioDetails.isFallback || imageResult.isFallback || badgeImageResult.isFallback || transportModeResult.isFallback;
-    if (isAnyFallback) {
-        console.warn('[getScenarioAction] One or more AI generations used a fallback.');
+    const isHardFallback = scenarioDetails.isFallback || imageResult.isFallback || badgeImageResult.isFallback || transportModeResult.isFallback;
+    if (isHardFallback) {
+        console.warn('[getScenarioAction] One or more AI generations used a hard fallback.');
     }
 
     const choices: Choice[] = [
@@ -90,7 +90,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     ];
 
     console.log('[getScenarioAction] Successfully constructed scenario object.');
-    return { ...scenarioDetails, choices, image: imageResult.imageDataUri, isFallback: isAnyFallback };
+    return { ...scenarioDetails, choices, image: imageResult.imageDataUri, isFallback: isHardFallback };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[getScenarioAction] Critical failure: ${errorMessage}`, { playerState });

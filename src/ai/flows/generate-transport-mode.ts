@@ -127,10 +127,7 @@ const generateTransportModeFlow = ai.defineFlow(
             console.log('[generateTransportModeFlow] Nexis.ai fallback successful. Response:', nexisResult);
             // The response from nexis is a stringified JSON inside the 'response' field.
             const parsedResult = JSON.parse(nexisResult.response);
-            return {
-                ...GenerateTransportModeOutputSchema.parse(parsedResult),
-                isFallback: true
-            };
+            return GenerateTransportModeOutputSchema.parse(parsedResult);
         } catch(fallbackError) {
             console.error(`[generateTransportModeFlow] Nexis.ai fallback failed.`, { error: fallbackError });
             const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];

@@ -84,8 +84,7 @@ const generateScenarioImageFlow = ai.defineFlow(
             });
             console.log('[generateScenarioImageFlow] Direct AI call successful.');
             return {
-                imageDataUri: media.url,
-                isFallback: true,
+                imageDataUri: media.url
             };
         } catch(fallbackError) {
             console.error(`[generateScenarioImageFlow] Direct AI call for scenario image failed after proxy failure.`, { error: fallbackError });

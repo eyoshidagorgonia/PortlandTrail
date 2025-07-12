@@ -18,8 +18,7 @@ interface ProxyResponse {
 }
 
 const GenerateHipsterNameOutputSchema = z.object({
-  name: z.string().describe('A single, quirky, gender-neutral hipster name.').optional(),
-  fallbackNames: z.array(z.string()).optional().describe('An array of fallback names if generation fails.'),
+  name: z.string().describe('A single, quirky, gender-neutral hipster name.'),
   isFallback: z.boolean().optional().describe('Indicates if the returned data is a fallback due to an error.'),
 });
 export type GenerateHipsterNameOutput = z.infer<typeof GenerateHipsterNameOutputSchema>;
@@ -130,10 +129,7 @@ const generateHipsterNameFlow = ai.defineFlow(
           // The response from nexis is a stringified JSON inside the 'response' field.
           const parsedResult = JSON.parse(nexisResult.response);
 
-          return {
-            ...GenerateHipsterNameOutputSchema.parse(parsedResult),
-            isFallback: true,
-          };
+          return GenerateHipsterNameOutputSchema.parse(parsedResult);
         } catch (fallbackError) {
           console.error(`[generateHipsterNameFlow] Nexis.ai fallback failed. Returning hard-coded name.`, { error: fallbackError });
           const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];

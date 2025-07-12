@@ -70,16 +70,12 @@ export default function PortlandTrailPage() {
     const result = await generateHipsterName();
     if (result.name) {
         setName(result.name);
-    } else if (result.fallbackNames?.length) {
-        // This will be set in useEffect to avoid hydration issues
-        const randomName = result.fallbackNames[Math.floor(Math.random() * result.fallbackNames.length)];
-        setName(randomName);
     }
     if (result.isFallback) {
         toast({
-            variant: 'default',
-            title: 'Name Generation Glitch',
-            description: "The AI name generator is on a coffee break. Here's a classic.",
+            variant: 'destructive',
+            title: 'AI Systems Unstable',
+            description: "The name generator is offline. We've assigned you a name.",
         });
     }
     setIsNameLoading(false);
@@ -92,9 +88,9 @@ export default function PortlandTrailPage() {
     setAvatarUrl(result.avatarDataUri);
     if (result.isFallback) {
         toast({
-            variant: 'default',
-            title: 'Avatar Glitch',
-            description: 'Could not generate a custom avatar. Using a default while the AI takes a nap.',
+            variant: 'destructive',
+            title: 'AI Systems Unstable',
+            description: 'Could not generate a custom avatar. Using a default image.',
         });
     }
     setIsAvatarLoading(false);
@@ -107,9 +103,9 @@ export default function PortlandTrailPage() {
     setBio(result.bio);
     if (result.isFallback) {
         toast({
-            variant: 'default',
-            title: 'Writer\'s Block',
-            description: 'The AI bio writer is contemplating its own existence. Using a stock bio.',
+            variant: 'destructive',
+            title: 'AI Systems Unstable',
+            description: 'The bio writer is offline. Using a stock bio.',
         });
     }
     setIsBioLoading(false);
@@ -186,9 +182,9 @@ export default function PortlandTrailPage() {
     addLog(`An event unfolds: ${scenarioResult.scenario}`);
     if (scenarioResult.isFallback) {
         toast({
-            title: "Déjà Vu on the Trail",
-            description: "The AI is a bit foggy. Your starting journey is from a well-worn path.",
-            variant: 'default',
+            title: "AI Systems Unstable",
+            description: "We're having trouble reaching our AI services. The game is using pre-canned data.",
+            variant: 'destructive',
         });
     }
 
@@ -242,9 +238,9 @@ export default function PortlandTrailPage() {
         addLog(`A new event unfolds: ${scenarioResult.scenario}`);
         if (scenarioResult.isFallback) {
             toast({
-                title: "The Trail Feels... Familiar",
-                description: "The AI is having trouble conjuring a new vision. You've stumbled into a cached memory of the trail.",
-                variant: 'default',
+                title: "AI Systems Unstable",
+                description: "The AI is having trouble conjuring a new vision. Using a pre-canned event.",
+                variant: 'destructive',
             });
         }
       }
@@ -308,8 +304,8 @@ export default function PortlandTrailPage() {
             if (uberBadgeImage.isFallback) {
                 addLog("The cosmos glitched, providing a standard-issue badge instead of something truly epic.");
                 toast({
-                    variant: 'default',
-                    title: 'Slight Cosmic Miscalculation',
+                    variant: 'destructive',
+                    title: 'Cosmic Miscalculation',
                     description: 'Your uber-rare badge looks suspiciously like a normal one. The AI signal must have dropped.',
                 });
             }

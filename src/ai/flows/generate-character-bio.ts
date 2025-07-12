@@ -141,10 +141,7 @@ const generateCharacterBioFlow = ai.defineFlow(
             console.log('[generateCharacterBioFlow] Nexis.ai fallback successful. Response:', nexisResult);
             // The response from nexis is a stringified JSON inside the 'response' field.
             const parsedResult = JSON.parse(nexisResult.response);
-            return {
-                ...GenerateCharacterBioOutputSchema.parse(parsedResult),
-                isFallback: true
-            };
+            return GenerateCharacterBioOutputSchema.parse(parsedResult);
         } catch(fallbackError) {
             console.error(`[generateCharacterBioFlow] Nexis.ai fallback failed. Returning hard-coded bio.`, { error: fallbackError });
             return {
