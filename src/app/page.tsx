@@ -75,7 +75,7 @@ export default function PortlandTrailPage() {
     if (result.isFallback) {
         toast({
             variant: 'destructive',
-            title: 'Primary AI Offline',
+            title: 'AI Systems Offline',
             description: "The name generator failed. We've assigned you a name.",
         });
     }
@@ -90,7 +90,7 @@ export default function PortlandTrailPage() {
     if (result.isFallback) {
         toast({
             variant: 'destructive',
-            title: 'Image AI Offline',
+            title: 'AI Systems Offline',
             description: 'Could not generate a custom avatar. Using a default image.',
         });
     }
@@ -105,7 +105,7 @@ export default function PortlandTrailPage() {
     if (result.isFallback) {
         toast({
             variant: 'destructive',
-            title: 'Bio AI Offline',
+            title: 'AI Systems Offline',
             description: 'The bio writer failed. Using a stock bio.',
         });
     }
@@ -146,7 +146,7 @@ export default function PortlandTrailPage() {
            if (result.isFallback) {
                 toast({
                     variant: "destructive",
-                    title: "Bio AI Offline",
+                    title: "AI Systems Offline",
                     description: "Your bio couldn't be updated. The old one remains."
                 });
             }
@@ -192,8 +192,8 @@ export default function PortlandTrailPage() {
     addLog(`An event unfolds: ${scenarioResult.scenario}`);
     if (scenarioResult.isFallback) {
         toast({
-            title: "Total AI Systems Failure",
-            description: "All AI services failed. The game is running on emergency pre-canned data.",
+            title: "AI Systems Offline",
+            description: "The game is running on emergency pre-canned data.",
             variant: 'destructive',
         });
     }
@@ -248,8 +248,8 @@ export default function PortlandTrailPage() {
         addLog(`A new event unfolds: ${scenarioResult.scenario}`);
         if (scenarioResult.isFallback) {
             toast({
-                title: "Total AI Systems Failure",
-                description: "All AI services failed. The game is using an emergency pre-canned event.",
+                title: "AI Systems Offline",
+                description: "The game is using an emergency pre-canned event.",
                 variant: 'destructive',
             });
         }
@@ -320,12 +320,12 @@ export default function PortlandTrailPage() {
                 });
             }
         } else { // 80% chance of failure
-            addLog('You went for broke and got broken. A devastating failure.');
-            tempState.stats.hunger = 5;
-            tempState.resources.bikeHealth = 10;
-            tempState.stats.style = Math.max(0, tempState.stats.style - 50);
-            tempState.stats.irony = Math.max(0, tempState.stats.irony - 50);
-            tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity - 50);
+            addLog('You went for broke and got broken. A significant, but not devastating, failure.');
+            tempState.stats.hunger = Math.max(0, tempState.stats.hunger - 25);
+            tempState.resources.bikeHealth = Math.max(0, tempState.resources.bikeHealth - 30);
+            tempState.stats.style = Math.max(0, tempState.stats.style - 20);
+            tempState.stats.irony = Math.max(0, tempState.stats.irony - 20);
+            tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity - 20);
         }
     } else {
         // Apply normal consequences
@@ -472,5 +472,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
