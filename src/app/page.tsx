@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -31,7 +32,7 @@ export default function PortlandTrailPage() {
   const [eventLog, setEventLog] = useState<{ message: string; timestamp: Date }[]>([]);
   
   const [name, setName] = useState('');
-  const [job, setJob] = useState(HIPSTER_JOBS[0]);
+  const [job, setJob] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
   const [isAvatarLoading, setIsAvatarLoading] = useState(true);
@@ -74,8 +75,8 @@ export default function PortlandTrailPage() {
     if (result.isFallback) {
         toast({
             variant: 'destructive',
-            title: 'AI Systems Unstable',
-            description: "The name generator is offline. We've assigned you a name.",
+            title: 'Primary AI Offline',
+            description: "The name generator failed. We've assigned you a name.",
         });
     }
     setIsNameLoading(false);
@@ -89,7 +90,7 @@ export default function PortlandTrailPage() {
     if (result.isFallback) {
         toast({
             variant: 'destructive',
-            title: 'AI Systems Unstable',
+            title: 'Image AI Offline',
             description: 'Could not generate a custom avatar. Using a default image.',
         });
     }
@@ -104,8 +105,8 @@ export default function PortlandTrailPage() {
     if (result.isFallback) {
         toast({
             variant: 'destructive',
-            title: 'AI Systems Unstable',
-            description: 'The bio writer is offline. Using a stock bio.',
+            title: 'Bio AI Offline',
+            description: 'The bio writer failed. Using a stock bio.',
         });
     }
     setIsBioLoading(false);
@@ -114,6 +115,8 @@ export default function PortlandTrailPage() {
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
       handleGenerateName();
+      const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
+      setJob(randomJob);
       setHasInitialized(true);
     }
   }, [gameState, hasInitialized, handleGenerateName]);
@@ -140,10 +143,17 @@ export default function PortlandTrailPage() {
         // Pass the full object to the generation function
         generateCharacterBio({name: playerState.name, job: playerState.job, vibe: newVibe}).then(result => {
            setPlayerState(prevState => ({...prevState, bio: result.bio, vibe: newVibe }));
+           if (result.isFallback) {
+                toast({
+                    variant: "destructive",
+                    title: "Bio AI Offline",
+                    description: "Your bio couldn't be updated. The old one remains."
+                });
+            }
         });
       }
     }
-  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe]);
+  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, toast]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -182,8 +192,8 @@ export default function PortlandTrailPage() {
     addLog(`An event unfolds: ${scenarioResult.scenario}`);
     if (scenarioResult.isFallback) {
         toast({
-            title: "AI Systems Unstable",
-            description: "We're having trouble reaching our AI services. The game is using pre-canned data.",
+            title: "Total AI Systems Failure",
+            description: "All AI services failed. The game is running on emergency pre-canned data.",
             variant: 'destructive',
         });
     }
@@ -197,7 +207,7 @@ export default function PortlandTrailPage() {
     setPlayerState(INITIAL_PLAYER_STATE);
     setName('');
     setBio('');
-    setJob(HIPSTER_JOBS[0]);
+    setJob('');
     setHasInitialized(false);
   }, []);
 
@@ -238,8 +248,8 @@ export default function PortlandTrailPage() {
         addLog(`A new event unfolds: ${scenarioResult.scenario}`);
         if (scenarioResult.isFallback) {
             toast({
-                title: "AI Systems Unstable",
-                description: "The AI is having trouble conjuring a new vision. Using a pre-canned event.",
+                title: "Total AI Systems Failure",
+                description: "All AI services failed. The game is using an emergency pre-canned event.",
                 variant: 'destructive',
             });
         }
@@ -407,7 +417,7 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isAvatarLoading || isBioLoading}>
+            <Button size="lg" onClick={startGame} disabled={isLoading || isAvatarLoading || isBioLoading || !job}>
               {(isLoading || isAvatarLoading || isBioLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
               Begin the Journey
             </Button>
@@ -462,3 +472,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
