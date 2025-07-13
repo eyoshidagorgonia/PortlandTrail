@@ -32,17 +32,24 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
     console.log(`[getScenarioAction] Scenario details received. Source: ${scenarioDetails.dataSource}`);
     
-    // Generate scenario image, badge image and transport mode in parallel
+    // Conditionally generate badge image only if the agent decided to create a badge
+    const badgeImagePromise = scenarioDetails.badgeImagePrompt
+      ? generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt })
+      : Promise.resolve(null);
+
+    // Generate scenario image and transport mode in parallel with the potential badge image
     console.log('[getScenarioAction] Generating images and transport mode in parallel...');
     const [imageResult, badgeImageResult, transportModeResult] = await Promise.all([
         generateScenarioImage({ prompt: scenarioDetails.imagePrompt }),
-        generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt }),
+        badgeImagePromise,
         generateTransportMode()
     ]);
     console.log('[getScenarioAction] Parallel generation complete.');
     console.log(`  - Scenario Source: ${scenarioDetails.dataSource}`);
     console.log(`  - Image Source: ${imageResult.dataSource}`);
-    console.log(`  - Badge Source: ${badgeImageResult.dataSource}`);
+    if (badgeImageResult) {
+        console.log(`  - Badge Source: ${badgeImageResult.dataSource}`);
+    }
     console.log(`  - Transport Source: ${transportModeResult.dataSource}`);
 
     const choices: Choice[] = [
@@ -58,10 +65,13 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
             coffee: 0,
             vinyls: 0,
             bikeHealth: 0,
-            badge: {
-                description: scenarioDetails.badgeDescription,
-                imageDataUri: badgeImageResult.imageDataUri,
-            }
+            // Only add the badge if one was generated
+            ...(badgeImageResult && scenarioDetails.badgeDescription && {
+                badge: {
+                    description: scenarioDetails.badgeDescription,
+                    imageDataUri: badgeImageResult.imageDataUri,
+                }
+            })
         },
       },
       {
@@ -76,14 +86,15 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
           bikeHealth: -5, // more wear for just moving on
         },
       },
-      {
+      // Only show the GO FOR BROKE option if there's a badge to be won
+      ...(badgeImageResult && scenarioDetails.badgeDescription && scenarioDetails.badgeImagePrompt ? [{
         text: 'GO FOR BROKE',
         description: 'A high-risk, high-reward gamble. You might earn an incredible badge, or you might face a devastating failure.',
         consequences: {
             // The actual consequences are probabilistic and handled client-side in page.tsx
             hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: 0, bikeHealth: 0,
         }
-      }
+      }] : [])
     ];
 
     console.log('[getScenarioAction] Successfully constructed scenario object.');
@@ -95,7 +106,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         dataSources: {
             scenario: scenarioDetails.dataSource,
             image: imageResult.dataSource,
-            badge: badgeImageResult.dataSource,
+            badge: badgeImageResult?.dataSource || 'primary', // Default to primary if no badge
             transport: transportModeResult.dataSource,
         }
     };
