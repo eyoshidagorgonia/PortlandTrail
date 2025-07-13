@@ -11,7 +11,7 @@ const createFetchResponse = (data: any, ok = true) => {
 describe('generateHipsterName', () => {
     beforeEach(() => {
         vi.resetAllMocks();
-        process.env.NEXIS_API_KEY = 'test-api-key';
+        process.env.NEXIX_API_KEY = 'test-api-key';
     });
 
   it('should return a name from the AI service on success', async () => {
@@ -30,15 +30,15 @@ describe('generateHipsterName', () => {
     expect(firstCall[1].cache).toBe('no-store');
   });
 
-  it('should use the Nexis.ai fallback if the primary service fails', async () => {
-    const mockNexisResponse = {
+  it('should use the Nexix.ai fallback if the primary service fails', async () => {
+    const mockNexixResponse = {
         // The actual content is a stringified JSON object
         response: JSON.stringify({ name: 'Fennel' }),
     };
 
     (fetch as any)
       .mockRejectedValueOnce(new Error('Primary service failed'))
-      .mockResolvedValueOnce(createFetchResponse(mockNexisResponse));
+      .mockResolvedValueOnce(createFetchResponse(mockNexixResponse));
 
     const result = await generateHipsterName();
 
@@ -53,10 +53,10 @@ describe('generateHipsterName', () => {
     expect(secondCall[1].cache).toBe('no-store');
   });
 
-  it('should return a hardcoded fallback name when both primary and nexis services fail', async () => {
+  it('should return a hardcoded fallback name when both primary and nexix services fail', async () => {
     (fetch as any)
         .mockRejectedValueOnce(new Error('Primary service failed'))
-        .mockRejectedValueOnce(new Error('Nexis service failed'));
+        .mockRejectedValueOnce(new Error('Nexix service failed'));
 
     const result = await generateHipsterName();
     
@@ -65,10 +65,10 @@ describe('generateHipsterName', () => {
     expect(result.dataSource).toBe('hardcoded');
   });
 
-  it('should return a hardcoded fallback name when the primary response is not ok and nexis fails', async () => {
+  it('should return a hardcoded fallback name when the primary response is not ok and nexix fails', async () => {
     (fetch as any)
         .mockResolvedValueOnce(createFetchResponse({}, false))
-        .mockRejectedValueOnce(new Error('Nexis service failed'));
+        .mockRejectedValueOnce(new Error('Nexix service failed'));
 
     const result = await generateHipsterName();
     const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
@@ -76,14 +76,14 @@ describe('generateHipsterName', () => {
     expect(result.dataSource).toBe('hardcoded');
   });
 
-  it('should return a hardcoded fallback name when the response JSON is malformed and nexis fails', async () => {
+  it('should return a hardcoded fallback name when the response JSON is malformed and nexix fails', async () => {
     const mockResponse = {
         content: 'this is not json',
         isCached: false,
     };
     (fetch as any)
         .mockResolvedValueOnce(createFetchResponse(mockResponse))
-        .mockRejectedValueOnce(new Error('Nexis service failed'));
+        .mockRejectedValueOnce(new Error('Nexix service failed'));
 
     const result = await generateHipsterName();
     

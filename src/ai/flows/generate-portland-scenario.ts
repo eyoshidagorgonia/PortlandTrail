@@ -110,7 +110,7 @@ export async function generatePortlandScenario(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXIS_API_KEY || ''}`
+            'Authorization': `Bearer ${process.env.NEXIX_API_KEY || ''}`
         },
         body: JSON.stringify(requestBody),
       });

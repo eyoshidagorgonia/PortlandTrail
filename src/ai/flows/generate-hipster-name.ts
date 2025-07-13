@@ -70,7 +70,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXIS_API_KEY || ''}`
+          'Authorization': `Bearer ${process.env.NEXIX_API_KEY || ''}`
         },
         body: JSON.stringify(requestBody),
       });
@@ -97,14 +97,14 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
-        console.warn(`[generateHipsterNameFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
+        console.warn(`[generateHipsterNameFlow] Primary call failed, attempting Nexix.ai fallback.`, { error });
         try {
-          console.log('[generateHipsterNameFlow] Attempting direct call to Nexis.ai server.');
-          const nexisUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
-          const apiKey = process.env.NEXIS_API_KEY;
+          console.log('[generateHipsterNameFlow] Attempting direct call to Nexix.ai server.');
+          const nexixUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+          const apiKey = process.env.NEXIX_API_KEY;
 
           if (!apiKey) {
-            throw new Error('NEXIS_API_KEY is not set.');
+            throw new Error('NEXIX_API_KEY is not set.');
           }
 
           const requestBody = {
@@ -113,9 +113,9 @@ You MUST respond with a valid JSON object only, with no other text before or aft
             stream: false,
             format: 'json',
           };
-          console.log(`[generateHipsterNameFlow] Sending request to Nexis.ai server at ${nexisUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+          console.log(`[generateHipsterNameFlow] Sending request to Nexix.ai server at ${nexixUrl}`, { body: JSON.stringify(requestBody, null, 2) });
 
-          const nexisResponse = await fetch(nexisUrl, {
+          const nexixResponse = await fetch(nexixUrl, {
             method: 'POST',
             cache: 'no-store',
             headers: {
@@ -125,20 +125,20 @@ You MUST respond with a valid JSON object only, with no other text before or aft
             body: JSON.stringify(requestBody),
           });
 
-          if (!nexisResponse.ok) {
-            const errorBody = await nexisResponse.text();
-            console.error(`[generateHipsterNameFlow] Nexis.ai API Error: ${nexisResponse.status} ${nexisResponse.statusText}`, { url: nexisUrl, errorBody });
-            throw new Error(`Nexis.ai API request failed with status ${nexisResponse.status}: ${errorBody}`);
+          if (!nexixResponse.ok) {
+            const errorBody = await nexixResponse.text();
+            console.error(`[generateHipsterNameFlow] Nexix.ai API Error: ${nexixResponse.status} ${nexixResponse.statusText}`, { url: nexixUrl, errorBody });
+            throw new Error(`Nexix.ai API request failed with status ${nexixResponse.status}: ${errorBody}`);
           }
 
-          const nexisResult = await nexisResponse.json();
-          console.log('[generateHipsterNameFlow] Nexis.ai fallback successful.');
+          const nexixResult = await nexixResponse.json();
+          console.log('[generateHipsterNameFlow] Nexix.ai fallback successful.');
           
-          const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nexisResult.response));
+          const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nexixResult.response));
 
           return { ...parsedResult, dataSource: 'fallback' };
         } catch (fallbackError) {
-          console.error(`[generateHipsterNameFlow] Fallback call to Nexis.ai also failed. Returning hard-coded name.`, { error: fallbackError });
+          console.error(`[generateHipsterNameFlow] Fallback call to Nexix.ai also failed. Returning hard-coded name.`, { error: fallbackError });
           const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
           const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
           return {

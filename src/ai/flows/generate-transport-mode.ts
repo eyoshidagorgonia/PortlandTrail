@@ -71,7 +71,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         cache: 'no-store',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXIS_API_KEY || ''}`
+            'Authorization': `Bearer ${process.env.NEXIX_API_KEY || ''}`
         },
         body: JSON.stringify(requestBody),
       });
@@ -97,14 +97,14 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
-        console.warn(`[generateTransportModeFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
+        console.warn(`[generateTransportModeFlow] Primary call failed, attempting Nexix.ai fallback.`, { error });
         try {
-            console.log('[generateTransportModeFlow] Attempting direct call to Nexis.ai server.');
-            const nexisUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
-            const apiKey = process.env.NEXIS_API_KEY;
+            console.log('[generateTransportModeFlow] Attempting direct call to Nexix.ai server.');
+            const nexixUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+            const apiKey = process.env.NEXIX_API_KEY;
 
             if (!apiKey) {
-              throw new Error('NEXIS_API_KEY is not set.');
+              throw new Error('NEXIX_API_KEY is not set.');
             }
 
             const requestBody = {
@@ -113,9 +113,9 @@ You MUST respond with a valid JSON object only, with no other text before or aft
                 stream: false,
                 format: 'json'
             };
-            console.log(`[generateTransportModeFlow] Sending request to Nexis.ai server at ${nexisUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+            console.log(`[generateTransportModeFlow] Sending request to Nexix.ai server at ${nexixUrl}`, { body: JSON.stringify(requestBody, null, 2) });
             
-            const nexisResponse = await fetch(nexisUrl, {
+            const nexixResponse = await fetch(nexixUrl, {
                 method: 'POST',
                 headers: { 
                   'Content-Type': 'application/json',
@@ -124,18 +124,18 @@ You MUST respond with a valid JSON object only, with no other text before or aft
                 body: JSON.stringify(requestBody),
             });
 
-            if (!nexisResponse.ok) {
-                const errorBody = await nexisResponse.text();
-                console.error(`[generateTransportModeFlow] Nexis.ai API Error: ${nexisResponse.status} ${nexisResponse.statusText}`, { url: nexisUrl, errorBody });
-                throw new Error(`Nexis.ai API request failed with status ${nexisResponse.status}: ${errorBody}`);
+            if (!nexixResponse.ok) {
+                const errorBody = await nexixResponse.text();
+                console.error(`[generateTransportModeFlow] Nexix.ai API Error: ${nexixResponse.status} ${nexixResponse.statusText}`, { url: nexixUrl, errorBody });
+                throw new Error(`Nexix.ai API request failed with status ${nexixResponse.status}: ${errorBody}`);
             }
             
-            const nexisResult = await nexisResponse.json();
-            console.log('[generateTransportModeFlow] Nexis.ai fallback successful.');
-            const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(nexisResult.response));
+            const nexixResult = await nexixResponse.json();
+            console.log('[generateTransportModeFlow] Nexix.ai fallback successful.');
+            const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(nexixResult.response));
             return { ...parsedResult, dataSource: 'fallback' };
         } catch(fallbackError) {
-            console.error(`[generateTransportModeFlow] Nexis.ai fallback failed.`, { error: fallbackError });
+            console.error(`[generateTransportModeFlow] Nexix.ai fallback failed.`, { error: fallbackError });
             const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
             const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
             return {

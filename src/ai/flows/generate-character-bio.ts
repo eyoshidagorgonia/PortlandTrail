@@ -82,7 +82,7 @@ const generateCharacterBioFlow = ai.defineFlow(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXIS_API_KEY || ''}`
+            'Authorization': `Bearer ${process.env.NEXIX_API_KEY || ''}`
         },
         body: JSON.stringify(requestBody),
       });
@@ -108,14 +108,14 @@ const generateCharacterBioFlow = ai.defineFlow(
       return { ...GenerateCharacterBioOutputSchema.parse(parsedResult), dataSource: 'primary' };
 
     } catch (error) {
-        console.warn(`[generateCharacterBioFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
+        console.warn(`[generateCharacterBioFlow] Primary call failed, attempting Nexix.ai fallback.`, { error });
         try {
-            console.log('[generateCharacterBioFlow] Attempting direct call to Nexis.ai server.');
-            const nexisUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
-            const apiKey = process.env.NEXIS_API_KEY;
+            console.log('[generateCharacterBioFlow] Attempting direct call to Nexix.ai server.');
+            const nexixUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+            const apiKey = process.env.NEXIX_API_KEY;
             
             if (!apiKey) {
-              throw new Error('NEXIS_API_KEY is not set.');
+              throw new Error('NEXIX_API_KEY is not set.');
             }
 
             const requestBody = {
@@ -124,9 +124,9 @@ const generateCharacterBioFlow = ai.defineFlow(
                 stream: false,
                 format: 'json'
             };
-            console.log(`[generateCharacterBioFlow] Sending request to Nexis.ai server at ${nexisUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+            console.log(`[generateCharacterBioFlow] Sending request to Nexix.ai server at ${nexixUrl}`, { body: JSON.stringify(requestBody, null, 2) });
 
-            const nexisResponse = await fetch(nexisUrl, {
+            const nexixResponse = await fetch(nexixUrl, {
                 method: 'POST',
                 headers: { 
                   'Content-Type': 'application/json',
@@ -135,18 +135,18 @@ const generateCharacterBioFlow = ai.defineFlow(
                 body: JSON.stringify(requestBody),
             });
 
-            if (!nexisResponse.ok) {
-                const errorBody = await nexisResponse.text();
-                console.error(`[generateCharacterBioFlow] Nexis.ai API Error: ${nexisResponse.status} ${nexisResponse.statusText}`, { url: nexisUrl, errorBody });
-                throw new Error(`Nexis.ai API request failed with status ${nexisResponse.status}: ${errorBody}`);
+            if (!nexixResponse.ok) {
+                const errorBody = await nexixResponse.text();
+                console.error(`[generateCharacterBioFlow] Nexix.ai API Error: ${nexixResponse.status} ${nexixResponse.statusText}`, { url: nexixUrl, errorBody });
+                throw new Error(`Nexix.ai API request failed with status ${nexixResponse.status}: ${errorBody}`);
             }
 
-            const nexisResult = await nexisResponse.json();
-            console.log('[generateCharacterBioFlow] Nexis.ai fallback successful.');
-            const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(nexisResult.response));
+            const nexixResult = await nexixResponse.json();
+            console.log('[generateCharacterBioFlow] Nexix.ai fallback successful.');
+            const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(nexixResult.response));
             return { ...parsedResult, dataSource: 'fallback' };
         } catch(fallbackError) {
-            console.error(`[generateCharacterBioFlow] Nexis.ai fallback failed. Returning hard-coded bio.`, { error: fallbackError });
+            console.error(`[generateCharacterBioFlow] Nexix.ai fallback failed. Returning hard-coded bio.`, { error: fallbackError });
             return {
                 bio: "They believe their artisanal pickles can change the world, one jar at a time.",
                 dataSource: 'hardcoded',
