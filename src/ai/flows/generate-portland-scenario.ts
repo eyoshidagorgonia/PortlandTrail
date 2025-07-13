@@ -53,7 +53,11 @@ const OllamaResponseSchema = z.object({
   badgeEmoji: z.string().optional().describe("A single emoji for the badge, if one is awarded."),
 });
 
-const promptTemplate = `You are the Game Master for "The Portland Trail," a quirky text-based RPG.
+export async function generatePortlandScenario(
+  input: GeneratePortlandScenarioInput
+): Promise<GeneratePortlandScenarioOutput> {
+  console.log('[generatePortlandScenario] Started with agent flow.');
+  const prompt = `You are the Game Master for "The Portland Trail," a quirky text-based RPG.
 Your job is to create a complete, self-contained scenario for the player.
 
 You must generate:
@@ -62,9 +66,9 @@ You must generate:
 3.  **Avatar Kaomoji**: Generate a creative Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～\` )┌) that represents the player's character based on their name and job.
 4.  **Badge Decision**: Based on the scenario you generated, decide if it is weird or noteworthy enough to award the player a merit badge. Only award badges for things that are truly strange or representative of Portland culture. If you award a badge, you must also create a single emoji for it.
 
-Player Status: {playerStatus}
-Location: {location}
-Character: {characterInfo}
+Player Status: ${input.playerStatus}
+Location: ${input.location}
+Character: Name: ${input.character.name}, Job: ${input.character.job}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
@@ -77,18 +81,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   "shouldAwardBadge": boolean,
   "badgeDescription": "A short, witty description for the merit badge (only if shouldAwardBadge is true).",
   "badgeEmoji": "A single emoji for the badge (only if shouldAwardBadge is true)."
-}
-`;
-
-
-export async function generatePortlandScenario(
-  input: GeneratePortlandScenarioInput
-): Promise<GeneratePortlandScenarioOutput> {
-  console.log('[generatePortlandScenario] Started with agent flow.');
-  const prompt = promptTemplate
-      .replace('{playerStatus}', input.playerStatus)
-      .replace('{location}', input.location)
-      .replace('{characterInfo}', `Name: ${input.character.name}, Job: ${input.character.job}`);
+}`;
 
   try {
     const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
@@ -124,7 +117,7 @@ export async function generatePortlandScenario(
       
       const scenarioContent = result.choices[0]?.message?.content;
       if (!scenarioContent) {
-        throw new Error('Invalid response structure from API.');
+        throw new Error('Invalid response structure from API. Content is missing.');
       }
       
       const parsedResult = OllamaResponseSchema.parse(JSON.parse(scenarioContent));

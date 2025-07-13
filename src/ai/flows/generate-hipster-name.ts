@@ -33,7 +33,7 @@ const generateHipsterNameFlow = ai.defineFlow(
   },
   async () => {
     console.log('[generateHipsterNameFlow] Started.');
-    const promptTemplate = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name.
+    const prompt = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name.
 You MUST generate a different name every time. Do not repeat yourself.
 
 Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage", "Indigo", "Juniper", "Rowan", "Linden".
@@ -46,8 +46,7 @@ To ensure a unique name, use this random seed in your generation process: ${Math
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
   "name": "The generated name"
-}
-`;
+}`;
     try {
       const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
       const apiKey = process.env.NEXIX_API_KEY;
@@ -58,7 +57,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       
       const requestBody = {
         model: 'gemma3:12b',
-        messages: [{ role: 'user', content: promptTemplate }],
+        messages: [{ role: 'user', content: prompt }],
       };
       console.log(`[generateHipsterNameFlow] Sending request to OpenAI-compatible endpoint at ${url}`);
 
@@ -83,7 +82,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
       const nameContent = result.choices[0]?.message?.content;
       if (!nameContent) {
-        throw new Error('Invalid response structure from API.');
+        throw new Error('Invalid response structure from API. Content is missing.');
       }
       
       const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nameContent));

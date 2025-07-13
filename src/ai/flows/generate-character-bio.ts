@@ -32,21 +32,6 @@ export async function generateCharacterBio(input: GenerateCharacterBioInput): Pr
   return generateCharacterBioFlow(input);
 }
 
-const promptTemplate = `You are a character bio writer for a quirky video game.
-You will be given a character's name, job, and current "vibe".
-Based on this, write a short, 1-2 sentence bio for them in a witty, third-person voice.
-The bio should capture a hipster or artisanal vibe and reflect their current state.
-
-Character Name: {name}
-Character Job: {job}
-Current Vibe: {vibe}
-
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
-{
-  "bio": "The generated bio."
-}
-`;
-
 const generateCharacterBioFlow = ai.defineFlow(
   {
     name: 'generateCharacterBioFlow',
@@ -55,11 +40,19 @@ const generateCharacterBioFlow = ai.defineFlow(
   },
   async ({ name, job, vibe }) => {
     console.log(`[generateCharacterBioFlow] Started for character: ${name}, Job: ${job}, Vibe: ${vibe}`);
-    const prompt = promptTemplate
-      .replace('{name}', name)
-      .replace('{job}', job)
-      .replace('{vibe}', vibe);
-    console.log(`[generateCharacterBioFlow] Generated prompt.`);
+    const prompt = `You are a character bio writer for a quirky video game.
+You will be given a character's name, job, and current "vibe".
+Based on this, write a short, 1-2 sentence bio for them in a witty, third-person voice.
+The bio should capture a hipster or artisanal vibe and reflect their current state.
+
+Character Name: ${name}
+Character Job: ${job}
+Current Vibe: ${vibe}
+
+You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
+{
+  "bio": "The generated bio."
+}`;
 
     try {
       const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
@@ -95,7 +88,7 @@ const generateCharacterBioFlow = ai.defineFlow(
       
       const bioContent = result.choices[0]?.message?.content;
       if (!bioContent) {
-          throw new Error('Invalid response structure from API.');
+          throw new Error('Invalid response structure from API. Content is missing.');
       }
 
       const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(bioContent));

@@ -34,7 +34,7 @@ const generateTransportModeFlow = ai.defineFlow(
   },
   async () => {
     console.log('[generateTransportModeFlow] Started.');
-    const promptTemplate = `You are a creative writer for a hipster video game.
+    const prompt = `You are a creative writer for a hipster video game.
 Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
 The phrase will be used as button text. It should be an action. You MUST generate a different phrase each time.
 
@@ -47,8 +47,7 @@ Do not provide any explanation or extra text.
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
   "text": "The generated phrase."
-}
-`;
+}`;
     try {
       const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
       const apiKey = process.env.NEXIX_API_KEY;
@@ -59,7 +58,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       
       const requestBody = {
           model: 'gemma3:12b',
-          messages: [{ role: 'user', content: promptTemplate }],
+          messages: [{ role: 'user', content: prompt }],
       };
       console.log(`[generateTransportModeFlow] Sending request to OpenAI-compatible endpoint at ${url}`);
 
@@ -85,7 +84,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
       const transportContent = result.choices[0]?.message?.content;
       if (!transportContent) {
-        throw new Error('Invalid response structure from API.');
+        throw new Error('Invalid response structure from API. Content is missing.');
       }
 
       const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(transportContent));
