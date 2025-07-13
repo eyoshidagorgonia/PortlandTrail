@@ -55,7 +55,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
 
     try {
-      const url = 'http://modelapi.nexix.ai/api/v1/chat/completions';
+      const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
       const apiKey = process.env.NEXIX_API_KEY;
 
       if (!apiKey) {
