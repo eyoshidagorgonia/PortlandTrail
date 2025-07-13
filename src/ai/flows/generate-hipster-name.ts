@@ -59,7 +59,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       const url = 'http://modelapi.nexix.ai/api/proxy';
       const requestBody = {
           service: 'ollama',
-          model: 'llama3.1:8b',
+          model: 'gemma3:12b',
           prompt: promptTemplate,
       };
       console.log(`[generateHipsterNameFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
@@ -69,7 +69,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
+          'Authorization': `Bearer ${process.env.NEXIS_API_KEY || ''}`
         },
         body: JSON.stringify(requestBody),
       });
@@ -107,7 +107,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
           }
 
           const requestBody = {
-            model: 'llama3.1:8b',
+            model: 'gemma3:12b',
             prompt: promptTemplate,
             stream: false,
             format: 'json',

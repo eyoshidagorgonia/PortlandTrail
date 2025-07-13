@@ -84,15 +84,15 @@ const generatePortlandScenarioFlow = ai.defineFlow(
     
     const prompt = promptTemplate
         .replace('{playerStatus}', playerStatus)
-        .replace('{location}', location)
-        .replace('{location}', location);
+        .replace(new RegExp('{location}', 'g'), location);
+
     console.log(`[generatePortlandScenarioFlow] Generated prompt.`);
 
     try {
         const url = 'http://modelapi.nexix.ai/api/proxy';
         const requestBody = {
             service: 'ollama',
-            model: 'llama3.1:8b',
+            model: 'gemma3:12b',
             prompt: prompt,
         };
         console.log(`[generatePortlandScenarioFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });

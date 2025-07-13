@@ -72,7 +72,7 @@ const generateCharacterBioFlow = ai.defineFlow(
       const url = 'http://modelapi.nexix.ai/api/proxy';
       const requestBody = {
           service: 'ollama',
-          model: 'llama3.1:8b',
+          model: 'gemma3:12b',
           prompt: prompt,
       };
       console.log(`[generateCharacterBioFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
@@ -81,7 +81,7 @@ const generateCharacterBioFlow = ai.defineFlow(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.API_CACHE_SERVER_KEY || ''}`
+            'Authorization': `Bearer ${process.env.NEXIS_API_KEY || ''}`
         },
         body: JSON.stringify(requestBody),
       });
@@ -118,7 +118,7 @@ const generateCharacterBioFlow = ai.defineFlow(
             }
 
             const requestBody = {
-                model: 'llama3.1:8b',
+                model: 'gemma3:12b',
                 prompt: prompt,
                 stream: false,
                 format: 'json'
