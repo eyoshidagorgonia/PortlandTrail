@@ -13,7 +13,7 @@ function createConsequences(): Omit<Choice['consequences'], 'badge'> {
     style: Math.floor(Math.random() * 11) - 5, // -5 to +5
     irony: Math.floor(Math.random() * 7) - 2, // -2 to +4
     authenticity: Math.floor(Math.random() * 7) - 3, // -3 to +3
-    coffee: -1 * Math.floor(Math.random() * 3), // 0 to -2
+    coffee: -1 * Math.floor(Math.random() * 3), // 0 to -2,
     vinyls: Math.random() > 0.8 ? 1 : 0, // 20% chance to find a vinyl
     progress: Math.floor(Math.random() * 2) + 1, // 1 to 2
     bikeHealth: -1 * (Math.floor(Math.random() * 3)), // -0 to -2, general wear and tear
@@ -32,13 +32,14 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
     console.log(`[getScenarioAction] Flow response received. Source: ${scenarioDetails.dataSource}`);
     
-    const hasBadge = scenarioDetails.badgeDescription && scenarioDetails.badgeImagePrompt;
+    // The agent may or may not decide to create a badge
+    const hasBadge = !!scenarioDetails.badge;
 
     // Generate supporting assets in parallel
     console.log('[getScenarioAction] Generating images and transport mode in parallel...');
     const [imageResult, badgeImageResult, transportModeResult] = await Promise.all([
         generateScenarioImage({ prompt: scenarioDetails.imagePrompt }),
-        hasBadge ? generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt! }) : Promise.resolve(null),
+        hasBadge ? generateBadgeImage({ prompt: scenarioDetails.badge!.badgeImagePrompt }) : Promise.resolve(null),
         generateTransportMode()
     ]);
     console.log('[getScenarioAction] Parallel generation complete.');
@@ -69,7 +70,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
 
     if (hasBadge && badgeImageResult) {
         embraceChoice.consequences.badge = {
-            description: scenarioDetails.badgeDescription!,
+            description: scenarioDetails.badge!.badgeDescription,
             imageDataUri: badgeImageResult.imageDataUri,
         };
         dataSources.badge = badgeImageResult.dataSource;
@@ -103,10 +104,20 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         console.log('[getScenarioAction] "GO FOR BROKE" choice added.');
     }
 
+    const finalScenario = {
+      scenario: scenarioDetails.scenario,
+      challenge: scenarioDetails.challenge,
+      reward: scenarioDetails.reward,
+      diablo2Element: scenarioDetails.diablo2Element,
+      imagePrompt: scenarioDetails.imagePrompt,
+      badgeDescription: scenarioDetails.badge?.badgeDescription,
+      badgeImagePrompt: scenarioDetails.badge?.badgeImagePrompt,
+    };
+
 
     console.log('[getScenarioAction] Successfully constructed scenario object.');
     return { 
-        ...scenarioDetails, 
+        ...finalScenario, 
         choices, 
         image: imageResult.imageDataUri,
         dataSources,
