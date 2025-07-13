@@ -28,43 +28,57 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       location: playerState.location,
     };
     
-    console.log('[getScenarioAction] Calling generatePortlandScenario...');
+    console.log('[getScenarioAction] Calling generatePortlandScenario agent...');
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
-    console.log(`[getScenarioAction] Scenario details received. Source: ${scenarioDetails.dataSource}`);
+    console.log(`[getScenarioAction] Agent response received. Source: ${scenarioDetails.dataSource}, Agentic: ${scenarioDetails.agentic}`);
     
-    // Generate badge image, scenario image, and transport mode in parallel
+    const hasBadge = scenarioDetails.badgeDescription && scenarioDetails.badgeImagePrompt;
+
+    // Generate supporting assets in parallel
     console.log('[getScenarioAction] Generating images and transport mode in parallel...');
     const [imageResult, badgeImageResult, transportModeResult] = await Promise.all([
         generateScenarioImage({ prompt: scenarioDetails.imagePrompt }),
-        generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt }),
+        hasBadge ? generateBadgeImage({ prompt: scenarioDetails.badgeImagePrompt! }) : Promise.resolve(null),
         generateTransportMode()
     ]);
     console.log('[getScenarioAction] Parallel generation complete.');
-    console.log(`  - Scenario Source: ${scenarioDetails.dataSource}`);
-    console.log(`  - Image Source: ${imageResult.dataSource}`);
-    console.log(`  - Badge Source: ${badgeImageResult.dataSource}`);
-    console.log(`  - Transport Source: ${transportModeResult.dataSource}`);
 
-    const choices: Choice[] = [
-      {
+    let dataSources: Record<string, 'primary' | 'fallback' | 'hardcoded'> = {
+        scenario: scenarioDetails.dataSource,
+        image: imageResult.dataSource,
+        transport: transportModeResult.dataSource,
+    };
+
+    const choices: Choice[] = [];
+    
+    // Add the "Embrace" choice, which may or may not have a badge.
+    const embraceChoice: Choice = {
         text: `Embrace the weirdness`,
         description: `You dive headfirst into the situation. What's the worst that could happen?`,
         consequences: {
-            hunger: -1 * (Math.floor(Math.random() * 4) + 2), // -2 to -5
-            style: Math.floor(Math.random() * 11) - 5, // -5 to +5
-            irony: Math.floor(Math.random() * 7) - 2, // -2 to +4
-            authenticity: Math.floor(Math.random() * 7) - 3, // -3 to +3
-            progress: 0, // No progress on the trail
+            hunger: -1 * (Math.floor(Math.random() * 4) + 2),
+            style: Math.floor(Math.random() * 11) - 5,
+            irony: Math.floor(Math.random() * 7) - 2,
+            authenticity: Math.floor(Math.random() * 7) - 3,
+            progress: 0,
             coffee: 0,
             vinyls: 0,
             bikeHealth: 0,
-            badge: {
-                description: scenarioDetails.badgeDescription,
-                imageDataUri: badgeImageResult.imageDataUri,
-            }
         },
-      },
-      {
+    };
+
+    if (hasBadge && badgeImageResult) {
+        embraceChoice.consequences.badge = {
+            description: scenarioDetails.badgeDescription!,
+            imageDataUri: badgeImageResult.imageDataUri,
+        };
+        dataSources.badge = badgeImageResult.dataSource;
+        console.log('[getScenarioAction] Badge details attached to "Embrace" choice.');
+    }
+    choices.push(embraceChoice);
+
+    // Add the "Continue" choice
+    choices.push({
         text: transportModeResult.text,
         description: `This seems a bit too strange. You decide to observe from a safe distance and move on.`,
         consequences: {
@@ -72,32 +86,30 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
           style: -2,
           irony: -1,
           authenticity: -1,
-          progress: 4, // a bit more progress for being safe
-          bikeHealth: -5, // more wear for just moving on
+          progress: 4,
+          bikeHealth: -5,
         },
-      },
-      {
-        text: 'GO FOR BROKE',
-        description: 'A high-risk, high-reward gamble. You might earn an incredible badge, or you might face a devastating failure.',
-        consequences: {
-            // The actual consequences are probabilistic and handled client-side in page.tsx
-            hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: 0, bikeHealth: 0,
-        }
-      }
-    ];
+    });
+
+    // Add the "Go for Broke" choice only if there's a badge to gamble for.
+    if (hasBadge) {
+        choices.push({
+            text: 'GO FOR BROKE',
+            description: 'A high-risk, high-reward gamble. You might earn an incredible badge, or you might face a devastating failure.',
+            consequences: {
+                hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: 0, bikeHealth: 0,
+            }
+        });
+        console.log('[getScenarioAction] "GO FOR BROKE" choice added.');
+    }
+
 
     console.log('[getScenarioAction] Successfully constructed scenario object.');
     return { 
         ...scenarioDetails, 
         choices, 
         image: imageResult.imageDataUri,
-        // Pass all data sources back to the client for granular status updates
-        dataSources: {
-            scenario: scenarioDetails.dataSource,
-            image: imageResult.dataSource,
-            badge: badgeImageResult.dataSource,
-            transport: transportModeResult.dataSource,
-        }
+        dataSources,
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
