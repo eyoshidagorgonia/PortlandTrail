@@ -58,7 +58,6 @@ const generateAvatarFlow = ai.defineFlow(
       const url = `${baseUrl}/api/proxy`;
       const requestBody = {
         service: 'google-gemini',
-        model: 'gemini-1.5-flash-latest', // This model will be used for image generation by the proxy
         prompt: prompt,
       };
       console.log(`[generateAvatarFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
