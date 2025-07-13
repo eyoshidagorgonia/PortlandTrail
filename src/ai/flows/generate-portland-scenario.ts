@@ -69,7 +69,7 @@ const agentPrompt = ai.definePrompt(
     input: {schema: GeneratePortlandScenarioInputSchema},
     output: {schema: ScenarioSchema},
     tools: [createMeritBadge],
-    model: 'ollama/gemma3:12b',
+    model: 'googleai/gemini-1.5-flash',
     prompt: `You are a game master for The Portland Trail.
 Your job is to create a quirky, random, and challenging scenario for the player based on their current status and location.
 The scenario must be HIGHLY SPECIFIC to the current location. Incorporate local landmarks, stereotypes, or cultural touchstones.
@@ -86,7 +86,7 @@ Location: {{{location}}}
 export async function generatePortlandScenario(
   input: GeneratePortlandScenarioInput
 ): Promise<GeneratePortlandScenarioOutput> {
-  console.log('[generatePortlandScenario] Started with agentic Ollama flow.');
+  console.log('[generatePortlandScenario] Started with agentic Google AI flow.');
   try {
     const {output, toolRequests} = await agentPrompt(input);
     if (!output) {
@@ -110,7 +110,7 @@ export async function generatePortlandScenario(
       dataSource: 'primary',
     };
   } catch (error) {
-    console.error(`[generatePortlandScenario] Ollama agent call failed. Returning hard-coded scenario.`, {error});
+    console.error(`[generatePortlandScenario] Google AI agent call failed. Returning hard-coded scenario.`, {error});
     return {
       scenario:
         "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
