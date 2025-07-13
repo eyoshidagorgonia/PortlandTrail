@@ -69,7 +69,8 @@ const generateCharacterBioFlow = ai.defineFlow(
     console.log(`[generateCharacterBioFlow] Generated prompt.`);
 
     try {
-      const url = 'http://modelapi.nexix.ai/api/proxy';
+      const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9001' : 'http://localhost:9001';
+      const url = `${baseUrl}/api/proxy`;
       const requestBody = {
           service: 'ollama',
           model: 'gemma3:12b',
