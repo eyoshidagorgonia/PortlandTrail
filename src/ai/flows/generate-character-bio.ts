@@ -69,20 +69,26 @@ const generateCharacterBioFlow = ai.defineFlow(
     console.log(`[generateCharacterBioFlow] Generated prompt.`);
 
     try {
-      const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9001' : 'http://localhost:9001';
-      const url = `${baseUrl}/api/proxy`;
+      const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+      const apiKey = process.env.NEXIX_API_KEY;
+
+      if (!apiKey) {
+        throw new Error('NEXIX_API_KEY is not set for generateCharacterBioFlow.');
+      }
+      
       const requestBody = {
-          service: 'ollama',
           model: 'gemma3:12b',
           prompt: prompt,
+          stream: false,
+          format: 'json'
       };
-      console.log(`[generateCharacterBioFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
+      console.log(`[generateCharacterBioFlow] Sending request to proxy server at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXIX_API_KEY || ''}`
+            'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify(requestBody),
       });
@@ -93,64 +99,17 @@ const generateCharacterBioFlow = ai.defineFlow(
         throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
       }
       
-      const result: ProxyResponse = await response.json();
-      console.log(`[generateCharacterBioFlow] Successfully received response from proxy. Cached: ${result.isCached}`);
-      let responseData = result.content;
+      const result = await response.json();
+      console.log(`[generateCharacterBioFlow] Successfully received response from proxy.`);
       
-      const jsonMatch = responseData.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        console.log('[generateCharacterBioFlow] Extracted JSON from markdown response.');
-        responseData = jsonMatch[0];
-      }
-      
-      console.log('[generateCharacterBioFlow] Parsing JSON response.');
-      const parsedResult = JSON.parse(responseData);
-      return { ...GenerateCharacterBioOutputSchema.parse(parsedResult), dataSource: 'primary' };
+      const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(result.response));
+      return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
-        console.warn(`[generateCharacterBioFlow] Primary call failed, attempting Nexix.ai fallback.`, { error });
-        try {
-            console.log('[generateCharacterBioFlow] Attempting direct call to Nexix.ai server.');
-            const nexixUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
-            const apiKey = process.env.NEXIX_API_KEY;
-            
-            if (!apiKey) {
-              throw new Error('NEXIX_API_KEY is not set.');
-            }
-
-            const requestBody = {
-                model: 'gemma3:12b',
-                prompt: prompt,
-                stream: false,
-                format: 'json'
-            };
-            console.log(`[generateCharacterBioFlow] Sending request to Nexix.ai server at ${nexixUrl}`, { body: JSON.stringify(requestBody, null, 2) });
-
-            const nexixResponse = await fetch(nexixUrl, {
-                method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${apiKey}`,
-                },
-                body: JSON.stringify(requestBody),
-            });
-
-            if (!nexixResponse.ok) {
-                const errorBody = await nexixResponse.text();
-                console.error(`[generateCharacterBioFlow] Nexix.ai API Error: ${nexixResponse.status} ${nexixResponse.statusText}`, { url: nexixUrl, errorBody });
-                throw new Error(`Nexix.ai API request failed with status ${nexixResponse.status}: ${errorBody}`);
-            }
-
-            const nexixResult = await nexixResponse.json();
-            console.log('[generateCharacterBioFlow] Nexix.ai fallback successful.');
-            const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(nexixResult.response));
-            return { ...parsedResult, dataSource: 'fallback' };
-        } catch(fallbackError) {
-            console.error(`[generateCharacterBioFlow] Nexix.ai fallback failed. Returning hard-coded bio.`, { error: fallbackError });
-            return {
-                bio: "They believe their artisanal pickles can change the world, one jar at a time.",
-                dataSource: 'hardcoded',
-            }
+        console.error(`[generateCharacterBioFlow] Call failed. Returning hard-coded bio.`, { error });
+        return {
+            bio: "They believe their artisanal pickles can change the world, one jar at a time.",
+            dataSource: 'hardcoded',
         }
     }
   }

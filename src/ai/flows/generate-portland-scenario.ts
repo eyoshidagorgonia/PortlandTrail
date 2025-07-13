@@ -11,12 +11,6 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
-// Define the shape of the expected response from the API cache server
-interface ProxyResponse {
-    content: string;
-    isCached: boolean;
-}
-
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
     .string()
@@ -97,20 +91,26 @@ export async function generatePortlandScenario(
       .replace('{characterInfo}', `Name: ${input.character.name}, Job: ${input.character.job}`);
 
   try {
-    const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9001' : 'http://localhost:9001';
-    const url = `${baseUrl}/api/proxy`;
+    const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+    const apiKey = process.env.NEXIX_API_KEY;
+
+    if (!apiKey) {
+      throw new Error('NEXIX_API_KEY is not set for generatePortlandScenario.');
+    }
+    
     const requestBody = {
-        service: 'ollama',
         model: 'gemma3:12b',
         prompt: prompt,
+        stream: false,
+        format: 'json'
     };
-    console.log(`[generatePortlandScenario] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
+    console.log(`[generatePortlandScenario] Sending request to proxy server at ${url}`);
     
     const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXIX_API_KEY || ''}`
+            'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify(requestBody),
       });
@@ -121,18 +121,10 @@ export async function generatePortlandScenario(
         throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
       }
 
-      const result: ProxyResponse = await response.json();
-      console.log(`[generatePortlandScenario] Successfully received response from proxy. Cached: ${result.isCached}`);
-      let responseData = result.content;
+      const result = await response.json();
+      console.log(`[generatePortlandScenario] Successfully received response from proxy.`);
       
-      const jsonMatch = responseData.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        console.log('[generatePortlandScenario] Extracted JSON from markdown response.');
-        responseData = jsonMatch[0];
-      }
-      
-      console.log('[generatePortlandScenario] Parsing JSON response from Ollama.');
-      const parsedResult = OllamaResponseSchema.parse(JSON.parse(responseData));
+      const parsedResult = OllamaResponseSchema.parse(JSON.parse(result.response));
 
       const output: GeneratePortlandScenarioOutput = {
         scenario: parsedResult.scenario,
