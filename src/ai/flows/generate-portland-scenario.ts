@@ -36,7 +36,7 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   asciiArt: z.string().describe('Quirky, multi-line ASCII art depicting the scene. It should be wrapped in a code block.'),
   avatarKaomoji: z.string().describe('A Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～` )┌) representing the player character.'),
   badge: BadgeSchema.optional(),
-  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+  dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
@@ -84,7 +84,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 export async function generatePortlandScenario(
   input: GeneratePortlandScenarioInput
 ): Promise<GeneratePortlandScenarioOutput> {
-  console.log('[generatePortlandScenario] Started with Ollama flow.');
+  console.log('[generatePortlandScenario] Started with agent flow.');
   const prompt = promptTemplate
       .replace('{playerStatus}', input.playerStatus)
       .replace('{location}', input.location)
@@ -152,7 +152,7 @@ export async function generatePortlandScenario(
       return output;
 
   } catch (error) {
-    console.error(`[generatePortlandScenario] Ollama agent call failed. Returning hard-coded scenario.`, {error});
+    console.error(`[generatePortlandScenario] Agent call failed. Returning hard-coded scenario.`, {error});
     return {
       scenario:
         "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",

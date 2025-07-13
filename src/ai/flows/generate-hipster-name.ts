@@ -16,7 +16,7 @@ const GenerateHipsterNameOutputSchema = z.object({
 export type GenerateHipsterNameOutput = z.infer<typeof GenerateHipsterNameOutputSchema>;
 
 const GenerateHipsterNameAndSourceOutputSchema = GenerateHipsterNameOutputSchema.extend({
-    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 type GenerateHipsterNameAndSourceOutput = z.infer<typeof GenerateHipsterNameAndSourceOutputSchema>;
 

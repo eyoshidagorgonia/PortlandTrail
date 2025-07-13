@@ -1,3 +1,4 @@
+
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import StatusDashboard from './status-dashboard';
@@ -10,7 +11,7 @@ describe('StatusDashboard', () => {
       ...INITIAL_PLAYER_STATE,
       name: 'Test Player',
       job: 'Test Job',
-      avatar: 'https://placehold.co/64x64.png',
+      avatar: '(o_O)',
       bio: 'A test bio.',
     };
 
@@ -50,15 +51,14 @@ describe('StatusDashboard', () => {
             ...INITIAL_PLAYER_STATE.resources,
             badges: [{
                 description: 'Test Badge',
-                imageDataUri: 'https://placehold.co/48x48.png'
+                emoji: '🥇'
             }]
         }
     };
 
     render(<StatusDashboard playerState={stateWithBadge} />);
 
-    const badgeImage = screen.getByAltText('Test Badge');
-    expect(badgeImage).toBeInTheDocument();
-    expect(badgeImage).toHaveAttribute('src', 'https://placehold.co/48x48.png');
+    const badgeElement = screen.getByText('🥇');
+    expect(badgeElement).toBeInTheDocument();
   });
 });

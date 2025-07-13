@@ -24,7 +24,7 @@ const GenerateCharacterBioOutputSchema = z.object({
 export type GenerateCharacterBioOutput = z.infer<typeof GenerateCharacterBioOutputSchema>;
 
 const GenerateCharacterBioAndSourceOutputSchema = GenerateCharacterBioOutputSchema.extend({
-    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 type GenerateCharacterBioAndSourceOutput = z.infer<typeof GenerateCharacterBioAndSourceOutputSchema>;
 
