@@ -11,6 +11,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
+// Define the shape of the expected response from the API cache server
+interface ProxyResponse {
+    content: string;
+    isCached: boolean;
+    error?: string;
+}
+
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
     .string()
@@ -19,7 +26,14 @@ const GeneratePortlandScenarioInputSchema = z.object({
 });
 export type GeneratePortlandScenarioInput = z.infer<typeof GeneratePortlandScenarioInputSchema>;
 
-const ScenarioSchema = z.object({
+const BadgeSchema = z.object({
+  badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
+  badgeImagePrompt: z
+    .string()
+    .describe('A 2-3 word prompt for an image generator to create a small, circular, embroidered patch-style badge for this scenario.'),
+});
+
+const GeneratePortlandScenarioOutputSchema = z.object({
   scenario: z.string().describe('A description of the generated scenario.'),
   challenge: z.string().describe('A challenge the player must overcome in the scenario.'),
   reward: z.string().describe('A potential reward for overcoming the challenge.'),
@@ -29,88 +43,114 @@ const ScenarioSchema = z.object({
     .describe(
       'A short, 2-4 word prompt for an image generator to create a visual for this scenario. e.g. "Pigeons in hats" or "Man with handlebar mustache"'
     ),
-});
-
-const BadgeSchema = z.object({
-  badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
-  badgeImagePrompt: z
-    .string()
-    .describe('A 2-3 word prompt for an image generator to create a small, circular, embroidered patch-style badge for this scenario.'),
-});
-
-const GeneratePortlandScenarioOutputSchema = ScenarioSchema.extend({
   badge: BadgeSchema.optional(),
   dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
-const createMeritBadge = ai.defineTool(
-  {
-    name: 'createMeritBadge',
-    description: 'Use this tool to award the player a merit badge when they encounter a particularly weird or noteworthy scenario. Only use it for things that are truly strange or representative of Portland culture.',
-    inputSchema: z.object({
-      description: z.string().describe('A short, witty description for the merit badge.'),
-      imagePrompt: z.string().describe('A 2-3 word prompt for the badge image generator.'),
-    }),
-    outputSchema: BadgeSchema,
-  },
-  async (input) => {
-    console.log('[createMeritBadge] Tool called with input:', input);
-    return {
-      badgeDescription: input.description,
-      badgeImagePrompt: input.imagePrompt,
-    };
-  }
-);
+// This is the schema we expect the proxied model to return
+const OllamaResponseSchema = z.object({
+  scenario: z.string(),
+  challenge: z.string(),
+  reward: z.string(),
+  diablo2Element: z.string().optional(),
+  imagePrompt: z.string(),
+  shouldAwardBadge: z.boolean().describe("Whether the scenario is weird enough to award a merit badge."),
+  badgeDescription: z.string().optional().describe("The badge description, if one is awarded."),
+  badgeImagePrompt: z.string().optional().describe("The badge image prompt, if one is awarded."),
+});
 
-const agentPrompt = ai.definePrompt(
-  {
-    name: 'portlandScenarioAgent',
-    input: {schema: GeneratePortlandScenarioInputSchema},
-    output: {schema: ScenarioSchema},
-    tools: [createMeritBadge],
-    model: 'googleai/gemini-1.5-flash',
-    prompt: `You are a game master for The Portland Trail.
+const promptTemplate = `You are a game master for The Portland Trail.
 Your job is to create a quirky, random, and challenging scenario for the player based on their current status and location.
 The scenario must be HIGHLY SPECIFIC to the current location. Incorporate local landmarks, stereotypes, or cultural touchstones.
 Also, subtly weave in an unexpected element inspired by the dark fantasy world of Diablo II.
-If the scenario you generate is weird enough, you may award the player a merit badge by using the createMeritBadge tool.
+Based on the scenario you generate, decide if it is weird or noteworthy enough to award the player a merit badge. Only award badges for things that are truly strange or representative of Portland culture.
 
-Player Status: {{{playerStatus}}}
-Location: {{{location}}}
-`,
-  },
-  async (input) => input
-);
+Player Status: {playerStatus}
+Location: {location}
+
+You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
+{
+  "scenario": "A description of the generated scenario.",
+  "challenge": "A challenge the player must overcome in the scenario.",
+  "reward": "A potential reward for overcoming the challenge.",
+  "diablo2Element": "The subtle Diablo II reference.",
+  "imagePrompt": "A short, 2-4 word prompt for an image generator.",
+  "shouldAwardBadge": boolean,
+  "badgeDescription": "A short, witty description for the merit badge (only if shouldAwardBadge is true).",
+  "badgeImagePrompt": "A 2-3 word prompt for the badge image generator (only if shouldAwardBadge is true)."
+}
+`;
+
 
 export async function generatePortlandScenario(
   input: GeneratePortlandScenarioInput
 ): Promise<GeneratePortlandScenarioOutput> {
-  console.log('[generatePortlandScenario] Started with agentic Google AI flow.');
+  console.log('[generatePortlandScenario] Started with Ollama flow.');
+  const prompt = promptTemplate
+      .replace('{playerStatus}', input.playerStatus)
+      .replace('{location}', input.location);
+
   try {
-    const {output, toolRequests} = await agentPrompt(input);
-    if (!output) {
-        throw new Error("The AI agent did not return a valid scenario.");
-    }
-
-    const toolRequest = toolRequests[0];
-    if (toolRequest && toolRequest.name === 'createMeritBadge') {
-      console.log('[generatePortlandScenario] Agent requested a merit badge.');
-      const badge = await createMeritBadge(toolRequest.input);
-      return {
-        ...output,
-        badge,
-        dataSource: 'primary',
-      };
-    }
-
-    console.log('[generatePortlandScenario] Agent did not request a badge.');
-    return {
-      ...output,
-      dataSource: 'primary',
+    const url = 'http://modelapi.nexix.ai/api/proxy';
+    const requestBody = {
+        service: 'ollama',
+        model: 'gemma3:12b',
+        prompt: prompt,
     };
+    console.log(`[generatePortlandScenario] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
+    
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.NEXIS_API_KEY || ''}`
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(`[generatePortlandScenario] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
+      }
+
+      const result: ProxyResponse = await response.json();
+      console.log(`[generatePortlandScenario] Successfully received response from proxy. Cached: ${result.isCached}`);
+      let responseData = result.content;
+      
+      const jsonMatch = responseData.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        console.log('[generatePortlandScenario] Extracted JSON from markdown response.');
+        responseData = jsonMatch[0];
+      }
+      
+      console.log('[generatePortlandScenario] Parsing JSON response from Ollama.');
+      const parsedResult = OllamaResponseSchema.parse(JSON.parse(responseData));
+
+      const output: GeneratePortlandScenarioOutput = {
+        scenario: parsedResult.scenario,
+        challenge: parsedResult.challenge,
+        reward: parsedResult.reward,
+        diablo2Element: parsedResult.diablo2Element,
+        imagePrompt: parsedResult.imagePrompt,
+        dataSource: 'primary'
+      };
+
+      if (parsedResult.shouldAwardBadge && parsedResult.badgeDescription && parsedResult.badgeImagePrompt) {
+        console.log('[generatePortlandScenario] Model decided to award a badge.');
+        output.badge = {
+            badgeDescription: parsedResult.badgeDescription,
+            badgeImagePrompt: parsedResult.badgeImagePrompt
+        };
+      } else {
+        console.log('[generatePortlandScenario] Model did not award a badge.');
+      }
+      
+      return output;
+
   } catch (error) {
-    console.error(`[generatePortlandScenario] Google AI agent call failed. Returning hard-coded scenario.`, {error});
+    console.error(`[generatePortlandScenario] Ollama agent call failed. Returning hard-coded scenario.`, {error});
     return {
       scenario:
         "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
