@@ -11,13 +11,6 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
-// Define the shape of the expected response from the API cache server
-interface ProxyResponse {
-    content: string;
-    isCached: boolean;
-    error?: string;
-  }
-
 const GenerateCharacterBioInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
   job: z.string().describe('The job of the character.'),
@@ -78,7 +71,7 @@ const generateCharacterBioFlow = ai.defineFlow(
       
       const requestBody = {
           model: 'gemma3:12b',
-          prompt: prompt,
+          messages: [{ role: 'user', content: prompt }],
           stream: false,
           format: 'json'
       };

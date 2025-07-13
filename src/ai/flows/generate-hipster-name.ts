@@ -58,7 +58,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       
       const requestBody = {
         model: 'gemma3:12b',
-        prompt: promptTemplate,
+        messages: [{ role: 'user', content: promptTemplate }],
         stream: false,
         format: 'json',
       };
