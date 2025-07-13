@@ -91,7 +91,7 @@ export async function generatePortlandScenario(
       .replace('{characterInfo}', `Name: ${input.character.name}, Job: ${input.character.job}`);
 
   try {
-    const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+    const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
     const apiKey = process.env.NEXIX_API_KEY;
 
     if (!apiKey) {
@@ -100,11 +100,9 @@ export async function generatePortlandScenario(
     
     const requestBody = {
         model: 'gemma3:12b',
-        prompt: prompt,
-        stream: false,
-        format: 'json'
+        messages: [{ role: 'user', content: prompt }],
     };
-    console.log(`[generatePortlandScenario] Sending request to proxy server at ${url}`);
+    console.log(`[generatePortlandScenario] Sending request to OpenAI-compatible endpoint at ${url}`);
     
     const response = await fetch(url, {
         method: 'POST',
@@ -117,14 +115,19 @@ export async function generatePortlandScenario(
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error(`[generatePortlandScenario] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
-        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
+        console.error(`[generatePortlandScenario] API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
       }
 
       const result = await response.json();
-      console.log(`[generatePortlandScenario] Successfully received response from proxy.`);
+      console.log(`[generatePortlandScenario] Successfully received response from endpoint.`);
       
-      const parsedResult = OllamaResponseSchema.parse(JSON.parse(result.response));
+      const scenarioContent = result.choices[0]?.message?.content;
+      if (!scenarioContent) {
+        throw new Error('Invalid response structure from API.');
+      }
+      
+      const parsedResult = OllamaResponseSchema.parse(JSON.parse(scenarioContent));
 
       const output: GeneratePortlandScenarioOutput = {
         scenario: parsedResult.scenario,

@@ -62,7 +62,7 @@ const generateCharacterBioFlow = ai.defineFlow(
     console.log(`[generateCharacterBioFlow] Generated prompt.`);
 
     try {
-      const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+      const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
       const apiKey = process.env.NEXIX_API_KEY;
 
       if (!apiKey) {
@@ -72,10 +72,8 @@ const generateCharacterBioFlow = ai.defineFlow(
       const requestBody = {
           model: 'gemma3:12b',
           messages: [{ role: 'user', content: prompt }],
-          stream: false,
-          format: 'json'
       };
-      console.log(`[generateCharacterBioFlow] Sending request to proxy server at ${url}`);
+      console.log(`[generateCharacterBioFlow] Sending request to OpenAI-compatible endpoint at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -88,14 +86,19 @@ const generateCharacterBioFlow = ai.defineFlow(
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error(`[generateCharacterBioFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
-        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
+        console.error(`[generateCharacterBioFlow] API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
       }
       
       const result = await response.json();
-      console.log(`[generateCharacterBioFlow] Successfully received response from proxy.`);
+      console.log(`[generateCharacterBioFlow] Successfully received response from endpoint.`);
       
-      const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(result.response));
+      const bioContent = result.choices[0]?.message?.content;
+      if (!bioContent) {
+          throw new Error('Invalid response structure from API.');
+      }
+
+      const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(bioContent));
       return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {

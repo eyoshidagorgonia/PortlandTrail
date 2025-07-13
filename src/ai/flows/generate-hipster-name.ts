@@ -49,7 +49,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }
 `;
     try {
-      const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+      const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
       const apiKey = process.env.NEXIX_API_KEY;
 
       if (!apiKey) {
@@ -59,10 +59,8 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       const requestBody = {
         model: 'gemma3:12b',
         messages: [{ role: 'user', content: promptTemplate }],
-        stream: false,
-        format: 'json',
       };
-      console.log(`[generateHipsterNameFlow] Sending request to proxy server at ${url}`);
+      console.log(`[generateHipsterNameFlow] Sending request to OpenAI-compatible endpoint at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -76,14 +74,19 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error(`[generateHipsterNameFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
-        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
+        console.error(`[generateHipsterNameFlow] API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
       }
       
       const result = await response.json();
-      console.log(`[generateHipsterNameFlow] Successfully received response from proxy.`);
+      console.log(`[generateHipsterNameFlow] Successfully received response from endpoint.`);
+
+      const nameContent = result.choices[0]?.message?.content;
+      if (!nameContent) {
+        throw new Error('Invalid response structure from API.');
+      }
       
-      const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(result.response));
+      const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nameContent));
       
       return { ...parsedResult, dataSource: 'primary' };
 

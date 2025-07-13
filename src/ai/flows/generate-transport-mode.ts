@@ -50,7 +50,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }
 `;
     try {
-      const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+      const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
       const apiKey = process.env.NEXIX_API_KEY;
 
       if (!apiKey) {
@@ -59,11 +59,9 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       
       const requestBody = {
           model: 'gemma3:12b',
-          prompt: promptTemplate,
-          stream: false,
-          format: 'json'
+          messages: [{ role: 'user', content: promptTemplate }],
       };
-      console.log(`[generateTransportModeFlow] Sending request to proxy server at ${url}`);
+      console.log(`[generateTransportModeFlow] Sending request to OpenAI-compatible endpoint at ${url}`);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -78,14 +76,19 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error(`[generateTransportModeFlow] Proxy API Error: ${response.status} ${response.statusText}`, { url, errorBody });
-        throw new Error(`Proxy API request failed with status ${response.status}: ${errorBody}`);
+        console.error(`[generateTransportModeFlow] API Error: ${response.status} ${response.statusText}`, { url, errorBody });
+        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
       }
 
       const result = await response.json();
-      console.log(`[generateTransportModeFlow] Successfully received response from proxy.`);
+      console.log(`[generateTransportModeFlow] Successfully received response from endpoint.`);
 
-      const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(result.response));
+      const transportContent = result.choices[0]?.message?.content;
+      if (!transportContent) {
+        throw new Error('Invalid response structure from API.');
+      }
+
+      const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(transportContent));
       return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
