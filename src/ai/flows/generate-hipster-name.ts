@@ -56,8 +56,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }
 `;
     try {
-      const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
-      const url = `${baseUrl}/api/proxy`;
+      const url = 'http://modelapi.nexix.ai/api/proxy';
       const requestBody = {
           service: 'ollama',
           model: 'llama3.1:8b',
