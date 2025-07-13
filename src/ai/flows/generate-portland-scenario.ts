@@ -126,17 +126,56 @@ const generatePortlandScenarioFlow = ai.defineFlow(
         const parsedResult = JSON.parse(responseData);
         return { ...GeneratePortlandScenarioOutputSchema.parse(parsedResult), dataSource: 'primary' };
     } catch (error) {
-        console.error(`[generatePortlandScenarioFlow] Ollama call failed.`, { error });
-        // Fallback to a hardcoded response if the agent fails
-        return {
-            scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
-            challenge: "Question your reality",
-            reward: "A fleeting sense of existential dread, which oddly increases your irony.",
-            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-            imagePrompt: "pigeons wearing fedoras",
-            badgeDescription: "Fedorapocalypse Witness",
-            badgeImagePrompt: "pigeon wearing fedora",
-            dataSource: 'hardcoded',
+        console.warn(`[generatePortlandScenarioFlow] Primary call failed, attempting Nexis.ai fallback.`, { error });
+        try {
+            console.log('[generatePortlandScenarioFlow] Attempting direct call to Nexis.ai server.');
+            const nexisUrl = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+            const apiKey = process.env.NEXIS_API_KEY;
+
+            if (!apiKey) {
+                throw new Error('NEXIS_API_KEY is not set.');
+            }
+
+            const requestBody = {
+                model: 'gemma3:12b',
+                prompt: prompt,
+                stream: false,
+                format: 'json'
+            };
+            console.log(`[generatePortlandScenarioFlow] Sending request to Nexis.ai server at ${nexisUrl}`, { body: JSON.stringify(requestBody, null, 2) });
+            
+            const nexisResponse = await fetch(nexisUrl, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!nexisResponse.ok) {
+                const errorBody = await nexisResponse.text();
+                console.error(`[generatePortlandScenarioFlow] Nexis.ai API Error: ${nexisResponse.status} ${nexisResponse.statusText}`, { url: nexisUrl, errorBody });
+                throw new Error(`Nexis.ai API request failed with status ${nexisResponse.status}: ${errorBody}`);
+            }
+
+            const nexisResult = await nexisResponse.json();
+            console.log('[generatePortlandScenarioFlow] Nexis.ai fallback successful.');
+            const parsedResult = GeneratePortlandScenarioOutputSchema.parse(JSON.parse(nexisResult.response));
+            return { ...parsedResult, dataSource: 'fallback' };
+        } catch(fallbackError) {
+            console.error(`[generatePortlandScenarioFlow] Fallback to Nexis.ai failed. Returning hard-coded scenario.`, { error: fallbackError });
+            // Fallback to a hardcoded response if all else fails
+            return {
+                scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
+                challenge: "Question your reality",
+                reward: "A fleeting sense of existential dread, which oddly increases your irony.",
+                diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
+                imagePrompt: "pigeons wearing fedoras",
+                badgeDescription: "Fedorapocalypse Witness",
+                badgeImagePrompt: "pigeon wearing fedora",
+                dataSource: 'hardcoded',
+            }
         }
     }
   }
