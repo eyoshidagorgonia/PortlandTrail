@@ -57,6 +57,7 @@ const generateScenarioImageFlow = ai.defineFlow(
       const url = `${baseUrl}/api/proxy`;
       const requestBody = {
           service: 'google-gemini',
+          model: 'gemini-2.0-flash-preview-image-generation',
           prompt: fullPrompt,
       };
       console.log(`[generateScenarioImageFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
