@@ -14,7 +14,7 @@ export interface PlayerStats {
 }
 
 export interface Badge {
-  imageDataUri: string;
+  emoji: string;
   description: string;
   isUber?: boolean;
 }
@@ -29,7 +29,7 @@ export interface PlayerResources {
 export interface PlayerState {
   name: string;
   job: string;
-  avatar: string;
+  avatar: string; // This will now hold a Kaomoji string
   bio: string;
   stats: PlayerStats;
   resources: PlayerResources;
@@ -70,11 +70,11 @@ export interface PlayerAction {
     };
 }
 
-export type ScenarioData = Omit<GeneratePortlandScenarioOutput, 'dataSource'>;
+export type ScenarioData = Omit<GeneratePortlandScenarioOutput, 'dataSource' | 'avatarKaomoji'>;
 
 export type Scenario = (ScenarioData & {
   choices: Choice[];
-  image: string;
+  playerAvatar?: string; // The kaomoji for the player
   dataSources?: Record<string, 'primary' | 'fallback' | 'hardcoded'>;
 });
 

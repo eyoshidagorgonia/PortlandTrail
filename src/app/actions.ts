@@ -2,8 +2,6 @@
 'use server';
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
-import { generateScenarioImage } from '@/ai/flows/generate-scenario-image';
-import { generateBadgeImage } from '@/ai/flows/generate-badge-image';
 import { generateTransportMode } from '@/ai/flows/generate-transport-mode';
 import type { PlayerState, Scenario, Choice } from '@/lib/types';
 
@@ -26,27 +24,23 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const scenarioInput = {
       playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Bio: ${playerState.bio}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
       location: playerState.location,
+      character: { name: playerState.name, job: playerState.job },
     };
     
-    console.log('[getScenarioAction] Calling generatePortlandScenario flow...');
-    const scenarioDetails = await generatePortlandScenario(scenarioInput);
-    console.log(`[getScenarioAction] Flow response received. Source: ${scenarioDetails.dataSource}`);
+    console.log('[getScenarioAction] Calling generatePortlandScenario and generateTransportMode...');
+    
+    // Generate scenario and transport mode in parallel
+    const [scenarioDetails, transportModeResult] = await Promise.all([
+        generatePortlandScenario(scenarioInput),
+        generateTransportMode()
+    ]);
+    console.log(`[getScenarioAction] Flow responses received. Scenario Source: ${scenarioDetails.dataSource}, Transport Source: ${transportModeResult.dataSource}`);
     
     // The agent may or may not decide to create a badge
     const hasBadge = !!scenarioDetails.badge;
 
-    // Generate supporting assets in parallel
-    console.log('[getScenarioAction] Generating images and transport mode in parallel...');
-    const [imageResult, badgeImageResult, transportModeResult] = await Promise.all([
-        generateScenarioImage({ prompt: scenarioDetails.imagePrompt }),
-        hasBadge ? generateBadgeImage({ prompt: scenarioDetails.badge!.badgeImagePrompt }) : Promise.resolve(null),
-        generateTransportMode()
-    ]);
-    console.log('[getScenarioAction] Parallel generation complete.');
-
     let dataSources: Record<string, 'primary' | 'fallback' | 'hardcoded'> = {
         scenario: scenarioDetails.dataSource,
-        image: imageResult.dataSource,
         transport: transportModeResult.dataSource,
     };
 
@@ -68,12 +62,12 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
         },
     };
 
-    if (hasBadge && badgeImageResult) {
+    if (hasBadge) {
         embraceChoice.consequences.badge = {
             description: scenarioDetails.badge!.badgeDescription,
-            imageDataUri: badgeImageResult.imageDataUri,
+            emoji: scenarioDetails.badge!.badgeEmoji,
         };
-        dataSources.badge = badgeImageResult.dataSource;
+        dataSources.badge = scenarioDetails.dataSource; // The badge comes from the same source as the scenario
         console.log('[getScenarioAction] Badge details attached to "Embrace" choice.');
     }
     choices.push(embraceChoice);
@@ -99,6 +93,8 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
             description: 'A high-risk, high-reward gamble. You might earn an incredible badge, or you might face a devastating failure.',
             consequences: {
                 hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: 0, bikeHealth: 0,
+                // The actual badge for "Go for Broke" is handled client-side
+                badge: { description: scenarioDetails.badge!.badgeDescription, emoji: scenarioDetails.badge!.badgeEmoji }
             }
         });
         console.log('[getScenarioAction] "GO FOR BROKE" choice added.');
@@ -109,17 +105,15 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       challenge: scenarioDetails.challenge,
       reward: scenarioDetails.reward,
       diablo2Element: scenarioDetails.diablo2Element,
-      imagePrompt: scenarioDetails.imagePrompt,
       badgeDescription: scenarioDetails.badge?.badgeDescription,
-      badgeImagePrompt: scenarioDetails.badge?.badgeImagePrompt,
+      asciiArt: scenarioDetails.asciiArt,
     };
-
 
     console.log('[getScenarioAction] Successfully constructed scenario object.');
     return { 
         ...finalScenario, 
         choices, 
-        image: imageResult.imageDataUri,
+        playerAvatar: scenarioDetails.avatarKaomoji,
         dataSources,
     };
   } catch (error) {

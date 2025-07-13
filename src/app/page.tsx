@@ -12,10 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus } from '@/lib/types';
 import { getScenarioAction } from '@/app/actions';
-import { generateAvatar } from '@/ai/flows/generate-avatar';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterBio } from '@/ai/flows/generate-character-bio';
-import { generateBadgeImage } from '@/ai/flows/generate-badge-image';
 import StatusDashboard from '@/components/game/status-dashboard';
 import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
@@ -40,9 +38,8 @@ export default function PortlandTrailPage() {
   
   const [name, setName] = useState('');
   const [job, setJob] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarKaomoji, setAvatarKaomoji] = useState('(-_-)');
   const [bio, setBio] = useState('');
-  const [isAvatarLoading, setIsAvatarLoading] = useState(true);
   const [isNameLoading, setIsNameLoading] = useState(true);
   const [isBioLoading, setIsBioLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -140,15 +137,6 @@ export default function PortlandTrailPage() {
     setIsNameLoading(false);
   }, [updateSystemStatus]);
 
-  const handleGenerateAvatar = useCallback(async () => {
-    if (!name || !job) return;
-    setIsAvatarLoading(true);
-    const result = await generateAvatar({ name, job });
-    setAvatarUrl(result.avatarDataUri);
-    updateSystemStatus({ avatar: result.dataSource });
-    setIsAvatarLoading(false);
-  }, [name, job, updateSystemStatus]);
-
   const handleGenerateBio = useCallback(async (vibe: string) => {
      if (!name || !job) return;
     setIsBioLoading(true);
@@ -176,10 +164,9 @@ export default function PortlandTrailPage() {
   
   useEffect(() => {
     if (gameState === 'intro' && name && job) {
-      handleGenerateAvatar();
       handleGenerateBio("Just starting out");
     }
-  }, [gameState, name, job, handleGenerateAvatar, handleGenerateBio]);
+  }, [gameState, name, job, handleGenerateBio]);
 
   // Regenerate bio when vibe changes
   useEffect(() => {
@@ -206,7 +193,7 @@ export default function PortlandTrailPage() {
       ...INITIAL_PLAYER_STATE,
       name: name,
       job: job,
-      avatar: avatarUrl,
+      avatar: avatarKaomoji,
       bio: bio,
       vibe: "Just starting out",
     };
@@ -222,11 +209,15 @@ export default function PortlandTrailPage() {
       return;
     }
     
-    setPlayerState(initialState);
+    const scenarioResult = result as Scenario;
+    
+    // The first scenario call also generates the initial avatar
+    setPlayerState({...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
+    setAvatarKaomoji(scenarioResult.playerAvatar || avatarKaomoji);
+    
     const initialLogMessage = `Your journey as ${name} the ${job} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
     setEventLog([{ message: initialLogMessage, timestamp: new Date() }]);
     
-    const scenarioResult = result as Scenario;
     setScenario(scenarioResult);
     addLog(`An event unfolds: ${scenarioResult.scenario}`);
     if (scenarioResult.dataSources) {
@@ -235,7 +226,7 @@ export default function PortlandTrailPage() {
 
     setGameState('playing');
     setIsLoading(false);
-  }, [name, job, avatarUrl, bio, toast, addLog, updateSystemStatus]);
+  }, [name, job, avatarKaomoji, bio, toast, addLog, updateSystemStatus]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
@@ -288,6 +279,10 @@ export default function PortlandTrailPage() {
         if (scenarioResult.dataSources) {
             updateSystemStatus(scenarioResult.dataSources);
         }
+        // Update player avatar with the new one from the scenario
+        if(scenarioResult.playerAvatar) {
+            setPlayerState(prevState => ({...prevState, avatar: scenarioResult.playerAvatar! }));
+        }
       }
       setIsLoading(false);
     };
@@ -334,22 +329,17 @@ export default function PortlandTrailPage() {
     setIsLoading(true);
     let tempState = { ...playerState };
 
-    if (choice.text === 'GO FOR BROKE' && scenario.badgeDescription && scenario.badgeImagePrompt) {
+    if (choice.text === 'GO FOR BROKE' && choice.consequences.badge) {
         const gamble = Math.random();
         if (gamble < 0.2) { // 20% chance of winning
             addLog('You went for broke and it paid off spectacularly!');
-            const uberBadgeImage = await generateBadgeImage({ prompt: `A glowing, ornate, metallic, vibrating version of: ${scenario.badgeImagePrompt}` });
             const newBadge = {
-                imageDataUri: uberBadgeImage.imageDataUri,
-                description: `Uber-Rare: ${scenario.badgeDescription}`,
+                description: `Uber-Rare: ${choice.consequences.badge.description}`,
+                emoji: `✨${choice.consequences.badge.emoji}✨`,
                 isUber: true,
             };
             tempState.resources.badges = [...tempState.resources.badges, newBadge];
             tempState.stats.style += 20; // A nice bonus
-            updateSystemStatus({ uberBadge: uberBadgeImage.dataSource });
-            if (uberBadgeImage.dataSource === 'hardcoded') {
-                addLog("The cosmos glitched, providing a standard-issue badge instead of something truly epic.");
-            }
         } else { // 80% chance of failure
             addLog('You went for broke and got broken. A significant, but not devastating, failure.');
             tempState.stats.hunger = Math.max(0, tempState.stats.hunger - 10);
@@ -421,21 +411,11 @@ export default function PortlandTrailPage() {
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left">
               <div className="relative shrink-0">
                 <Avatar className="h-32 w-32 border-4 border-primary/50 text-4xl">
-                  <AvatarImage src={avatarUrl} alt="Your hipster avatar" />
-                  <AvatarFallback>
-                    {isAvatarLoading ? <Loader2 className="animate-spin" /> : (name?.charAt(0) || 'A')}
+                  <AvatarImage src="" alt="Your hipster avatar" />
+                  <AvatarFallback className="text-4xl p-2 bg-muted">
+                    {avatarKaomoji}
                   </AvatarFallback>
                 </Avatar>
-                <Button 
-                  size="icon" 
-                  variant="secondary" 
-                  className="absolute bottom-0 -right-2 rounded-full h-10 w-10 border-2 border-background" 
-                  onClick={handleGenerateAvatar} 
-                  disabled={isAvatarLoading || !name || !job}
-                  aria-label="Randomize Avatar"
-                  >
-                  {isAvatarLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
-                </Button>
               </div>
 
               <div className="space-y-4 flex-1 w-full">
@@ -471,8 +451,8 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isAvatarLoading || isBioLoading || !job}>
-              {(isLoading || isAvatarLoading || isBioLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
+            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || !job}>
+              {(isLoading || isBioLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
               Begin the Journey
             </Button>
             <Link href="/help" passHref>

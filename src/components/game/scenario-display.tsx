@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -5,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Scenario, Choice } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import Image from 'next/image';
 
 interface ScenarioDisplayProps {
   scenario: Scenario | null;
@@ -37,9 +37,7 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
     return <LoadingState />;
   }
 
-  // This component might receive the previous scenario if a fetch for a new one fails.
-  // The old scenario object won't have an `image` property.
-  const hasImage = 'image' in scenario && scenario.image;
+  const hasAsciiArt = 'asciiArt' in scenario && scenario.asciiArt;
 
   return (
     <Card className="shadow-lg border">
@@ -48,16 +46,9 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
         {scenario.reward && <CardDescription className="pt-1">Potential Reward: {scenario.reward}</CardDescription>}
       </CardHeader>
       <CardContent className="p-4 pt-2">
-        {hasImage && (
-          <div className="mb-4 rounded-md overflow-hidden border">
-            <Image
-              src={scenario.image}
-              alt={scenario.challenge || 'Scenario image'}
-              width={500}
-              height={300}
-              className="w-full object-cover"
-              priority
-            />
+        {hasAsciiArt && (
+          <div className="mb-4 rounded-md overflow-hidden border bg-muted/30 p-4 font-code text-sm leading-tight text-foreground/80 whitespace-pre-wrap text-center">
+            {scenario.asciiArt}
           </div>
         )}
         <p className="text-sm text-foreground/90 leading-normal whitespace-pre-wrap">{scenario.scenario}</p>

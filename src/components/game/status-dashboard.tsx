@@ -16,7 +16,6 @@ import {
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { getIronicHealthStatus } from '@/lib/constants';
@@ -106,9 +105,11 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
     <Card className="shadow-lg border">
       <CardHeader>
         <div className="flex items-start gap-4">
-          <Avatar className="h-16 w-16 border-2 border-primary/50 shrink-0">
-            <AvatarImage src={avatar} alt={name} />
-            <AvatarFallback>{name?.charAt(0) || 'H'}</AvatarFallback>
+          <Avatar className="h-16 w-16 border-2 border-primary/50 shrink-0 text-3xl">
+            <AvatarImage src="" alt={name} />
+            <AvatarFallback className="p-2 bg-muted">
+                {avatar}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-grow space-y-1.5">
             <CardTitle className="font-headline text-2xl">{name}</CardTitle>
@@ -161,16 +162,10 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
                       <TooltipTrigger asChild>
                         <AlertDialogTrigger>
                           <div className={cn(
-                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 overflow-hidden bg-muted transition-all duration-300 cursor-pointer",
+                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer",
                             badge.isUber && 'uber-badge-animation'
                           )}>
-                            <Image
-                              src={badge.imageDataUri}
-                              alt={badge.description}
-                              width={48}
-                              height={48}
-                              className="rounded-full object-cover"
-                            />
+                           {badge.emoji}
                           </div>
                         </AlertDialogTrigger>
                       </TooltipTrigger>
@@ -181,13 +176,9 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="font-headline text-2xl flex items-center gap-4">
-                            <Image
-                                src={badge.imageDataUri}
-                                alt={badge.description}
-                                width={48}
-                                height={48}
-                                className={cn("rounded-full object-cover border-2", badge.isUber && 'border-accent')}
-                            />
+                            <span className={cn("text-4xl", badge.isUber && 'text-accent')}>
+                                {badge.emoji}
+                            </span>
                            Badge Earned!
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-left pt-4 text-base">

@@ -1,3 +1,4 @@
+
 import type { PlayerState } from './types';
 
 export const BUILD_NUMBER = 1.042;
@@ -18,7 +19,7 @@ export const HIPSTER_JOBS = [
 export const INITIAL_PLAYER_STATE: PlayerState = {
   name: 'Art',
   job: HIPSTER_JOBS[0],
-  avatar: '',
+  avatar: '(o_O)', // Default Kaomoji
   bio: '',
   stats: {
     hunger: 80,
@@ -57,12 +58,9 @@ export const getIronicHealthStatus = (health: number): { text: string; variant: 
 
 export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
     name: "Name Generation",
-    avatar: "Avatar Image",
     bio: "Character Bio",
-    scenario: "Scenario Generation",
-    image: "Scenario Image",
-    badge: "Badge Image",
+    scenario: "Scenario/Art Generation",
     transport: "Transport Mode",
-    uberBadge: "Uber Badge Image",
+    // avatar, image, badge, uberBadge are no longer used
 }
     

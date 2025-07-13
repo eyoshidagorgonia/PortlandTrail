@@ -15,7 +15,6 @@ import {z} from 'zod';
 interface ProxyResponse {
     content: string;
     isCached: boolean;
-    error?: string;
 }
 
 const GeneratePortlandScenarioInputSchema = z.object({
@@ -23,14 +22,16 @@ const GeneratePortlandScenarioInputSchema = z.object({
     .string()
     .describe('The current status of the player, including hunger, style, vinyl collection, irony, and authenticity.'),
   location: z.string().describe('The current location of the player on the trail.'),
+  character: z.object({
+    name: z.string(),
+    job: z.string(),
+  }),
 });
 export type GeneratePortlandScenarioInput = z.infer<typeof GeneratePortlandScenarioInputSchema>;
 
 const BadgeSchema = z.object({
   badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
-  badgeImagePrompt: z
-    .string()
-    .describe('A 2-3 word prompt for an image generator to create a small, circular, embroidered patch-style badge for this scenario.'),
+  badgeEmoji: z.string().describe('A single emoji that represents the badge.'),
 });
 
 const GeneratePortlandScenarioOutputSchema = z.object({
@@ -38,11 +39,8 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   challenge: z.string().describe('A challenge the player must overcome in the scenario.'),
   reward: z.string().describe('A potential reward for overcoming the challenge.'),
   diablo2Element: z.string().optional().describe('The subtle Diablo II reference.'),
-  imagePrompt: z
-    .string()
-    .describe(
-      'A short, 2-4 word prompt for an image generator to create a visual for this scenario. e.g. "Pigeons in hats" or "Man with handlebar mustache"'
-    ),
+  asciiArt: z.string().describe('Quirky, multi-line ASCII art depicting the scene. It should be wrapped in a code block.'),
+  avatarKaomoji: z.string().describe('A Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～` )┌) representing the player character.'),
   badge: BadgeSchema.optional(),
   dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
@@ -54,20 +52,25 @@ const OllamaResponseSchema = z.object({
   challenge: z.string(),
   reward: z.string(),
   diablo2Element: z.string().optional(),
-  imagePrompt: z.string(),
+  asciiArt: z.string(),
+  avatarKaomoji: z.string(),
   shouldAwardBadge: z.boolean().describe("Whether the scenario is weird enough to award a merit badge."),
   badgeDescription: z.string().optional().describe("The badge description, if one is awarded."),
-  badgeImagePrompt: z.string().optional().describe("The badge image prompt, if one is awarded."),
+  badgeEmoji: z.string().optional().describe("A single emoji for the badge, if one is awarded."),
 });
 
-const promptTemplate = `You are a game master for The Portland Trail.
-Your job is to create a quirky, random, and challenging scenario for the player based on their current status and location.
-The scenario must be HIGHLY SPECIFIC to the current location. Incorporate local landmarks, stereotypes, or cultural touchstones.
-Also, subtly weave in an unexpected element inspired by the dark fantasy world of Diablo II.
-Based on the scenario you generate, decide if it is weird or noteworthy enough to award the player a merit badge. Only award badges for things that are truly strange or representative of Portland culture.
+const promptTemplate = `You are the Game Master for "The Portland Trail," a quirky text-based RPG.
+Your job is to create a complete, self-contained scenario for the player.
+
+You must generate:
+1.  **Scenario**: A quirky, random, and challenging scenario based on the player's status and location. It must be HIGHLY SPECIFIC to the location. Incorporate local landmarks, stereotypes, or cultural touchstones. Also, subtly weave in an unexpected element inspired by the dark fantasy world of Diablo II.
+2.  **ASCII Art**: Create a piece of multi-line ASCII art that visually represents the scenario. Keep it simple and contained within about 5-7 lines.
+3.  **Avatar Kaomoji**: Generate a creative Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～\` )┌) that represents the player's character based on their name and job.
+4.  **Badge Decision**: Based on the scenario you generated, decide if it is weird or noteworthy enough to award the player a merit badge. Only award badges for things that are truly strange or representative of Portland culture. If you award a badge, you must also create a single emoji for it.
 
 Player Status: {playerStatus}
 Location: {location}
+Character: {characterInfo}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
@@ -75,10 +78,11 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   "challenge": "A challenge the player must overcome in the scenario.",
   "reward": "A potential reward for overcoming the challenge.",
   "diablo2Element": "The subtle Diablo II reference.",
-  "imagePrompt": "A short, 2-4 word prompt for an image generator.",
+  "asciiArt": "The multi-line ASCII art for the scene.",
+  "avatarKaomoji": "The generated Kaomoji for the player.",
   "shouldAwardBadge": boolean,
   "badgeDescription": "A short, witty description for the merit badge (only if shouldAwardBadge is true).",
-  "badgeImagePrompt": "A 2-3 word prompt for the badge image generator (only if shouldAwardBadge is true)."
+  "badgeEmoji": "A single emoji for the badge (only if shouldAwardBadge is true)."
 }
 `;
 
@@ -89,7 +93,8 @@ export async function generatePortlandScenario(
   console.log('[generatePortlandScenario] Started with Ollama flow.');
   const prompt = promptTemplate
       .replace('{playerStatus}', input.playerStatus)
-      .replace('{location}', input.location);
+      .replace('{location}', input.location)
+      .replace('{characterInfo}', `Name: ${input.character.name}, Job: ${input.character.job}`);
 
   try {
     const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9001' : 'http://localhost:9001';
@@ -134,15 +139,16 @@ export async function generatePortlandScenario(
         challenge: parsedResult.challenge,
         reward: parsedResult.reward,
         diablo2Element: parsedResult.diablo2Element,
-        imagePrompt: parsedResult.imagePrompt,
+        asciiArt: parsedResult.asciiArt,
+        avatarKaomoji: parsedResult.avatarKaomoji,
         dataSource: 'primary'
       };
 
-      if (parsedResult.shouldAwardBadge && parsedResult.badgeDescription && parsedResult.badgeImagePrompt) {
+      if (parsedResult.shouldAwardBadge && parsedResult.badgeDescription && parsedResult.badgeEmoji) {
         console.log('[generatePortlandScenario] Model decided to award a badge.');
         output.badge = {
             badgeDescription: parsedResult.badgeDescription,
-            badgeImagePrompt: parsedResult.badgeImagePrompt
+            badgeEmoji: parsedResult.badgeEmoji,
         };
       } else {
         console.log('[generatePortlandScenario] Model did not award a badge.');
@@ -158,10 +164,14 @@ export async function generatePortlandScenario(
       challenge: 'Question your reality',
       reward: "A fleeting sense of existential dread, which oddly increases your irony.",
       diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-      imagePrompt: 'pigeons wearing fedoras',
+      asciiArt: `
+      ( o)>  ( o)>  ( o)>
+      /(_)\\  /(_)\\  /(_)\\
+      `,
+      avatarKaomoji: '(o_O;)',
       badge: {
         badgeDescription: 'Fedorapocalypse Witness',
-        badgeImagePrompt: 'pigeon wearing fedora',
+        badgeEmoji: '🐦',
       },
       dataSource: 'hardcoded',
     };
