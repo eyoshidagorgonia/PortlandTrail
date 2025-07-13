@@ -93,8 +93,8 @@ const generatePortlandScenarioFlow = ai.defineFlow(
       const baseUrl = process.env.DOCKER_ENV ? 'http://host.docker.internal:9002' : 'http://localhost:9002';
       const url = `${baseUrl}/api/proxy`;
       const requestBody = {
-          service: 'google-gemini',
-          model: 'gemini-1.5-flash-latest',
+          service: 'ollama',
+          model: 'llama3.1:8b',
           prompt: prompt,
       };
       console.log(`[generatePortlandScenarioFlow] Sending request to proxy server at ${url}`, { body: JSON.stringify(requestBody, null, 2) });
