@@ -28,9 +28,9 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       location: playerState.location,
     };
     
-    console.log('[getScenarioAction] Calling generatePortlandScenario agent...');
+    console.log('[getScenarioAction] Calling generatePortlandScenario flow...');
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
-    console.log(`[getScenarioAction] Agent response received. Source: ${scenarioDetails.dataSource}, Agentic: ${scenarioDetails.agentic}`);
+    console.log(`[getScenarioAction] Flow response received. Source: ${scenarioDetails.dataSource}`);
     
     const hasBadge = scenarioDetails.badgeDescription && scenarioDetails.badgeImagePrompt;
 
