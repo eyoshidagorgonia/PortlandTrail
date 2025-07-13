@@ -120,7 +120,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[getScenarioAction] Critical failure: ${errorMessage}`, { playerState });
     return {
-      error: 'Failed to generate a new scenario. The path has grown cold and desolate.',
+      error: errorMessage,
     };
   }
 }

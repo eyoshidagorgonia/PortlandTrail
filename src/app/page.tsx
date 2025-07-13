@@ -203,7 +203,7 @@ export default function PortlandTrailPage() {
       toast({
         variant: 'destructive',
         title: 'A Rocky Start',
-        description: `Could not start the journey. ${result.error}`,
+        description: result.error,
       });
       setIsLoading(false);
       return;
@@ -270,7 +270,7 @@ export default function PortlandTrailPage() {
         toast({
             variant: "destructive",
             title: "The Trail Went Cold",
-            description: "We couldn't generate the next event. Try taking a different action."
+            description: result.error,
         });
       } else {
         const scenarioResult = result as Scenario;
