@@ -34,16 +34,29 @@ const generateHipsterNameFlow = ai.defineFlow(
   },
   async () => {
     console.log('[generateHipsterNameFlow] Started.');
-    const prompt = `Generate a single, quirky, gender-neutral hipster name. Examples: River, Kale, Birch, Pip, Wren. Do not include any other text or punctuation. Just the name.`;
+    const prompt = `You are a creative writer for a hipster video game.
+Your only job is to generate a single, quirky, gender-neutral hipster name.
+Examples: River, Kale, Birch, Pip, Wren.
+
+You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
+{
+  "name": "The generated name."
+}`;
     
     try {
       const apiResponse = await callNexixApi('llama3.1:8b', prompt, 1.5);
       
-      // Clean up the response to get just the name.
-      const cleanedName = apiResponse.trim().replace(/["\.]/g, '');
+      let parsedResult;
+      try {
+        parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(apiResponse));
+      } catch (e) {
+        console.warn("[generateHipsterNameFlow] Failed to parse directly, attempting to unescape and parse again.", { error: e });
+        const unescapedResponse = JSON.parse(apiResponse);
+        parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(unescapedResponse));
+      }
 
       return {
-        name: cleanedName,
+        ...parsedResult,
         dataSource: 'primary',
       };
 
