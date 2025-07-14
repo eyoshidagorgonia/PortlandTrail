@@ -372,50 +372,24 @@ export default function PortlandTrailPage() {
     setIsLoading(true);
     let tempState = { ...playerState };
 
-    // This logic now only applies the consequences. Image generation is separate.
-    const applyConsequences = (chosenBadge?: Badge) => {
-        const consequences = choice.consequences;
-        tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
-        tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
-        tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
-        tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
-        tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
-        tempState.resources.vinyls += consequences.vinyls;
-        tempState.progress = Math.min(100, tempState.progress + consequences.progress);
-        tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
-        
-        const finalBadge = chosenBadge || consequences.badge;
-        if (finalBadge) {
-            const newBadge: Badge = { 
-                ...finalBadge,
-                // The badge image is now associated here.
-                image: badgeImage || undefined,
-             };
-            tempState.resources.badges = [...tempState.resources.badges, newBadge];
-            addLog(`You earned a badge: "${newBadge.description}"!`);
-        }
-    }
-
-    if (choice.text === 'GO FOR BROKE' && choice.consequences.badge) {
-        const gamble = Math.random();
-        if (gamble < 0.2) {
-            addLog('You went for broke and it paid off spectacularly!');
-            const newBadge: Badge = {
-                description: `Uber-Rare: ${choice.consequences.badge.description}`,
-                emoji: `✨${choice.consequences.badge.emoji}✨`,
-                isUber: true,
-                image: badgeImage || undefined
-            };
-            tempState.stats.style += 20;
-            applyConsequences(newBadge);
-        } else {
-            addLog('You went for broke and got broken. A significant, but not devastating, failure.');
-            tempState.stats.hunger = Math.max(0, tempState.stats.hunger - 10);
-            tempState.resources.bikeHealth = Math.max(0, tempState.resources.bikeHealth - 15);
-            tempState.stats.style = Math.max(0, tempState.stats.style - 5);
-        }
-    } else {
-        applyConsequences();
+    const consequences = choice.consequences;
+    tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
+    tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
+    tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
+    tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
+    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
+    tempState.resources.vinyls += consequences.vinyls;
+    tempState.progress = Math.min(100, tempState.progress + consequences.progress);
+    tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
+    
+    if (consequences.badge) {
+        const newBadge: Badge = { 
+            ...consequences.badge,
+            // The badge image is now associated here.
+            image: badgeImage || undefined,
+         };
+        tempState.resources.badges = [...tempState.resources.badges, newBadge];
+        addLog(`You earned a badge: "${newBadge.description}"!`);
     }
     
     tempState.location = currentLocation;

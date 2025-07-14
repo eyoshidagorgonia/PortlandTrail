@@ -3,7 +3,7 @@
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
 import { generateImagesForScenario } from '@/ai/flows/generate-images-for-scenario';
-import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, Badge } from '@/lib/types';
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
@@ -27,26 +27,15 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
 
     let choices: Choice[] = scenarioDetails.choices;
     
+    // Attach the badge info to the first choice if a badge was awarded by the model.
+    // The frontend will use this to associate the generated image with the badge.
     if (hasBadge && choices.length > 0) {
         choices[0].consequences.badge = {
             description: scenarioDetails.badge!.badgeDescription,
             emoji: scenarioDetails.badge!.badgeEmoji,
-            // Image will be handled separately
         };
         dataSources.badge = scenarioDetails.dataSource;
         console.log('[getScenarioAction] Badge details attached to "Embrace" choice.');
-    }
-    
-    if (hasBadge) {
-        choices.push({
-            text: 'GO FOR BROKE',
-            description: 'A high-risk, high-reward gamble. You might earn an incredible badge, or you might face a devastating failure.',
-            consequences: {
-                hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: 0, bikeHealth: 0,
-                badge: { description: scenarioDetails.badge!.badgeDescription, emoji: scenarioDetails.badge!.badgeEmoji }
-            }
-        });
-        console.log('[getScenarioAction] "GO FOR BROKE" choice added.');
     }
 
     const finalScenario: Scenario = {
@@ -59,6 +48,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       dataSources,
     };
     
+    // Also include top-level badge info for the image generation step
     if (scenarioDetails.badge) {
         finalScenario.badge = {
             description: scenarioDetails.badge.badgeDescription,
