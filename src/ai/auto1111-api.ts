@@ -37,7 +37,7 @@ export async function generateImage(
     height,
     sampler_name: 'DPM++ 2M Karras',
     override_settings: {
-        "sd_model_checkpoint": "sd-v1-5-inpainting.ckpt",
+        "sd_model_checkpoint": "sd-v1-5-inpainting",
     }
   };
 
