@@ -80,14 +80,24 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       const result = await response.json();
       console.log(`[generateHipsterNameFlow] Successfully received response from endpoint.`);
 
-      const nameContent = result.choices[0]?.message?.content;
+      let nameContent = result.choices[0]?.message?.content;
       if (!nameContent) {
         throw new Error('Invalid response structure from API. Content is missing.');
       }
-      
-      const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nameContent));
-      
-      return { ...parsedResult, dataSource: 'primary' };
+
+      // The AI sometimes returns the JSON as a string inside the content string.
+      try {
+        const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nameContent));
+        return { ...parsedResult, dataSource: 'primary' };
+      } catch (e) {
+          console.log("[generateHipsterNameFlow] Failed to parse directly, checking for escaped JSON", e);
+          // It might be a stringified JSON within a string.
+          if (nameContent.startsWith('"') && nameContent.endsWith('"')) {
+            nameContent = JSON.parse(nameContent);
+          }
+          const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nameContent));
+          return { ...parsedResult, dataSource: 'primary' };
+      }
 
     } catch (error) {
         console.error(`[generateHipsterNameFlow] Call failed. Returning hard-coded name.`, { error });

@@ -64,7 +64,6 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
       const response = await fetch(url, {
         method: 'POST',
-        // Instruct fetch to not cache this request, ensuring we get a new response every time.
         cache: 'no-store',
         headers: {
             'Content-Type': 'application/json',
@@ -82,13 +81,22 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       const result = await response.json();
       console.log(`[generateTransportModeFlow] Successfully received response from endpoint.`);
 
-      const transportContent = result.choices[0]?.message?.content;
+      let transportContent = result.choices[0]?.message?.content;
       if (!transportContent) {
         throw new Error('Invalid response structure from API. Content is missing.');
       }
 
-      const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(transportContent));
-      return { ...parsedResult, dataSource: 'primary' };
+      try {
+        const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(transportContent));
+        return { ...parsedResult, dataSource: 'primary' };
+      } catch (e) {
+        console.log("[generateTransportModeFlow] Failed to parse directly, checking for escaped JSON", e);
+        if (transportContent.startsWith('"') && transportContent.endsWith('"')) {
+            transportContent = JSON.parse(transportContent);
+        }
+        const parsedResult = GenerateTransportModeOutputSchema.parse(JSON.parse(transportContent));
+        return { ...parsedResult, dataSource: 'primary' };
+      }
 
     } catch (error) {
         console.error(`[generateTransportModeFlow] Call failed.`, { error });

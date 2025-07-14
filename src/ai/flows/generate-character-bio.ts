@@ -70,6 +70,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
       const response = await fetch(url, {
         method: 'POST',
+        cache: 'no-store',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`
@@ -86,13 +87,22 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       const result = await response.json();
       console.log(`[generateCharacterBioFlow] Successfully received response from endpoint.`);
       
-      const bioContent = result.choices[0]?.message?.content;
+      let bioContent = result.choices[0]?.message?.content;
       if (!bioContent) {
           throw new Error('Invalid response structure from API. Content is missing.');
       }
 
-      const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(bioContent));
-      return { ...parsedResult, dataSource: 'primary' };
+      try {
+        const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(bioContent));
+        return { ...parsedResult, dataSource: 'primary' };
+      } catch(e) {
+          console.log("[generateCharacterBioFlow] Failed to parse directly, checking for escaped JSON", e);
+          if (bioContent.startsWith('"') && bioContent.endsWith('"')) {
+            bioContent = JSON.parse(bioContent);
+          }
+          const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(bioContent));
+          return { ...parsedResult, dataSource: 'primary' };
+      }
 
     } catch (error) {
         console.error(`[generateCharacterBioFlow] Call failed. Returning hard-coded bio.`, { error });

@@ -99,6 +99,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     
     const response = await fetch(url, {
         method: 'POST',
+        cache: 'no-store',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`
@@ -115,12 +116,21 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       const result = await response.json();
       console.log(`[generatePortlandScenario] Successfully received response from endpoint.`);
       
-      const scenarioContent = result.choices[0]?.message?.content;
+      let scenarioContent = result.choices[0]?.message?.content;
       if (!scenarioContent) {
         throw new Error('Invalid response structure from API. Content is missing.');
       }
       
-      const parsedResult = OllamaResponseSchema.parse(JSON.parse(scenarioContent));
+      let parsedResult;
+      try {
+        parsedResult = OllamaResponseSchema.parse(JSON.parse(scenarioContent));
+      } catch(e) {
+          console.log("[generatePortlandScenario] Failed to parse directly, checking for escaped JSON", e);
+          if (scenarioContent.startsWith('"') && scenarioContent.endsWith('"')) {
+            scenarioContent = JSON.parse(scenarioContent);
+          }
+          parsedResult = OllamaResponseSchema.parse(JSON.parse(scenarioContent));
+      }
 
       const output: GeneratePortlandScenarioOutput = {
         scenario: parsedResult.scenario,
