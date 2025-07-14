@@ -68,7 +68,7 @@ The art style should be consistent: "quirky, indie comic book art, slightly grit
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
+You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, omit the 'badgePrompt' key entirely. The JSON object should conform to this structure:
 {
     "avatarPrompt": "The generated prompt for the avatar.",
     "scenePrompt": "The generated prompt for the scene.",

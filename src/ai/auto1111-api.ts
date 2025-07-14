@@ -35,7 +35,7 @@ export async function generateImage(
     cfg_scale: 7,
     width,
     height,
-    sampler_name: 'DPM++ 2M Karras',
+    sampler_name: 'DPM++ 2M SDE Karras',
     override_settings: {
         "sd_model_checkpoint": "sd-v1-5-inpainting",
     }
