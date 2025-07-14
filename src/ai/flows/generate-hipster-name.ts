@@ -44,7 +44,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
     
     try {
-      const apiResponse = await callNexixApi('llama3.1:8b', prompt, 1.5);
+      const apiResponse = await callNexixApi('deepseek-r1:8b', prompt, 1.5);
       
       let parsedResult;
       try {
