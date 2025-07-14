@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge } from '@/lib/types';
 import { getScenarioAction, getImagesAction } from '@/app/actions';
@@ -23,6 +23,7 @@ import { Coffee, Route, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
     healthyServices: new Set(),
@@ -51,6 +52,10 @@ export default function PortlandTrailPage() {
   const [avatarImage, setAvatarImage] = useState<string>('');
   const [sceneImage, setSceneImage] = useState<string>('');
   const [badgeImage, setBadgeImage] = useState<string | null>(null);
+
+  // Intro-specific image state
+  const [introAvatarImage, setIntroAvatarImage] = useState<string>('');
+  const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
 
 
   const { toast } = useToast();
@@ -153,6 +158,27 @@ export default function PortlandTrailPage() {
     updateSystemStatus({ bio: result.dataSource });
     setIsBioLoading(false);
   }, [name, job, updateSystemStatus]);
+  
+  const generateIntroAvatar = useCallback(async () => {
+    if (!name || !job) return;
+    setIsIntroAvatarLoading(true);
+
+    const imageInput = {
+      scenarioDescription: `A quirky, indie comic book style portrait of a hipster named ${name}, who works as a ${job}.`,
+      character: { name, job, vibe: "Just starting out", avatarKaomoji },
+    };
+
+    const imageResult = await getImagesAction(imageInput);
+
+    if ('error' in imageResult) {
+      toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+    } else {
+      setIntroAvatarImage(imageResult.avatarImage);
+      // We save the game avatar here too, so it's ready when the game starts
+      setAvatarImage(imageResult.avatarImage); 
+    }
+    setIsIntroAvatarLoading(false);
+  }, [name, job, avatarKaomoji, toast]);
 
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
@@ -175,6 +201,14 @@ export default function PortlandTrailPage() {
       handleGenerateBio("Just starting out");
     }
   }, [gameState, name, job, handleGenerateBio]);
+  
+  // New useEffect to generate avatar on intro screen
+  useEffect(() => {
+    // Only run if we are on the intro, and the bio has been loaded (final step)
+    if (gameState === 'intro' && !isBioLoading && bio) {
+        generateIntroAvatar();
+    }
+  }, [isBioLoading, bio, gameState, generateIntroAvatar]);
 
   // Regenerate bio when vibe changes
   useEffect(() => {
@@ -235,7 +269,8 @@ export default function PortlandTrailPage() {
     setGameState('playing');
     setIsLoading(false);
 
-    // Fetch images now that we have a scenario
+    // Fetch images for the first scenario
+    // We pass the *full* new player state, including the potentially new kaomoji
     fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
 
   }, [name, job, avatarKaomoji, bio, toast, addLog, updateSystemStatus]);
@@ -250,6 +285,7 @@ export default function PortlandTrailPage() {
     setSystemStatus(INITIAL_SYSTEM_STATUS);
     setSceneImage('');
     setAvatarImage('');
+    setIntroAvatarImage('');
     setBadgeImage(null);
     localStorage.removeItem('healthyServices');
     localStorage.removeItem('primaryDegradedServices');
@@ -258,8 +294,8 @@ export default function PortlandTrailPage() {
 
   const fetchImages = async (currentScenario: Scenario, currentPlayerState: PlayerState) => {
     setIsImageLoading(true);
+    // Don't clear avatar image here, as it may have been generated on the intro screen
     setSceneImage('');
-    setAvatarImage('');
     setBadgeImage(null);
 
     const imageInput = {
@@ -278,7 +314,10 @@ export default function PortlandTrailPage() {
     if ('error' in imageResult) {
       toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
     } else {
-      setAvatarImage(imageResult.avatarImage);
+      // Only set avatar if it wasn't already set on intro
+      if (!avatarImage) {
+        setAvatarImage(imageResult.avatarImage);
+      }
       setSceneImage(imageResult.sceneImage);
       if (imageResult.badgeImage) {
         setBadgeImage(imageResult.badgeImage);
@@ -439,9 +478,11 @@ export default function PortlandTrailPage() {
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left">
               <div className="relative shrink-0">
                 <Avatar className="h-32 w-32 border-4 border-primary/50 text-4xl">
-                  <AvatarFallback className="text-4xl p-2 bg-muted">
-                    {avatarKaomoji}
-                  </AvatarFallback>
+                  {isIntroAvatarLoading || !introAvatarImage ? (
+                    <Skeleton className="h-full w-full rounded-full" />
+                  ) : (
+                    <AvatarImage src={introAvatarImage} alt={name} data-ai-hint="avatar portrait" />
+                  )}
                 </Avatar>
               </div>
 
@@ -478,8 +519,8 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || !job}>
-              {(isLoading || isBioLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
+            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job}>
+              {(isLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
               Begin the Journey
             </Button>
             <Link href="/help" passHref>
