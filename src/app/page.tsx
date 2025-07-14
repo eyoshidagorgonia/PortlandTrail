@@ -487,9 +487,9 @@ export default function PortlandTrailPage() {
 
               <div className="space-y-4 flex-1 w-full">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Persona</Label>
+                  <Label htmlFor="name">persona</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., River, Kale, Britta" disabled={isNameLoading} />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., river, kale, britta" disabled={isNameLoading} className="lowercase" />
                     <Button 
                       type="button"
                       size="icon" 
@@ -503,10 +503,10 @@ export default function PortlandTrailPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="job">Calling</Label>
+                  <Label htmlFor="job">calling</Label>
                   <Select value={job} onValueChange={setJob}>
                     <SelectTrigger id="job">
-                      <SelectValue placeholder="Select a hipster profession" />
+                      <SelectValue placeholder="select a hipster profession" />
                     </SelectTrigger>
                     <SelectContent>
                       {HIPSTER_JOBS.map((j) => (
@@ -518,12 +518,12 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job}>
+            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job} className="lowercase font-headline text-xl">
               {(isLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
-              Begin the Descent
+              begin the descent
             </Button>
             <Link href="/help" passHref>
-                <Button variant="link" className="text-muted-foreground mt-2">Consult the Oracle</Button>
+                <Button variant="link" className="text-muted-foreground mt-2 lowercase">consult the oracle</Button>
             </Link>
           </CardContent>
            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">

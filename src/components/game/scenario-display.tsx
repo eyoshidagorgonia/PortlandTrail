@@ -40,6 +40,11 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     return <LoadingState />;
   }
 
+  const choiceTexts = [
+      { text: "heck yes", description: "Embrace the weirdness. What's the worst that could happen?" },
+      { text: "nah i'm good", description: "This is too much. Time to leave." },
+  ]
+
   return (
     <Card className="shadow-lg border-border/50 border">
       <CardHeader className="p-4 pb-2">
@@ -63,7 +68,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
         </div>
         <p className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap font-body">{scenario.scenario}</p>
         {scenario.diablo2Element && (
-           <p className="mt-4 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic font-body">
+           <p className="mt-4 text-sm text-accent/80 border-l-2 border-accent/50 pl-3 italic font-body">
             {scenario.diablo2Element}
           </p>
         )}
@@ -77,13 +82,13 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant={index === 0 ? 'default' : 'secondary'} 
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
-                  className="font-headline"
+                  className="font-headline lowercase text-lg"
                 >
-                  {choice.text}
+                  {choiceTexts[index] ? choiceTexts[index].text : choice.text}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{choice.description}</p>
+                <p>{choiceTexts[index] ? choiceTexts[index].description : choice.description}</p>
               </TooltipContent>
             </Tooltip>
           ))}

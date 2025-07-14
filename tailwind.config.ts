@@ -17,9 +17,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"Share Tech Mono"', 'monospace'],
-        headline: ['"Cinzel Decorative"', 'serif'],
-        code: ['"Share Tech Mono"', 'monospace'],
+        body: ['"IBM Plex Mono"', 'monospace'],
+        headline: ['"EB Garamond"', 'serif'],
+        code: ['"IBM Plex Mono"', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -55,6 +55,7 @@ export default {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+        'btn-hover': 'hsl(var(--btn-hover))',
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
