@@ -37,7 +37,7 @@ const generateHipsterNameFlow = ai.defineFlow(
     const prompt = `Generate a single, quirky, gender-neutral hipster name. Examples: River, Kale, Birch, Pip, Wren. Do not include any other text or punctuation. Just the name.`;
     
     try {
-      const apiResponse = await callNexixApi('gemma:2b', prompt, 1.5);
+      const apiResponse = await callNexixApi('llama2:latest', prompt, 1.5);
       
       // Clean up the response to get just the name.
       const cleanedName = apiResponse.trim().replace(/["\.]/g, '');
