@@ -23,7 +23,7 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
 const ImageGenPromptOutputSchema = z.object({
     avatarPrompt: z.string().describe("A detailed DALL-E prompt for the character's avatar portrait."),
     scenePrompt: z.string().describe("A detailed DALL-E prompt for the scene depiction."),
-    badgePrompt: z.string().optional().describe("A detailed DALL-E prompt for the badge icon, if a badge was awarded."),
+    badgePrompt: z.string().nullable().optional().describe("A detailed DALL-E prompt for the badge icon, if a badge was awarded."),
 });
 
 const generateImagesFlow = ai.defineFlow(
@@ -68,7 +68,7 @@ The art style should be consistent: "quirky, indie comic book art, slightly grit
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, omit the 'badgePrompt' key entirely. The JSON object should conform to this structure:
+You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The JSON object should conform to this structure:
 {
     "avatarPrompt": "The generated prompt for the avatar.",
     "scenePrompt": "The generated prompt for the scene.",
