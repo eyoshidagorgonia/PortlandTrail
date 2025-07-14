@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PlayerAction } from '@/lib/types';
-import { Utensils, Wrench, ShoppingBag, Guitar } from 'lucide-react';
+import { HungerIcon, WrenchIcon, ShoppingBagIcon, GuitarIcon } from './icons';
 
 interface ActionsCardProps {
   onAction: (action: PlayerAction) => void;
@@ -16,25 +16,25 @@ const actions: PlayerAction[] = [
   {
     text: 'Forage for Food',
     description: 'Scour for snacks. [+10 Hunger, -2 Style, -1 Progress]',
-    icon: Utensils,
+    icon: HungerIcon,
     consequences: { hunger: 10, style: -2, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: -1, bikeHealth: 0 },
   },
   {
     text: 'Tune-up Bike',
     description: 'Maintain your fixie. [-5 Coffee, +15 Bike Health, -1 Progress]',
-    icon: Wrench,
+    icon: WrenchIcon,
     consequences: { hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: -5, vinyls: 0, progress: -1, bikeHealth: 15 },
   },
   {
     text: 'Go Thrifting',
     description: 'Hunt for vintage threads. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
-    icon: ShoppingBag,
+    icon: ShoppingBagIcon,
     consequences: { hunger: 0, style: 10, irony: 0, authenticity: -5, coffee: -5, vinyls: 0, progress: -1, bikeHealth: 0 },
   },
   {
     text: 'Street Perform',
     description: 'Share your "art". [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
-    icon: Guitar,
+    icon: GuitarIcon,
     consequences: { hunger: 0, style: 0, irony: 5, authenticity: -5, coffee: 10, vinyls: 0, progress: -1, bikeHealth: 0 },
   },
 ];
