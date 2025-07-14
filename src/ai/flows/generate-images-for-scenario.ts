@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { generateImage } from '../auto1111-api';
 import type { GenerateImagesInput, GenerateImagesOutput } from '@/lib/types';
 import { GenerateImagesInputSchema, GenerateImagesOutputSchema } from '@/lib/types';
+import { callNexixApi } from '../nexix-api';
 
 
 export async function generateImagesForScenario(input: GenerateImagesInput): Promise<GenerateImagesOutput> {
@@ -25,11 +26,22 @@ const ImageGenPromptOutputSchema = z.object({
     badgePrompt: z.string().optional().describe("A detailed DALL-E prompt for the badge icon, if a badge was awarded."),
 });
 
-const imageGenPrompt = ai.definePrompt({
-    name: 'imageGenPrompt',
-    input: { schema: GenerateImagesInputSchema },
-    output: { schema: ImageGenPromptOutputSchema },
-    prompt: `You are an expert prompt engineer for a text-to-image model.
+const generateImagesFlow = ai.defineFlow(
+  {
+    name: 'generateImagesFlow',
+    inputSchema: GenerateImagesInputSchema,
+    outputSchema: GenerateImagesOutputSchema,
+  },
+  async (input) => {
+    console.log('[generateImagesFlow] Started.');
+
+    const badgeSection = input.badge 
+        ? `
+- Badge Description: ${input.badge.description}
+- Badge Emoji: ${input.badge.emoji}` 
+        : '';
+
+    const prompt = `You are an expert prompt engineer for a text-to-image model.
 Your task is to create three distinct, detailed, and artistic prompts based on a game scenario.
 The art style should be consistent: "quirky, indie comic book art, slightly gritty, muted colors, cel-shaded".
 
@@ -49,30 +61,41 @@ The art style should be consistent: "quirky, indie comic book art, slightly grit
 - Style: Focus on a simple, graphic icon.
 
 **Input Data:**
-- Character Name: {{character.name}}
-- Character Job: {{character.job}}
-- Character Vibe: {{character.vibe}}
-- Character Avatar Kaomoji: {{{character.avatarKaomoji}}}
-- Scenario: {{{scenarioDescription}}}
-{{#if badge}}
-- Badge Description: {{badge.description}}
-- Badge Emoji: {{badge.emoji}}
-{{/if}}
+- Character Name: ${input.character.name}
+- Character Job: ${input.character.job}
+- Character Vibe: ${input.character.vibe}
+- Character Avatar Kaomoji: ${input.character.avatarKaomoji}
+- Scenario: ${input.scenarioDescription}
+${badgeSection}
 
-Please generate the prompts now.
-`,
-});
-
-const generateImagesFlow = ai.defineFlow(
-  {
-    name: 'generateImagesFlow',
-    inputSchema: GenerateImagesInputSchema,
-    outputSchema: GenerateImagesOutputSchema,
-  },
-  async (input) => {
-    console.log('[generateImagesFlow] Started.');
-    const { output } = await imageGenPrompt(input);
-    const prompts = output!;
+You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
+{
+    "avatarPrompt": "The generated prompt for the avatar.",
+    "scenePrompt": "The generated prompt for the scene.",
+    "badgePrompt": "The generated prompt for the badge (or null if no badge)."
+}`;
+    
+    let prompts;
+    try {
+        const apiResponse = await callNexixApi('deepseek-r1:8b', prompt);
+        let parsedResult;
+        try {
+            parsedResult = ImageGenPromptOutputSchema.parse(JSON.parse(apiResponse));
+        } catch (e) {
+            console.warn("[generateImagesFlow] Failed to parse directly, attempting to unescape and parse again.", { error: e });
+            const unescapedResponse = JSON.parse(apiResponse);
+            parsedResult = ImageGenPromptOutputSchema.parse(JSON.parse(unescapedResponse));
+        }
+        prompts = parsedResult;
+    } catch(error) {
+        console.error("[generateImagesFlow] Failed to generate prompts via API, using fallbacks.", { error });
+        // Fallback prompts
+        prompts = {
+            avatarPrompt: `A portrait of ${input.character.name} the ${input.character.job}`,
+            scenePrompt: input.scenarioDescription,
+            badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : undefined,
+        };
+    }
     
     console.log('[generateImagesFlow] Generated prompts:', prompts);
 
