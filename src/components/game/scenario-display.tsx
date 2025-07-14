@@ -40,8 +40,6 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     return <LoadingState />;
   }
 
-  const hasAsciiArt = 'asciiArt' in scenario && scenario.asciiArt;
-
   return (
     <Card className="shadow-lg border">
       <CardHeader className="p-4 pb-2">
@@ -49,9 +47,9 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
       </CardHeader>
       <CardContent className="p-4 pt-2">
         <div className="mb-4 rounded-md overflow-hidden border bg-muted/30">
-          {isImageLoading ? (
+          {isImageLoading || !sceneImage ? (
             <Skeleton className="w-full aspect-video" />
-          ) : sceneImage ? (
+          ) : (
             <Image
               src={sceneImage}
               alt={scenario.challenge}
@@ -61,12 +59,6 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
               unoptimized // Required for local data URIs from Auto1111
               data-ai-hint="scene depiction"
             />
-          ) : hasAsciiArt ? (
-             <div className="font-code text-sm leading-tight text-foreground/80 whitespace-pre-wrap text-center p-4">
-               {scenario.asciiArt}
-             </div>
-          ) : (
-            <Skeleton className="w-full aspect-video" />
           )}
         </div>
         <p className="text-sm text-foreground/90 leading-normal whitespace-pre-wrap">{scenario.scenario}</p>
@@ -82,10 +74,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <Button 
-                  variant={
-                    choice.text === 'GO FOR BROKE' ? 'destructive' : 
-                    index === 0 ? 'default' : 'secondary'
-                  } 
+                  variant={index === 0 ? 'default' : 'secondary'} 
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
                 >

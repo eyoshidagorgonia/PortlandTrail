@@ -42,7 +42,6 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       scenario: scenarioDetails.scenario,
       challenge: scenarioDetails.challenge,
       diablo2Element: scenarioDetails.diablo2Element,
-      asciiArt: scenarioDetails.asciiArt,
       choices,
       playerAvatar: scenarioDetails.avatarKaomoji,
       dataSources,

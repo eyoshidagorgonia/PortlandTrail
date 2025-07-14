@@ -114,14 +114,11 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
       <CardHeader>
         <div className="flex items-start gap-4">
             <Avatar className="h-16 w-16 border-2 border-primary/50 shrink-0 text-3xl">
-                {isImageLoading ? (
+                {isImageLoading || !avatarImage ? (
                     <Skeleton className="h-full w-full rounded-full" />
-                ) : avatarImage ? (
+                ) : (
                     <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
-                ) : null}
-                <AvatarFallback className="p-2 bg-muted">
-                    {avatar}
-                </AvatarFallback>
+                )}
             </Avatar>
 
           <div className="flex-grow space-y-1.5">

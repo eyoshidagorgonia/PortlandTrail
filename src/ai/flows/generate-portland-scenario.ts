@@ -50,7 +50,6 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   scenario: z.string().describe('A description of the generated scenario.'),
   challenge: z.string().describe('A challenge the player must overcome in the scenario.'),
   diablo2Element: z.string().optional().describe('The subtle Diablo II reference.'),
-  asciiArt: z.string().describe('Quirky, multi-line ASCII art depicting the scene. It should be wrapped in a code block.'),
   avatarKaomoji: z.string().describe('A Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～` )┌) representing the player character.'),
   badge: BadgeSchema.optional(),
   choices: z.array(ChoiceSchema).describe("An array of 2-3 choices for the player."),
@@ -63,7 +62,6 @@ const OllamaResponseSchema = z.object({
   scenario: z.string(),
   challenge: z.string(),
   diablo2Element: z.string().optional(),
-  asciiArt: z.string(),
   avatarKaomoji: z.string(),
   shouldAwardBadge: z.boolean().describe("Whether the scenario is weird enough to award a merit badge."),
   badgeDescription: z.string().optional().describe("The badge description, if one is awarded."),
@@ -86,13 +84,12 @@ First, analyze the player's current status.
 
 **Scenario Generation:**
 1.  **Scenario**: A quirky, random, and challenging scenario based on the player's status and location. It must be HIGHLY SPECIFIC to the location. Incorporate local landmarks, stereotypes, or cultural touchstones. Also, subtly weave in an unexpected element inspired by the dark fantasy world of Diablo II.
-2.  **ASCII Art**: Create a piece of multi-line ASCII art that visually represents the scenario. Keep it simple and contained within about 5-7 lines.
-3.  **Avatar Kaomoji**: Generate a creative Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～\` )┌) that represents the player's character based on their name and job.
-4.  **Choices and Consequences**: Create exactly TWO choices for the player.
+2.  **Avatar Kaomoji**: Generate a creative Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～\` )┌) that represents the player's character based on their name and job.
+3.  **Choices and Consequences**: Create exactly TWO choices for the player.
     -   The first choice should be about EMBRACING the scenario (e.g., "Embrace the weirdness", "Investigate the sound").
     -   The second choice should be about AVOIDING or LEAVING the scenario (e.g., "Skateboard away," "Nope out of there"). Generate a quirky 2-4 word phrase for this.
     -   For EACH choice, generate a full set of consequences based on your player analysis.
-5.  **Badge Decision**: Based on the scenario you generated, decide if it is weird or noteworthy enough to award the player a merit badge. Only award badges for things that are truly strange or representative of Portland culture. If you award a badge, you must also create a single emoji for it.
+4.  **Badge Decision**: Based on the scenario you generated, decide if it is weird or noteworthy enough to award the player a merit badge. Only award badges for things that are truly strange or representative of Portland culture. If you award a badge, you must also create a single emoji for it.
 
 **Player Status:** ${input.playerStatus}
 **Location:** ${input.location}
@@ -103,7 +100,6 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   "scenario": "A description of the generated scenario.",
   "challenge": "A challenge the player must overcome in the scenario.",
   "diablo2Element": "The subtle Diablo II reference.",
-  "asciiArt": "The multi-line ASCII art for the scene.",
   "avatarKaomoji": "The generated Kaomoji for the player.",
   "choices": [
     {
@@ -139,7 +135,6 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         scenario: parsedResult.scenario,
         challenge: parsedResult.challenge,
         diablo2Element: parsedResult.diablo2Element,
-        asciiArt: parsedResult.asciiArt,
         avatarKaomoji: parsedResult.avatarKaomoji,
         choices: parsedResult.choices,
         dataSource: 'primary'
@@ -164,10 +159,6 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
       challenge: 'Question your reality',
       diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-      asciiArt: `
-      ( o)>  ( o)>  ( o)>
-      /(_)\\  /(_)\\  /(_)\\
-      `,
       avatarKaomoji: '(o_O;)',
       choices: [
         {
