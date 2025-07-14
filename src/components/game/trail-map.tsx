@@ -12,10 +12,10 @@ interface TrailMapProps {
 
 export default function TrailMap({ progress, waypoints, currentLocation }: TrailMapProps) {
   return (
-    <Card className="shadow-lg border">
+    <Card className="shadow-lg border-border/50 border">
       <CardHeader className="flex-row items-center justify-between">
         <CardTitle className="font-headline text-2xl">The Trail</CardTitle>
-        <div className="text-sm text-muted-foreground flex items-center gap-2">
+        <div className="text-sm text-muted-foreground flex items-center gap-2 font-body">
             <MapPin className="h-4 w-4" />
             <span>Currently near: <span className="font-semibold text-foreground">{currentLocation}</span></span>
         </div>
@@ -52,7 +52,7 @@ export default function TrailMap({ progress, waypoints, currentLocation }: Trail
             })}
           </div>
         </div>
-        <div className="flex justify-between text-xs text-muted-foreground">
+        <div className="flex justify-between text-xs text-muted-foreground font-body">
           <span>San Francisco</span>
           <span className="font-bold text-primary">Portland</span>
         </div>

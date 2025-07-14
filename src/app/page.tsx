@@ -465,13 +465,12 @@ export default function PortlandTrailPage() {
   if (gameState === 'intro') {
     return (
       <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center">
-        <Card className="max-w-2xl w-full text-center shadow-xl border relative">
+        <Card className="max-w-2xl w-full text-center shadow-xl border-border/50 border relative bg-card/90 backdrop-blur-sm">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
-              <Coffee className="mx-auto h-12 w-12 text-primary mb-2" />
-              <h1 className="text-3xl font-headline font-bold">The Portland Trail</h1>
-              <p className="text-muted-foreground">
-                Craft your hipster persona and embark on a journey of survival and irony.
+              <h1 className="text-5xl font-headline font-bold text-primary">The Portland Trail</h1>
+              <p className="text-muted-foreground font-body text-lg">
+                A cursed journey of survival and irony.
               </p>
             </div>
 
@@ -488,7 +487,7 @@ export default function PortlandTrailPage() {
 
               <div className="space-y-4 flex-1 w-full">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Hipster Name</Label>
+                  <Label htmlFor="name">Persona</Label>
                   <div className="flex items-center gap-2">
                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., River, Kale, Britta" disabled={isNameLoading} />
                     <Button 
@@ -521,13 +520,13 @@ export default function PortlandTrailPage() {
 
             <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job}>
               {(isLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
-              Begin the Journey
+              Begin the Descent
             </Button>
             <Link href="/help" passHref>
-                <Button variant="link" className="text-muted-foreground mt-2">How to Play</Button>
+                <Button variant="link" className="text-muted-foreground mt-2">Consult the Oracle</Button>
             </Link>
           </CardContent>
-           <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
+           <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
                 <StatusIcons />
                 <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
             </div>
@@ -542,7 +541,7 @@ export default function PortlandTrailPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8 relative">
-      <div className="container mx-auto border-2 shadow-xl p-4 md:p-6 bg-card/80 rounded-lg backdrop-blur-sm">
+      <div className="container mx-auto border-2 shadow-xl p-4 md:p-6 bg-card/80 rounded-lg backdrop-blur-sm border-border/30">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
             <StatusDashboard playerState={playerState} avatarImage={avatarImage} isImageLoading={isImageLoading} />
@@ -554,10 +553,10 @@ export default function PortlandTrailPage() {
             <Card>
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Travel Diary</h3>
-                 <div className="text-sm text-muted-foreground space-y-2">
+                 <div className="text-sm text-muted-foreground space-y-2 font-code">
                     {eventLog.map((log, i) => (
                       <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
-                        <p className="text-primary/70 font-mono text-xs pt-0.5 whitespace-nowrap">
+                        <p className="text-primary/70 font-code text-xs pt-0.5 whitespace-nowrap">
                           [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
                         </p>
                         <p>{log.message}</p>
@@ -569,7 +568,7 @@ export default function PortlandTrailPage() {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-mono flex items-center gap-2">
+      <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
         <StatusIcons />
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
       </div>

@@ -17,9 +17,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"Cinzel"', 'serif'],
-        headline: ['"Cinzel Decorative"', 'cursive'],
-        code: ['monospace'],
+        body: ['"Share Tech Mono"', 'monospace'],
+        headline: ['"Cinzel Decorative"', 'serif'],
+        code: ['"Share Tech Mono"', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',

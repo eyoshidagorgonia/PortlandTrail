@@ -16,7 +16,7 @@ import {
   BikeIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { getIronicHealthStatus } from '@/lib/constants';
@@ -44,13 +44,13 @@ const StatItem = ({ icon: Icon, label, value, maxValue = 100, tooltip }: StatIte
   <TooltipProvider>
     <Tooltip>
       <TooltipTrigger className="w-full text-left">
-        <div className="group space-y-1">
+        <div className="group space-y-1 font-code">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Icon className="h-4 w-4 text-foreground/70" />
               <span>{label}</span>
             </div>
-            <span className="font-mono text-foreground">{value}{maxValue !== 100 ? '' : '%'}</span>
+            <span className="font-code text-foreground">{value}{maxValue !== 100 ? '' : '%'}</span>
           </div>
           <Progress value={value} max={maxValue} className="h-2" />
         </div>
@@ -74,10 +74,10 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger className="w-full text-left">
-            <div className="flex items-center gap-3 bg-muted/40 p-2 rounded-md group">
+            <div className="flex items-center gap-3 bg-muted/40 p-2 rounded-md group hover:glow-sm transition-shadow duration-300">
                 <Icon className="h-6 w-6 text-foreground/70"/>
                 <div>
-                    <div className="font-mono text-lg text-foreground">{value}</div>
+                    <div className="font-code text-lg text-foreground">{value}</div>
                     <div className="text-xs text-muted-foreground">{label}</div>
                 </div>
             </div>
@@ -96,7 +96,7 @@ interface StatusDashboardProps {
 }
 
 export default function StatusDashboard({ playerState, avatarImage, isImageLoading }: StatusDashboardProps) {
-  const { stats, resources, name, job, avatar, bio } = playerState;
+  const { stats, resources, name, job, bio } = playerState;
 
   const normalizedHealth =
     ((stats.hunger / 100) +
@@ -110,19 +110,19 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
 
 
   return (
-    <Card className="shadow-lg border">
+    <Card className="shadow-lg border-border/50 border">
       <CardHeader>
         <div className="flex items-start gap-4">
-            <Avatar className="h-16 w-16 border-2 border-primary/50 shrink-0 text-3xl">
+            <Avatar className="h-20 w-20 border-2 border-primary/50 shrink-0 text-3xl">
                 {isImageLoading || !avatarImage ? (
-                    <Skeleton className="h-full w-full rounded-full" />
+                    <Skeleton className="h-full w-full rounded-md" />
                 ) : (
-                    <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
+                    <AvatarImage src={avatarImage} alt={name} className="rounded-md" data-ai-hint="avatar portrait" />
                 )}
             </Avatar>
 
           <div className="flex-grow space-y-1.5">
-            <CardTitle className="font-headline text-2xl">{name}</CardTitle>
+            <CardTitle className="font-headline text-3xl">{name}</CardTitle>
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -133,29 +133,29 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <CardDescription>{job}</CardDescription>
+            <CardDescription className="font-body">{job}</CardDescription>
           </div>
         </div>
         {bio && (
-            <CardDescription className="pt-3 text-sm italic">
+            <CardDescription className="pt-4 text-sm italic font-body text-foreground/80">
                 {bio}
             </CardDescription>
         )}
       </CardHeader>
       <CardContent>
         <div className="space-y-4 mb-6">
-            <h3 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider">Vitals</h3>
+            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Vitals</h3>
             <StatItem icon={HungerIcon} label="Hunger" value={stats.hunger} tooltip="Gotta eat to keep up the non-conformity. Don't starve." />
             <StatItem icon={BikeIcon} label="Bike Health" value={resources.bikeHealth} tooltip="Your fixed-gear's condition. A breakdown is social suicide."/>
         </div>
         <div className="space-y-4 mb-6">
-            <h3 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider">Social Stats</h3>
+            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Social Stats</h3>
             <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your flair. Essential for navigating coffee shops." maxValue={200}/>
             <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your ability to appreciate things in a detached, humorous way." maxValue={200}/>
             <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A delicate balance." maxValue={200}/>
         </div>
          <div className="space-y-4 mb-6">
-            <h3 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider">Inventory</h3>
+            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Inventory</h3>
             <div className="grid grid-cols-2 gap-4">
                 <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="Rare records increase your standing." />
                 <ResourceItem icon={CoffeeIcon} label="Coffee Beans" value={resources.coffee} tooltip="Fair-trade, single-origin coffee beans. The currency of the trail."/>
@@ -163,7 +163,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         </div>
         {resources.badges.length > 0 && (
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase text-muted-foreground tracking-wider">Badges</h3>
+            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Badges</h3>
             <TooltipProvider>
               <div className="flex flex-wrap gap-2">
                 {resources.badges.map((badge, index) => (
@@ -172,7 +172,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                       <TooltipTrigger asChild>
                         <AlertDialogTrigger>
                           <div className={cn(
-                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer overflow-hidden",
+                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer overflow-hidden hover:glow-sm",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
@@ -202,7 +202,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                         <AlertDialogTitle className="font-headline text-2xl pt-4">
                            Badge Earned!
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-center pt-2 text-base">
+                        <AlertDialogDescription className="text-center pt-2 text-base font-body">
                            {badge.description}
                         </AlertDialogDescription>
                       </AlertDialogHeader>

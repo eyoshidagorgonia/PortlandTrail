@@ -17,7 +17,7 @@ interface ScenarioDisplayProps {
 }
 
 const LoadingState = () => (
-    <Card className="shadow-lg border">
+    <Card className="shadow-lg border-border/50 border">
       <CardHeader className="p-4 pb-2">
         <Skeleton className="h-6 w-3/4" />
         <Skeleton className="h-4 w-1/2 mt-1" />
@@ -28,7 +28,7 @@ const LoadingState = () => (
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t">
+      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t border-border/50">
         <Skeleton className="h-10 w-32" />
         <Skeleton className="h-10 w-32" />
       </CardFooter>
@@ -41,12 +41,12 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
   }
 
   return (
-    <Card className="shadow-lg border">
+    <Card className="shadow-lg border-border/50 border">
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="font-headline text-xl">{scenario.challenge}</CardTitle>
+        <CardTitle className="font-headline text-2xl">{scenario.challenge}</CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-2">
-        <div className="mb-4 rounded-md overflow-hidden border bg-muted/30">
+        <div className="mb-4 rounded-md overflow-hidden border border-border/50 bg-muted/30">
           {isImageLoading || !sceneImage ? (
             <Skeleton className="w-full aspect-video" />
           ) : (
@@ -61,14 +61,14 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
             />
           )}
         </div>
-        <p className="text-sm text-foreground/90 leading-normal whitespace-pre-wrap">{scenario.scenario}</p>
+        <p className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap font-body">{scenario.scenario}</p>
         {scenario.diablo2Element && (
-           <p className="mt-3 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic">
+           <p className="mt-4 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic font-body">
             {scenario.diablo2Element}
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t">
+      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t border-border/50">
         <TooltipProvider>
           {scenario.choices.map((choice, index) => (
             <Tooltip key={index}>
@@ -77,6 +77,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant={index === 0 ? 'default' : 'secondary'} 
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
+                  className="font-headline"
                 >
                   {choice.text}
                 </Button>
