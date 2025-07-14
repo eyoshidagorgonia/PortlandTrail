@@ -33,20 +33,8 @@ const generateHipsterNameFlow = ai.defineFlow(
   },
   async () => {
     console.log('[generateHipsterNameFlow] Started.');
-    const prompt = `You are a hipster name generator. Your only purpose is to generate a single, quirky, gender-neutral hipster name.
-You MUST generate a different name every time. Do not repeat yourself.
-
-Good examples: "River", "Kale", "Birch", "Pip", "Wren", "Lark", "Moss", "Cove", "Finch", "Sage", "Indigo", "Juniper", "Rowan", "Linden".
-Bad examples to avoid: "Sawyer", "Jasper", "Ezra", "Milo".
-
-Do not provide any explanation or extra text.
-
-To ensure a unique name, use this random seed in your generation process: ${Math.random()}
-
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
-{
-  "name": "The generated name"
-}`;
+    const prompt = `Generate a single, quirky, gender-neutral hipster name. Examples: River, Kale, Birch, Pip, Wren. Do not include any other text or punctuation. Just the name.`;
+    
     try {
       const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
       const apiKey = process.env.NEXIX_API_KEY;
@@ -56,8 +44,9 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       }
       
       const requestBody = {
-        model: 'gemma3:12b',
+        model: 'gemma:2b', // Using a smaller model for this simple task.
         messages: [{ role: 'user', content: prompt }],
+        temperature: 1.5, // Increase creativity
       };
       console.log(`[generateHipsterNameFlow] Sending request to OpenAI-compatible endpoint at ${url}`);
 
@@ -80,24 +69,18 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       const result = await response.json();
       console.log(`[generateHipsterNameFlow] Successfully received response from endpoint.`);
 
-      let nameContent = result.choices[0]?.message?.content;
+      const nameContent = result.choices[0]?.message?.content;
       if (!nameContent) {
         throw new Error('Invalid response structure from API. Content is missing.');
       }
 
-      // The AI sometimes returns the JSON as a string inside the content string.
-      try {
-        const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nameContent));
-        return { ...parsedResult, dataSource: 'primary' };
-      } catch (e) {
-          console.log("[generateHipsterNameFlow] Failed to parse directly, checking for escaped JSON", e);
-          // It might be a stringified JSON within a string.
-          if (nameContent.startsWith('"') && nameContent.endsWith('"')) {
-            nameContent = JSON.parse(nameContent);
-          }
-          const parsedResult = GenerateHipsterNameOutputSchema.parse(JSON.parse(nameContent));
-          return { ...parsedResult, dataSource: 'primary' };
-      }
+      // Clean up the response to get just the name.
+      const cleanedName = nameContent.trim().replace(/["\.]/g, '');
+
+      return {
+        name: cleanedName,
+        dataSource: 'primary',
+      };
 
     } catch (error) {
         console.error(`[generateHipsterNameFlow] Call failed. Returning hard-coded name.`, { error });
