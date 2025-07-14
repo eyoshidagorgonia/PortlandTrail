@@ -1,6 +1,3 @@
-
-'use server';
-
 import type { GeneratePortlandScenarioOutput } from "@/ai/flows/generate-portland-scenario";
 import { z } from "zod";
 
