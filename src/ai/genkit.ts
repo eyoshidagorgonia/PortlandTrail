@@ -1,8 +1,8 @@
 import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
 
 export const ai = genkit({
   plugins: [
-    googleAI(),
+    // All AI calls are now handled by custom services (nexix-api.ts, auto1111-api.ts)
+    // so no Genkit plugins are needed.
   ],
 });
