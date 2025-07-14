@@ -8,10 +8,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus } from '@/lib/types';
-import { getScenarioAction } from '@/app/actions';
+import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge } from '@/lib/types';
+import { getScenarioAction, getImagesAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterBio } from '@/ai/flows/generate-character-bio';
 import StatusDashboard from '@/components/game/status-dashboard';
@@ -22,6 +22,7 @@ import ActionsCard from '@/components/game/actions-card';
 import { Coffee, Route, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import Image from 'next/image';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
     healthyServices: new Set(),
@@ -44,6 +45,13 @@ export default function PortlandTrailPage() {
   const [isBioLoading, setIsBioLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(INITIAL_SYSTEM_STATUS);
+
+  // Image states
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [avatarImage, setAvatarImage] = useState<string>('');
+  const [sceneImage, setSceneImage] = useState<string>('');
+  const [badgeImage, setBadgeImage] = useState<string | null>(null);
+
 
   const { toast } = useToast();
 
@@ -198,6 +206,7 @@ export default function PortlandTrailPage() {
       vibe: "Just starting out",
     };
     
+    setPlayerState(initialState);
     const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
     if ('error' in result && result.error) {
       toast({
@@ -211,8 +220,7 @@ export default function PortlandTrailPage() {
     
     const scenarioResult = result as Scenario;
     
-    // The first scenario call also generates the initial avatar
-    setPlayerState({...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
+    setPlayerState(prev => ({...prev, avatar: scenarioResult.playerAvatar || avatarKaomoji }));
     setAvatarKaomoji(scenarioResult.playerAvatar || avatarKaomoji);
     
     const initialLogMessage = `Your journey as ${name} the ${job} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
@@ -223,9 +231,13 @@ export default function PortlandTrailPage() {
     if (scenarioResult.dataSources) {
         updateSystemStatus(scenarioResult.dataSources);
     }
-
+    
     setGameState('playing');
     setIsLoading(false);
+
+    // Fetch images now that we have a scenario
+    fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
+
   }, [name, job, avatarKaomoji, bio, toast, addLog, updateSystemStatus]);
   
   const restartGame = useCallback(() => {
@@ -236,13 +248,46 @@ export default function PortlandTrailPage() {
     setJob('');
     setHasInitialized(false);
     setSystemStatus(INITIAL_SYSTEM_STATUS);
+    setSceneImage('');
+    setAvatarImage('');
+    setBadgeImage(null);
     localStorage.removeItem('healthyServices');
     localStorage.removeItem('primaryDegradedServices');
     localStorage.removeItem('fullyOfflineServices');
   }, []);
 
+  const fetchImages = async (currentScenario: Scenario, currentPlayerState: PlayerState) => {
+    setIsImageLoading(true);
+    setSceneImage('');
+    setAvatarImage('');
+    setBadgeImage(null);
+
+    const imageInput = {
+      scenarioDescription: currentScenario.scenario,
+      character: {
+        name: currentPlayerState.name,
+        job: currentPlayerState.job,
+        vibe: currentPlayerState.vibe,
+        avatarKaomoji: currentPlayerState.avatar,
+      },
+      badge: currentScenario.badge ? { description: currentScenario.badge.description, emoji: currentScenario.badge.emoji } : undefined,
+    };
+
+    const imageResult = await getImagesAction(imageInput);
+
+    if ('error' in imageResult) {
+      toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+    } else {
+      setAvatarImage(imageResult.avatarImage);
+      setSceneImage(imageResult.sceneImage);
+      if (imageResult.badgeImage) {
+        setBadgeImage(imageResult.badgeImage);
+      }
+    }
+    setIsImageLoading(false);
+  };
+
   const advanceTurn = (tempState: PlayerState) => {
-    // Check for game over/win conditions
     if (tempState.stats.hunger <= 0) {
       setGameState('gameover');
       addLog('You have succumbed to hunger. Your journey ends.');
@@ -262,9 +307,9 @@ export default function PortlandTrailPage() {
       return;
     }
 
-    // Fetch next scenario
     const getNextScenario = async () => {
       const result = await getScenarioAction(tempState);
+      setIsLoading(false);
       if ('error' in result && result.error) {
         addLog(result.error);
         toast({
@@ -279,20 +324,19 @@ export default function PortlandTrailPage() {
         if (scenarioResult.dataSources) {
             updateSystemStatus(scenarioResult.dataSources);
         }
-        // Update player avatar with the new one from the scenario
-        if(scenarioResult.playerAvatar) {
-            setPlayerState(prevState => ({...prevState, avatar: scenarioResult.playerAvatar! }));
-        }
+        
+        const newPlayerState = {...tempState, avatar: scenarioResult.playerAvatar!};
+        setPlayerState(newPlayerState);
+
+        fetchImages(scenarioResult, newPlayerState);
       }
-      setIsLoading(false);
     };
 
-    // Add a slight delay for suspense
     setTimeout(getNextScenario, 500);
   };
 
   const handleAction = (action: PlayerAction) => {
-    if (isLoading) return;
+    if (isLoading || isImageLoading) return;
 
     if (playerState.resources.coffee + action.consequences.coffee < 0) {
         toast({
@@ -307,7 +351,6 @@ export default function PortlandTrailPage() {
     let tempState = { ...playerState };
     const consequences = action.consequences;
 
-    // Apply consequences
     tempState.stats.hunger = Math.min(100, Math.max(0, tempState.stats.hunger + consequences.hunger));
     tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
     tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
@@ -324,30 +367,13 @@ export default function PortlandTrailPage() {
   };
 
   const handleChoice = async (choice: Choice) => {
-    if (isLoading || !scenario) return;
+    if (isLoading || isImageLoading) return;
 
     setIsLoading(true);
     let tempState = { ...playerState };
 
-    if (choice.text === 'GO FOR BROKE' && choice.consequences.badge) {
-        const gamble = Math.random();
-        if (gamble < 0.2) { // 20% chance of winning
-            addLog('You went for broke and it paid off spectacularly!');
-            const newBadge = {
-                description: `Uber-Rare: ${choice.consequences.badge.description}`,
-                emoji: `✨${choice.consequences.badge.emoji}✨`,
-                isUber: true,
-            };
-            tempState.resources.badges = [...tempState.resources.badges, newBadge];
-            tempState.stats.style += 20; // A nice bonus
-        } else { // 80% chance of failure
-            addLog('You went for broke and got broken. A significant, but not devastating, failure.');
-            tempState.stats.hunger = Math.max(0, tempState.stats.hunger - 10);
-            tempState.resources.bikeHealth = Math.max(0, tempState.resources.bikeHealth - 15);
-            tempState.stats.style = Math.max(0, tempState.stats.style - 5);
-        }
-    } else {
-        // Apply normal consequences
+    // This logic now only applies the consequences. Image generation is separate.
+    const applyConsequences = (chosenBadge?: Badge) => {
         const consequences = choice.consequences;
         tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
         tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
@@ -358,12 +384,40 @@ export default function PortlandTrailPage() {
         tempState.progress = Math.min(100, tempState.progress + consequences.progress);
         tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
         
-        if (consequences.badge) {
-            tempState.resources.badges = [...tempState.resources.badges, consequences.badge];
-            addLog(`You earned a badge: "${consequences.badge.description}"!`);
+        const finalBadge = chosenBadge || consequences.badge;
+        if (finalBadge) {
+            const newBadge: Badge = { 
+                ...finalBadge,
+                // The badge image is now associated here.
+                image: badgeImage || undefined,
+             };
+            tempState.resources.badges = [...tempState.resources.badges, newBadge];
+            addLog(`You earned a badge: "${newBadge.description}"!`);
         }
     }
 
+    if (choice.text === 'GO FOR BROKE' && choice.consequences.badge) {
+        const gamble = Math.random();
+        if (gamble < 0.2) {
+            addLog('You went for broke and it paid off spectacularly!');
+            const newBadge: Badge = {
+                description: `Uber-Rare: ${choice.consequences.badge.description}`,
+                emoji: `✨${choice.consequences.badge.emoji}✨`,
+                isUber: true,
+                image: badgeImage || undefined
+            };
+            tempState.stats.style += 20;
+            applyConsequences(newBadge);
+        } else {
+            addLog('You went for broke and got broken. A significant, but not devastating, failure.');
+            tempState.stats.hunger = Math.max(0, tempState.stats.hunger - 10);
+            tempState.resources.bikeHealth = Math.max(0, tempState.resources.bikeHealth - 15);
+            tempState.stats.style = Math.max(0, tempState.stats.style - 5);
+        }
+    } else {
+        applyConsequences();
+    }
+    
     tempState.location = currentLocation;
 
     setPlayerState(tempState);
@@ -411,7 +465,6 @@ export default function PortlandTrailPage() {
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left">
               <div className="relative shrink-0">
                 <Avatar className="h-32 w-32 border-4 border-primary/50 text-4xl">
-                  <AvatarImage src="" alt="Your hipster avatar" />
                   <AvatarFallback className="text-4xl p-2 bg-muted">
                     {avatarKaomoji}
                   </AvatarFallback>
@@ -477,12 +530,12 @@ export default function PortlandTrailPage() {
       <div className="container mx-auto border-2 shadow-xl p-4 md:p-6 bg-card/80 rounded-lg backdrop-blur-sm">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 flex flex-col gap-6">
-            <StatusDashboard playerState={playerState} />
-            <ActionsCard onAction={handleAction} isLoading={isLoading} />
+            <StatusDashboard playerState={playerState} avatarImage={avatarImage} isImageLoading={isImageLoading} />
+            <ActionsCard onAction={handleAction} isLoading={isLoading || isImageLoading} />
           </div>
           <div className="lg:col-span-2 flex flex-col gap-6">
             <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <ScenarioDisplay scenario={scenario} isLoading={isLoading} onChoice={handleChoice} />
+            <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
             <Card>
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Travel Diary</h3>

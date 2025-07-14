@@ -61,5 +61,5 @@ export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
     bio: "Character Bio",
     scenario: "Scenario/Art Generation",
     transport: "Transport Mode",
+    image: "Image Generation",
 }
-    

@@ -1,6 +1,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -29,6 +30,7 @@ import {
   AlertDialogTrigger,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
+import { Skeleton } from '../ui/skeleton';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -87,7 +89,13 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
     </TooltipProvider>
   );
 
-export default function StatusDashboard({ playerState }: { playerState: PlayerState }) {
+interface StatusDashboardProps {
+    playerState: PlayerState;
+    avatarImage: string | null;
+    isImageLoading: boolean;
+}
+
+export default function StatusDashboard({ playerState, avatarImage, isImageLoading }: StatusDashboardProps) {
   const { stats, resources, name, job, avatar, bio } = playerState;
 
   const normalizedHealth =
@@ -105,12 +113,17 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
     <Card className="shadow-lg border">
       <CardHeader>
         <div className="flex items-start gap-4">
-          <Avatar className="h-16 w-16 border-2 border-primary/50 shrink-0 text-3xl">
-            <AvatarImage src="" alt={name} />
-            <AvatarFallback className="p-2 bg-muted">
-                {avatar}
-            </AvatarFallback>
-          </Avatar>
+            <Avatar className="h-16 w-16 border-2 border-primary/50 shrink-0 text-3xl">
+                {isImageLoading ? (
+                    <Skeleton className="h-full w-full rounded-full" />
+                ) : avatarImage ? (
+                    <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
+                ) : null}
+                <AvatarFallback className="p-2 bg-muted">
+                    {avatar}
+                </AvatarFallback>
+            </Avatar>
+
           <div className="flex-grow space-y-1.5">
             <CardTitle className="font-headline text-2xl">{name}</CardTitle>
             <TooltipProvider>
@@ -162,10 +175,14 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
                       <TooltipTrigger asChild>
                         <AlertDialogTrigger>
                           <div className={cn(
-                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer",
+                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer overflow-hidden",
                             badge.isUber && 'uber-badge-animation'
                           )}>
-                           {badge.emoji}
+                           {badge.image ? (
+                                <Image src={badge.image} alt={badge.description} width={48} height={48} className="rounded-full" unoptimized data-ai-hint="badge icon" />
+                            ) : (
+                                badge.emoji
+                            )}
                           </div>
                         </AlertDialogTrigger>
                       </TooltipTrigger>
@@ -174,14 +191,21 @@ export default function StatusDashboard({ playerState }: { playerState: PlayerSt
                       </TooltipContent>
                     </Tooltip>
                     <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="font-headline text-2xl flex items-center gap-4">
-                            <span className={cn("text-4xl", badge.isUber && 'text-accent')}>
-                                {badge.emoji}
-                            </span>
+                      <AlertDialogHeader className='items-center'>
+                         <div className={cn(
+                            "h-24 w-24 rounded-full border-4 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-5xl transition-all duration-300 cursor-pointer overflow-hidden",
+                            badge.isUber && 'uber-badge-animation'
+                          )}>
+                           {badge.image ? (
+                                <Image src={badge.image} alt={badge.description} width={96} height={96} className="rounded-full" unoptimized />
+                            ) : (
+                                badge.emoji
+                            )}
+                          </div>
+                        <AlertDialogTitle className="font-headline text-2xl pt-4">
                            Badge Earned!
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-left pt-4 text-base">
+                        <AlertDialogDescription className="text-center pt-2 text-base">
                            {badge.description}
                         </AlertDialogDescription>
                       </AlertDialogHeader>

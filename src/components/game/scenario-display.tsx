@@ -1,6 +1,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,6 +11,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface ScenarioDisplayProps {
   scenario: Scenario | null;
   isLoading: boolean;
+  isImageLoading: boolean;
+  sceneImage: string | null;
   onChoice: (choice: Choice) => void;
 }
 
@@ -20,7 +23,7 @@ const LoadingState = () => (
         <Skeleton className="h-4 w-1/2 mt-1" />
       </CardHeader>
       <CardContent className="p-4 pt-2 space-y-3">
-        <Skeleton className="w-full h-48 rounded-md" />
+        <Skeleton className="w-full aspect-video rounded-md" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
@@ -32,7 +35,7 @@ const LoadingState = () => (
     </Card>
   );
 
-export default function ScenarioDisplay({ scenario, isLoading, onChoice }: ScenarioDisplayProps) {
+export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, sceneImage, onChoice }: ScenarioDisplayProps) {
   if (isLoading || !scenario) {
     return <LoadingState />;
   }
@@ -43,14 +46,29 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
     <Card className="shadow-lg border">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="font-headline text-xl">{scenario.challenge}</CardTitle>
-        {scenario.reward && <CardDescription className="pt-1">Potential Reward: {scenario.reward}</CardDescription>}
       </CardHeader>
       <CardContent className="p-4 pt-2">
-        {hasAsciiArt && (
-          <div className="mb-4 rounded-md overflow-hidden border bg-muted/30 p-4 font-code text-sm leading-tight text-foreground/80 whitespace-pre-wrap text-center">
-            {scenario.asciiArt}
-          </div>
-        )}
+        <div className="mb-4 rounded-md overflow-hidden border bg-muted/30">
+          {isImageLoading ? (
+            <Skeleton className="w-full aspect-video" />
+          ) : sceneImage ? (
+            <Image
+              src={sceneImage}
+              alt={scenario.challenge}
+              width={768}
+              height={512}
+              className="w-full h-auto object-cover"
+              unoptimized // Required for local data URIs from Auto1111
+              data-ai-hint="scene depiction"
+            />
+          ) : hasAsciiArt ? (
+             <div className="font-code text-sm leading-tight text-foreground/80 whitespace-pre-wrap text-center p-4">
+               {scenario.asciiArt}
+             </div>
+          ) : (
+            <Skeleton className="w-full aspect-video" />
+          )}
+        </div>
         <p className="text-sm text-foreground/90 leading-normal whitespace-pre-wrap">{scenario.scenario}</p>
         {scenario.diablo2Element && (
            <p className="mt-3 text-sm text-primary/80 border-l-2 border-primary/50 pl-3 italic">
@@ -69,7 +87,7 @@ export default function ScenarioDisplay({ scenario, isLoading, onChoice }: Scena
                     index === 0 ? 'default' : 'secondary'
                   } 
                   onClick={() => onChoice(choice)}
-                  disabled={isLoading}
+                  disabled={isLoading || isImageLoading}
                 >
                   {choice.text}
                 </Button>
