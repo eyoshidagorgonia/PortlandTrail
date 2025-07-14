@@ -2,90 +2,42 @@
 'use server';
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
-import { generateTransportMode } from '@/ai/flows/generate-transport-mode';
 import type { PlayerState, Scenario, Choice } from '@/lib/types';
-
-function createConsequences(): Omit<Choice['consequences'], 'badge'> {
-  return {
-    hunger: -1 * (Math.floor(Math.random() * 4) + 2), // -2 to -5
-    style: Math.floor(Math.random() * 11) - 5, // -5 to +5
-    irony: Math.floor(Math.random() * 7) - 2, // -2 to +4
-    authenticity: Math.floor(Math.random() * 7) - 3, // -3 to +3
-    coffee: -1 * Math.floor(Math.random() * 3), // 0 to -2,
-    vinyls: Math.random() > 0.8 ? 1 : 0, // 20% chance to find a vinyl
-    progress: Math.floor(Math.random() * 2) + 1, // 1 to 2
-    bikeHealth: -1 * (Math.floor(Math.random() * 3)), // -0 to -2, general wear and tear
-  };
-}
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
   try {
     const scenarioInput = {
-      playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Bio: ${playerState.bio}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%`,
+      playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Bio: ${playerState.bio}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%, Progress: ${playerState.progress}%`,
       location: playerState.location,
       character: { name: playerState.name, job: playerState.job },
     };
     
-    console.log('[getScenarioAction] Calling generatePortlandScenario and generateTransportMode...');
+    console.log('[getScenarioAction] Calling generatePortlandScenario...');
     
-    // Generate scenario and transport mode in parallel
-    const [scenarioDetails, transportModeResult] = await Promise.all([
-        generatePortlandScenario(scenarioInput),
-        generateTransportMode()
-    ]);
-    console.log(`[getScenarioAction] Flow responses received. Scenario Source: ${scenarioDetails.dataSource}, Transport Source: ${transportModeResult.dataSource}`);
+    // Generate scenario and choices from the AI
+    const scenarioDetails = await generatePortlandScenario(scenarioInput);
+    console.log(`[getScenarioAction] Flow response received. Scenario Source: ${scenarioDetails.dataSource}`);
     
     // The agent may or may not decide to create a badge
     const hasBadge = !!scenarioDetails.badge;
 
     let dataSources: Record<string, 'primary' | 'fallback' | 'hardcoded'> = {
         scenario: scenarioDetails.dataSource,
-        transport: transportModeResult.dataSource,
     };
 
-    const choices: Choice[] = [];
+    let choices: Choice[] = scenarioDetails.choices;
     
-    // Add the "Embrace" choice, which may or may not have a badge.
-    const embraceChoice: Choice = {
-        text: `Embrace the weirdness`,
-        description: `You dive headfirst into the situation. What's the worst that could happen?`,
-        consequences: {
-            hunger: -1 * (Math.floor(Math.random() * 4) + 2),
-            style: Math.floor(Math.random() * 11) - 5,
-            irony: Math.floor(Math.random() * 7) - 2,
-            authenticity: Math.floor(Math.random() * 7) - 3,
-            progress: 0,
-            coffee: 0,
-            vinyls: 0,
-            bikeHealth: 0,
-        },
-    };
-
-    if (hasBadge) {
-        embraceChoice.consequences.badge = {
+    // If the AI decided to award a badge, attach it to the first ("Embrace") choice's consequences.
+    if (hasBadge && choices.length > 0) {
+        choices[0].consequences.badge = {
             description: scenarioDetails.badge!.badgeDescription,
             emoji: scenarioDetails.badge!.badgeEmoji,
         };
         dataSources.badge = scenarioDetails.dataSource; // The badge comes from the same source as the scenario
         console.log('[getScenarioAction] Badge details attached to "Embrace" choice.');
     }
-    choices.push(embraceChoice);
-
-    // Add the "Continue" choice
-    choices.push({
-        text: transportModeResult.text,
-        description: `This seems a bit too strange. You decide to observe from a safe distance and move on.`,
-        consequences: {
-          ...createConsequences(),
-          style: -2,
-          irony: -1,
-          authenticity: -1,
-          progress: 4,
-          bikeHealth: -5,
-        },
-    });
-
+    
     // Add the "Go for Broke" choice only if there's a badge to gamble for.
     if (hasBadge) {
         choices.push({
@@ -103,7 +55,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const finalScenario = {
       scenario: scenarioDetails.scenario,
       challenge: scenarioDetails.challenge,
-      reward: scenarioDetails.reward,
+      reward: 'Varies by choice', // Reward is now baked into choices
       diablo2Element: scenarioDetails.diablo2Element,
       badgeDescription: scenarioDetails.badge?.badgeDescription,
       asciiArt: scenarioDetails.asciiArt,

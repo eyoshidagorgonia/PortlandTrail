@@ -70,7 +70,8 @@ export interface PlayerAction {
     };
 }
 
-export type ScenarioData = Omit<GeneratePortlandScenarioOutput, 'dataSource' | 'avatarKaomoji'>;
+export type ScenarioData = Omit<GeneratePortlandScenarioOutput, 'dataSource' | 'avatarKaomoji' | 'choices' | 'reward'> & { reward?: string };
+
 
 export type Scenario = (ScenarioData & {
   choices: Choice[];
