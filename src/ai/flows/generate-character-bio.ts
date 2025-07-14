@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
+import { callNexixApi } from '@/ai/nexix-api';
 
 const GenerateCharacterBioInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
@@ -55,54 +56,19 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
 
     try {
-      const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
-      const apiKey = process.env.NEXIX_API_KEY;
+      const apiResponse = await callNexixApi('gemma3:12b', prompt);
 
-      if (!apiKey) {
-        throw new Error('NEXIX_API_KEY is not set for generateCharacterBioFlow.');
-      }
-      
-      const requestBody = {
-          model: 'gemma3:12b',
-          messages: [{ role: 'user', content: prompt }],
-      };
-      console.log(`[generateCharacterBioFlow] Sending request to OpenAI-compatible endpoint at ${url}`);
-
-      const response = await fetch(url, {
-        method: 'POST',
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error(`[generateCharacterBioFlow] API Error: ${response.status} ${response.statusText}`, { url, errorBody });
-        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
-      }
-      
-      const result = await response.json();
-      console.log(`[generateCharacterBioFlow] Successfully received response from endpoint.`);
-      
-      let bioContent = result.choices[0]?.message?.content;
-      if (!bioContent) {
-          throw new Error('Invalid response structure from API. Content is missing.');
-      }
-
+      let parsedResult;
       try {
-        const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(bioContent));
-        return { ...parsedResult, dataSource: 'primary' };
-      } catch(e) {
-          console.log("[generateCharacterBioFlow] Failed to parse directly, checking for escaped JSON", e);
-          if (bioContent.startsWith('"') && bioContent.endsWith('"')) {
-            bioContent = JSON.parse(bioContent);
-          }
-          const parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(bioContent));
-          return { ...parsedResult, dataSource: 'primary' };
+        // AI might return a JSON string, or an escaped JSON string.
+        parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(apiResponse));
+      } catch (e) {
+        console.warn("[generateCharacterBioFlow] Failed to parse directly, attempting to unescape and parse again.", { error: e });
+        const unescapedResponse = JSON.parse(apiResponse);
+        parsedResult = GenerateCharacterBioOutputSchema.parse(JSON.parse(unescapedResponse));
       }
+
+      return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
         console.error(`[generateCharacterBioFlow] Call failed. Returning hard-coded bio.`, { error });

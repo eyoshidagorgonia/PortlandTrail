@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
+import { callNexixApi } from '@/ai/nexix-api';
 
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
@@ -84,53 +85,17 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
 
   try {
-    const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
-    const apiKey = process.env.NEXIX_API_KEY;
-
-    if (!apiKey) {
-      throw new Error('NEXIX_API_KEY is not set for generatePortlandScenario.');
+    const apiResponse = await callNexixApi('gemma3:12b', prompt);
+      
+    let parsedResult;
+    try {
+        // AI might return a JSON string, or an escaped JSON string.
+        parsedResult = OllamaResponseSchema.parse(JSON.parse(apiResponse));
+    } catch (e) {
+        console.warn("[generatePortlandScenario] Failed to parse directly, attempting to unescape and parse again.", { error: e });
+        const unescapedResponse = JSON.parse(apiResponse); // Unescape the outer string
+        parsedResult = OllamaResponseSchema.parse(JSON.parse(unescapedResponse)); // Parse the inner JSON
     }
-    
-    const requestBody = {
-        model: 'gemma3:12b',
-        messages: [{ role: 'user', content: prompt }],
-    };
-    console.log(`[generatePortlandScenario] Sending request to OpenAI-compatible endpoint at ${url}`);
-    
-    const response = await fetch(url, {
-        method: 'POST',
-        cache: 'no-store',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error(`[generatePortlandScenario] API Error: ${response.status} ${response.statusText}`, { url, errorBody });
-        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
-      }
-
-      const result = await response.json();
-      console.log(`[generatePortlandScenario] Successfully received response from endpoint.`);
-      
-      let scenarioContent = result.choices[0]?.message?.content;
-      if (!scenarioContent) {
-        throw new Error('Invalid response structure from API. Content is missing.');
-      }
-      
-      let parsedResult;
-      try {
-        parsedResult = OllamaResponseSchema.parse(JSON.parse(scenarioContent));
-      } catch(e) {
-          console.log("[generatePortlandScenario] Failed to parse directly, checking for escaped JSON", e);
-          if (scenarioContent.startsWith('"') && scenarioContent.endsWith('"')) {
-            scenarioContent = JSON.parse(scenarioContent);
-          }
-          parsedResult = OllamaResponseSchema.parse(JSON.parse(scenarioContent));
-      }
 
       const output: GeneratePortlandScenarioOutput = {
         scenario: parsedResult.scenario,
