@@ -538,7 +538,7 @@ export default function PortlandTrailPage() {
               Begin Your Descent
             </Button>
             <Link href="/help" passHref>
-                <Button variant="link" className="text-muted-foreground mt-2">How to Survive</Button>
+                <Button variant="link" className="text-muted-foreground mt-2">Whisper to the Vibe Sage</Button>
             </Link>
           </CardContent>
            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
