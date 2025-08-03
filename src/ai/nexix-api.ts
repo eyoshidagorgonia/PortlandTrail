@@ -61,7 +61,7 @@ export async function callNexixApi(
   if (!response.ok) {
     const errorBody = await response.text();
     console.error(`[callNexixApi] API Error: ${response.status} ${response.statusText}`, { errorBody });
-    throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+    throw new Error(`Nexix API request failed with status ${response.status}: ${errorBody}`);
   }
 
   const result = await response.json();
@@ -69,7 +69,7 @@ export async function callNexixApi(
 
   if (!parsedResponse.success || parsedResponse.data.choices.length === 0 || !parsedResponse.data.choices[0].message.content) {
     console.error('[callNexixApi] Invalid response structure from API.', { result });
-    throw new Error('Invalid response structure from API. Content is missing.');
+    throw new Error('Invalid response structure from Nexix API. Content is missing.');
   }
   
   console.log(`[callNexixApi] Successfully received and parsed response.`);

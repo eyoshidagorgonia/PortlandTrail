@@ -61,7 +61,7 @@ export async function generateImage(
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[generateImage] API Error: ${response.status}`, { errorText });
-      throw new Error(`Auto1111 API request failed with status ${response.status}: ${errorText}`);
+      throw new Error(`Image generation API request failed with status ${response.status}: ${errorText}`);
     }
 
     const result = await response.json();
@@ -69,15 +69,19 @@ export async function generateImage(
 
     if (!parsed.success) {
       console.error('[generateImage] Invalid response structure from API.', { result });
-      throw new Error('Invalid response structure from Auto1111 API.');
+      throw new Error('Invalid response structure from Image Generation API.');
     }
     
     console.log('[generateImage] Successfully generated image.');
     return `data:image/png;base64,${parsed.data.images[0]}`;
   } catch (error) {
+    if (error instanceof Error) {
+        console.error('[generateImage] A call to the image generation API failed.', { error: error.message });
+        throw error; // Re-throw the original error to be caught by the action
+    }
     // This could be a fetch error (e.g., server not running) or an error thrown above.
-    console.error('[generateImage] A call to the image generation API failed.', { error });
-    // Return a placeholder if generation fails
+    console.error('[generateImage] An unknown error occurred during image generation.', { error });
+    // Return a placeholder if generation fails for an unknown reason
     return `https://placehold.co/${width}x${height}.png`;
   }
 }

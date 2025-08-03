@@ -61,7 +61,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[getScenarioAction] Critical failure: ${errorMessage}`, { playerState });
     return {
-      error: errorMessage,
+      error: `Failed to get scenario: ${errorMessage}`,
     };
   }
 }
@@ -76,6 +76,6 @@ export async function getImagesAction(input: GenerateImagesInput): Promise<Gener
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[getImagesAction] Critical failure: ${errorMessage}`);
-        return { error: errorMessage };
+        return { error: `Failed to generate images: ${errorMessage}` };
     }
 }
