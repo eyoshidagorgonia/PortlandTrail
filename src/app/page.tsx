@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -56,6 +56,8 @@ export default function PortlandTrailPage() {
   // Intro-specific image state
   const [introAvatarImage, setIntroAvatarImage] = useState<string>('');
   const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
+  
+  const jobChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 
   const { toast } = useToast();
@@ -172,6 +174,7 @@ export default function PortlandTrailPage() {
 
     if ('error' in imageResult) {
       toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+      setIntroAvatarImage(''); // Clear image on failure
     } else {
       setIntroAvatarImage(imageResult.avatarImage);
     }
@@ -202,11 +205,34 @@ export default function PortlandTrailPage() {
   
   // New useEffect to generate avatar on intro screen
   useEffect(() => {
-    // Only run if we are on the intro, and the bio has been loaded (final step)
+    // Only run if we are on the intro, and the bio has been loaded (final step of initial load)
     if (gameState === 'intro' && !isBioLoading && bio) {
         generateIntroAvatar();
     }
   }, [isBioLoading, bio, gameState, generateIntroAvatar]);
+
+  // Regenerate avatar after a delay when job changes on the intro screen
+  useEffect(() => {
+    // Only run on the intro screen after the initial load is complete
+    if (gameState === 'intro' && hasInitialized && !isBioLoading) {
+        // Clear any existing timer
+        if (jobChangeTimeoutRef.current) {
+            clearTimeout(jobChangeTimeoutRef.current);
+        }
+        
+        // Set a new timer
+        jobChangeTimeoutRef.current = setTimeout(() => {
+            generateIntroAvatar();
+        }, 3000); // 3-second delay
+    }
+
+    // Cleanup timer on component unmount
+    return () => {
+        if (jobChangeTimeoutRef.current) {
+            clearTimeout(jobChangeTimeoutRef.current);
+        }
+    };
+  }, [job, gameState, hasInitialized, isBioLoading, generateIntroAvatar]);
 
   // Regenerate bio when vibe changes
   useEffect(() => {
@@ -587,5 +613,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
