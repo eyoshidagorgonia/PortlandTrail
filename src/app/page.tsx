@@ -543,21 +543,18 @@ export default function PortlandTrailPage() {
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8 relative">
       <div className="container mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
-          <div className="lg:col-span-3 flex flex-col gap-6">
+          <div className="lg:col-span-1 flex flex-col gap-6">
             <StatusDashboard playerState={playerState} avatarImage={avatarImage} isImageLoading={isImageLoading} />
             <ActionsCard onAction={handleAction} isLoading={isLoading || isImageLoading} />
           </div>
 
-          <div className="lg:col-span-6 flex flex-col gap-6">
-            <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
-          </div>
-
-          <div className="lg:col-span-3 flex flex-col gap-6">
+          <div className="lg:col-span-2 flex flex-col gap-6">
             <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
+            <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
             <Card className="bg-card/90 backdrop-blur-sm">
-              <CardHeader className="pb-4">
+                <CardHeader className="pb-4">
                 <CardContent className="p-0">
                     <h3 className="font-headline text-2xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
                     <div className="text-base text-foreground/80 space-y-3 font-body max-h-96 overflow-y-auto pr-2 border-t border-border/50 pt-3">
@@ -571,9 +568,10 @@ export default function PortlandTrailPage() {
                         ))}
                     </div>
                 </CardContent>
-              </CardHeader>
+                </CardHeader>
             </Card>
           </div>
+
         </div>
       </div>
       <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
@@ -583,5 +581,7 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
 
     
