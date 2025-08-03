@@ -19,23 +19,20 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
     console.log(`[getScenarioAction] Flow response received. Scenario Source: ${scenarioDetails.dataSource}`);
     
-    const hasBadge = !!scenarioDetails.badge;
-
     let dataSources: Record<string, 'primary' | 'fallback' | 'hardcoded'> = {
         scenario: scenarioDetails.dataSource,
     };
 
     let choices: Choice[] = scenarioDetails.choices;
     
-    // Attach the badge info to the first choice if a badge was awarded by the model.
-    // The frontend will use this to associate the generated image with the badge.
-    if (hasBadge && choices.length > 0) {
-        choices[0].consequences.badge = {
-            description: scenarioDetails.badge!.badgeDescription,
-            emoji: scenarioDetails.badge!.badgeEmoji,
-        };
+    // The AI flow now attaches badge info directly to the consequence object of a choice.
+    // We can check if any choice has a badge to be awarded.
+    const choiceWithBadge = choices.find(c => (c.consequences as any).badge);
+
+    if (choiceWithBadge) {
+        const badge = (choiceWithBadge.consequences as any).badge;
         dataSources.badge = scenarioDetails.dataSource;
-        console.log('[getScenarioAction] Badge details attached to "Embrace" choice.');
+        console.log(`[getScenarioAction] Badge "${badge.badgeDescription}" details found on choice "${choiceWithBadge.text}".`);
     }
 
     const finalScenario: Scenario = {
@@ -43,15 +40,16 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       challenge: scenarioDetails.challenge,
       diablo2Element: scenarioDetails.diablo2Element,
       choices,
-      playerAvatar: scenarioDetails.avatarKaomoji,
+      playerAvatar: scenarioDetails.playerAvatar,
       dataSources,
     };
     
-    // Also include top-level badge info for the image generation step
-    if (scenarioDetails.badge) {
+    // Also include top-level badge info for the image generation step if a badge was part of the winning choice
+    if (choiceWithBadge) {
+        const badgeInfo = (choiceWithBadge.consequences as any).badge;
         finalScenario.badge = {
-            description: scenarioDetails.badge.badgeDescription,
-            emoji: scenarioDetails.badge.badgeEmoji,
+            description: badgeInfo.badgeDescription,
+            emoji: badgeInfo.badgeEmoji,
         }
     }
 
@@ -79,3 +77,5 @@ export async function getImagesAction(input: GenerateImagesInput): Promise<Gener
         return { error: `Failed to generate images: ${errorMessage}` };
     }
 }
+
+    

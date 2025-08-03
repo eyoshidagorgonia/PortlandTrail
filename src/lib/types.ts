@@ -19,6 +19,7 @@ export interface Badge {
 export interface TrailEvent {
   progress: number;
   description: string;
+  timestamp: Date;
 }
 
 export interface PlayerResources {
@@ -54,7 +55,7 @@ export interface Choice {
     vinyls: number;
     progress: number;
     stamina: number;
-    badge?: Omit<Badge, 'isUber' | 'image'>;
+    badge?: Omit<Badge, 'image'>; // Badge info is now part of consequences
   };
 }
 
@@ -117,3 +118,5 @@ export const GenerateImagesOutputSchema = z.object({
   dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateImagesOutput = z.infer<typeof GenerateImagesOutputSchema>;
+
+    

@@ -104,15 +104,7 @@ const ThematicSeparator = () => (
 export default function StatusDashboard({ playerState, avatarImage, isImageLoading }: StatusDashboardProps) {
   const { stats, resources, name, job, bio, progress, location, events } = playerState;
 
-  const normalizedHealth =
-    ((stats.health / 100) +
-      (resources.stamina / 100) +
-      (stats.style / 200) +
-      (stats.irony / 200) +
-      (stats.authenticity / 200)) /
-    5 * 100;
-
-  const ironicStatus = getIronicHealthStatus(normalizedHealth);
+  const ironicStatus = getIronicHealthStatus(stats.health);
 
 
   return (
@@ -149,7 +141,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                         </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Your overall vibe, based on an average of your vitals and social stats.</p>
+                        <p>Your overall vibe, based on your current health.</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -260,3 +252,5 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
     </Card>
   );
 }
+
+    

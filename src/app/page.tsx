@@ -24,6 +24,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import TrailMap from '@/components/game/trail-map';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
     healthyServices: new Set(),
@@ -36,7 +37,7 @@ export default function PortlandTrailPage() {
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [gameState, setGameState] = useState<'intro' | 'playing' | 'gameover' | 'won'>('intro');
-  const [eventLog, setEventLog] = useState<{ message: string; timestamp: Date }[]>([]);
+  const [eventLog, setEventLog] = useState<TrailEvent[]>([]);
   
   const [name, setName] = useState('');
   const [job, setJob] = useState('');
@@ -124,19 +125,12 @@ export default function PortlandTrailPage() {
   }, [waypointIndex]);
   
   const currentVibe = useMemo(() => {
-    const normalizedHealth =
-      ((playerState.stats.health / 100) +
-        (playerState.resources.stamina / 100) +
-        (playerState.stats.style / 200) +
-        (playerState.stats.irony / 200) +
-        (playerState.stats.authenticity / 200)) /
-      5 * 100;
-      return getIronicHealthStatus(normalizedHealth).text;
-  }, [playerState.stats, playerState.resources]);
+      return getIronicHealthStatus(playerState.stats.health).text;
+  }, [playerState.stats.health]);
 
 
-  const addLog = useCallback((message: string) => {
-    setEventLog(prev => [{ message, timestamp: new Date() }, ...prev.slice(0, 9)]);
+  const addLog = useCallback((message: string, progress: number) => {
+    setEventLog(prev => [{ description: message, progress, timestamp: new Date() }, ...prev.slice(0, 49)]);
   }, []);
 
   const handleGenerateName = useCallback(async () => {
@@ -214,7 +208,7 @@ export default function PortlandTrailPage() {
         });
       }
     }
-  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, updateSystemStatus]);
+  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, updateSystemStatus, handleGenerateBio]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -224,6 +218,8 @@ export default function PortlandTrailPage() {
 
     setIsLoading(true);
     
+    const initialEvents: TrailEvent[] = [{ progress: 0, description: "Your journey begins in San Francisco.", timestamp: new Date() }];
+    
     const initialState: PlayerState = {
       ...INITIAL_PLAYER_STATE,
       name: name,
@@ -231,7 +227,7 @@ export default function PortlandTrailPage() {
       avatar: avatarKaomoji,
       bio: bio,
       vibe: "Just starting out",
-      events: [{ progress: 0, description: "Your journey begins in San Francisco."}]
+      events: initialEvents,
     };
     
     setPlayerState(initialState);
@@ -254,10 +250,11 @@ export default function PortlandTrailPage() {
     setAvatarKaomoji(scenarioResult.playerAvatar || avatarKaomoji);
     
     const initialLogMessage = `Your journey as ${name} the ${job} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
-    setEventLog([{ message: initialLogMessage, timestamp: new Date() }]);
+    setEventLog(initialEvents);
+    addLog(initialLogMessage, 0);
     
     setScenario(scenarioResult);
-    addLog(`An event unfolds: ${scenarioResult.scenario}`);
+    addLog(`An event unfolds: ${scenarioResult.scenario}`, 0);
     if (scenarioResult.dataSources) {
         updateSystemStatus(scenarioResult.dataSources);
     }
@@ -330,19 +327,19 @@ export default function PortlandTrailPage() {
   const advanceTurn = (tempState: PlayerState) => {
     if (tempState.stats.health <= 0) {
       setGameState('gameover');
-      addLog('You have succumbed to poor health. Your journey ends.');
+      addLog('You have succumbed to poor health. Your journey ends.', tempState.progress);
       setIsLoading(false);
       return;
     }
     if (tempState.resources.stamina <= 0) {
         setGameState('gameover');
-        addLog('Your bike broke down, leaving you stranded. Your journey ends.');
+        addLog('Your bike broke down, leaving you stranded. Your journey ends.', tempState.progress);
         setIsLoading(false);
         return;
     }
     if (tempState.progress >= 100) {
       setGameState('won');
-      addLog('You have arrived in Portland! You are the epitome of cool.');
+      addLog('You have arrived in Portland! You are the epitome of cool.', 100);
       setIsLoading(false);
       return;
     }
@@ -351,7 +348,7 @@ export default function PortlandTrailPage() {
       const result = await getScenarioAction(tempState);
       setIsLoading(false);
       if ('error' in result && result.error) {
-        addLog(result.error);
+        addLog(result.error, tempState.progress);
         toast({
             variant: "destructive",
             title: "The Trail Went Cold",
@@ -360,7 +357,7 @@ export default function PortlandTrailPage() {
       } else {
         const scenarioResult = result as Scenario;
         setScenario(scenarioResult);
-        addLog(`A new event unfolds: ${scenarioResult.scenario}`);
+        addLog(`A new event unfolds: ${scenarioResult.scenario}`, tempState.progress);
         if (scenarioResult.dataSources) {
             updateSystemStatus(scenarioResult.dataSources);
         }
@@ -402,8 +399,15 @@ export default function PortlandTrailPage() {
     tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
     tempState.location = currentLocation;
 
+    const newEvent: TrailEvent = {
+        progress: tempState.progress,
+        description: `You chose to: ${action.text}.`,
+        timestamp: new Date()
+    };
+    tempState.events = [newEvent, ...tempState.events];
+
     setPlayerState(tempState);
-    addLog(`You chose to: ${action.text}.`);
+    addLog(`You chose to: ${action.text}.`, tempState.progress);
     advanceTurn(tempState);
   };
 
@@ -424,14 +428,17 @@ export default function PortlandTrailPage() {
     tempState.progress = Math.min(100, tempState.progress + consequences.progress);
     tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
     
-    if (consequences.badge) {
+    const potentialBadge = (consequences as any).badge;
+    if (potentialBadge) {
         const newBadge: Badge = { 
-            ...consequences.badge,
+            description: potentialBadge.badgeDescription,
+            emoji: potentialBadge.badgeEmoji,
+            isUber: potentialBadge.isUber || false,
             // The badge image is now associated here.
             image: badgeImage || undefined,
          };
         tempState.resources.badges = [...tempState.resources.badges, newBadge];
-        addLog(`You earned a badge: "${newBadge.description}"!`);
+        addLog(`You earned a badge: "${newBadge.description}"!`, tempState.progress);
     }
     
     tempState.location = currentLocation;
@@ -439,11 +446,13 @@ export default function PortlandTrailPage() {
     // Add a trail event for the choice made
     const newEvent: TrailEvent = {
         progress: tempState.progress,
-        description: `You chose to "${choice.text}".`
+        description: `You chose to "${choice.text}".`,
+        timestamp: new Date()
     };
-    tempState.events = [...tempState.events, newEvent];
+    tempState.events = [newEvent, ...tempState.events];
 
     setPlayerState(tempState);
+    addLog(`You chose to "${choice.text}".`, tempState.progress);
     advanceTurn(tempState);
   };
   
@@ -561,7 +570,7 @@ export default function PortlandTrailPage() {
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-6">
-             <div className="opacity-0 animate-fade-in animate-delay-300">
+            <div className="opacity-0 animate-fade-in animate-delay-300">
                 <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
             </div>
             <div className="opacity-0 animate-fade-in animate-delay-400">
@@ -575,7 +584,7 @@ export default function PortlandTrailPage() {
                                 <p className="text-primary/70 text-sm pt-0.5 whitespace-nowrap">
                                 [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
                                 </p>
-                                <p>{log.message}</p>
+                                <p>{log.description}</p>
                             </div>
                             ))}
                         </div>
@@ -594,3 +603,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    

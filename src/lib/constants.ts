@@ -64,4 +64,7 @@ export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
     scenario: "Scenario/Art Generation",
     transport: "Transport Mode",
     image: "Image Generation",
+    badge: "Badge Generation"
 }
+
+    
