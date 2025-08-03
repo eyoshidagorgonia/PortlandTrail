@@ -101,14 +101,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     let prompts;
     try {
         const apiResponse = await callNexixApi('gemma3:12b', prompt);
-
-        // The AI can sometimes return a stringified JSON object within the JSON response.
-        // This robustly handles parsing it, whether it's a direct object or a string.
-        let data = JSON.parse(apiResponse);
-        if (typeof data === 'string') {
-          data = JSON.parse(data);
-        }
-
+        const data = JSON.parse(apiResponse);
         const parsedResult = ImageGenPromptOutputSchema.parse(data);
         prompts = parsedResult;
 

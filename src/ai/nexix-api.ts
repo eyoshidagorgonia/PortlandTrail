@@ -18,6 +18,22 @@ const NexixApiResponseSchema = z.object({
 });
 
 /**
+ * Extracts a JSON object from a string, even if it's embedded in other text.
+ * For example, it can extract the JSON from "```json\n{...}\n```".
+ *
+ * @param str The string to parse.
+ * @returns The extracted JSON object as a string, or null if not found.
+ */
+function extractJson(str: string): string | null {
+    if (!str || typeof str !== 'string') {
+        return null;
+    }
+    const match = str.match(/\{[\s\S]*\}/);
+    return match ? match[0] : null;
+}
+
+
+/**
  * Calls the Nexix.ai OpenAI-compatible chat completions endpoint.
  *
  * @param model - The model to use for the completion.
@@ -72,6 +88,14 @@ export async function callNexixApi(
     throw new Error('Invalid response structure from Nexix API. Content is missing.');
   }
   
-  console.log(`[callNexixApi] Successfully received and parsed response.`);
-  return parsedResponse.data.choices[0].message.content;
+  const rawContent = parsedResponse.data.choices[0].message.content;
+  console.log(`[callNexixApi] Successfully received response. Now extracting JSON.`);
+
+  const jsonString = extractJson(rawContent);
+  if (!jsonString) {
+    console.error('[callNexixApi] Failed to extract valid JSON from the API response content.', { rawContent });
+    throw new Error('Could not find a valid JSON object in the response.');
+  }
+
+  return jsonString;
 }
