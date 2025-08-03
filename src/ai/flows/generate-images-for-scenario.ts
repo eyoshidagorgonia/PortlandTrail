@@ -43,7 +43,7 @@ const generateImagesFlow = ai.defineFlow(
         console.log('[generateImagesFlow] Direct prompt detected. Skipping prompt generation and generating avatar directly.');
         const avatarImage = await generateImage(
             input.scenarioDescription, // Use the description as the full prompt
-            'photorealistic, 3d render',
+            'photorealistic, 3d render, photo',
             512, 512
         );
         return {
@@ -62,7 +62,7 @@ const generateImagesFlow = ai.defineFlow(
 
     const prompt = `You are an expert prompt engineer for a text-to-image model.
 Your task is to create three distinct, detailed, and artistic prompts based on a game scenario.
-The art style should be consistent: "quirky, indie comic book art, slightly gritty, muted colors, cel-shaded".
+The art style should be consistent: "Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting".
 
 **1. Avatar Portrait Prompt:**
 - Create a prompt for a head-and-shoulders portrait of the player character.
@@ -122,15 +122,15 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
     // Avatar Image Promise
     imagePromises.push(generateImage(
-        `${prompts.avatarPrompt}, quirky, indie comic book art, slightly gritty, muted colors, cel-shaded`,
-        'photorealistic, 3d render',
+        `${prompts.avatarPrompt}, Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting`,
+        'photorealistic, 3d render, photo, realism',
         512, 512
     ));
 
     // Scene Image Promise
     imagePromises.push(generateImage(
-        `${prompts.scenePrompt}, quirky, indie comic book art, slightly gritty, muted colors, cel-shaded`,
-        'photorealistic, 3d render',
+        `${prompts.scenePrompt}, Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting`,
+        'photorealistic, 3d render, photo, realism',
         768, 512
     ));
     

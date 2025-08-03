@@ -166,7 +166,7 @@ export default function PortlandTrailPage() {
     setIsIntroAvatarLoading(true);
 
     const imageInput = {
-      scenarioDescription: `A detailed, quirky, indie comic book style portrait of a hipster named ${name}, who is a ${job}.`,
+      scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${name}, who is a ${job}.`,
       character: { name, job, vibe: "Just starting out", avatarKaomoji },
     };
 
