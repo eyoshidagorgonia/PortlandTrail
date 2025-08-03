@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
     healthyServices: new Set(),
@@ -545,31 +546,37 @@ export default function PortlandTrailPage() {
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
-          <div className="lg:col-span-1 flex flex-col gap-6">
+          <div className="lg:col-span-1 flex flex-col gap-6 opacity-0 animate-fade-in animate-delay-100">
             <StatusDashboard playerState={playerState} avatarImage={avatarImage} isImageLoading={isImageLoading} />
             <ActionsCard onAction={handleAction} isLoading={isLoading || isImageLoading} />
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-6">
-            <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
-            <Card className="bg-card/90 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                <CardContent className="p-0">
-                    <h3 className="font-headline text-2xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
-                    <div className="text-base text-foreground/80 space-y-3 font-body max-h-96 overflow-y-auto pr-2 border-t border-border/50 pt-3">
-                        {eventLog.map((log, i) => (
-                        <div key={i} className="flex items-start gap-3 opacity-80 first:opacity-100">
-                            <p className="text-primary/70 text-sm pt-0.5 whitespace-nowrap">
-                            [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
-                            </p>
-                            <p>{log.message}</p>
+            <div className="opacity-0 animate-fade-in animate-delay-200">
+                <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
+            </div>
+             <div className="opacity-0 animate-fade-in animate-delay-300">
+                <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
+            </div>
+            <div className="opacity-0 animate-fade-in animate-delay-400">
+                <Card className="bg-card/90 backdrop-blur-sm">
+                    <CardHeader className="pb-4">
+                    <CardContent className="p-0">
+                        <h3 className="font-headline text-2xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
+                        <div className="text-base text-foreground/80 space-y-3 font-body max-h-96 overflow-y-auto pr-2 border-t border-border/50 pt-3">
+                            {eventLog.map((log, i) => (
+                            <div key={i} className="flex items-start gap-3 opacity-80 first:opacity-100">
+                                <p className="text-primary/70 text-sm pt-0.5 whitespace-nowrap">
+                                [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
+                                </p>
+                                <p>{log.message}</p>
+                            </div>
+                            ))}
                         </div>
-                        ))}
-                    </div>
-                </CardContent>
-                </CardHeader>
-            </Card>
+                    </CardContent>
+                    </CardHeader>
+                </Card>
+            </div>
           </div>
 
         </div>
