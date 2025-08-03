@@ -15,14 +15,14 @@ const Vial = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', too
   const percentage = (value / maxValue) * 100;
 
   const content = (
-    <div className="relative w-full h-full flex flex-col justify-end text-center p-2 rounded-sm border-2 border-secondary bg-black/30 overflow-hidden">
+    <div className="relative w-full h-full flex flex-col justify-end text-center p-2 rounded-none border-2 border-secondary bg-black/30 overflow-hidden">
       <div 
         className="absolute bottom-0 left-0 right-0 transition-all duration-500" 
         style={{ height: `${percentage}%`, backgroundColor: color, zIndex: 1 }}
       />
       <div className="relative z-10 flex flex-col h-full justify-between text-white mix-blend-difference">
         <span className="font-headline text-lg tracking-wider">{label}</span>
-        <span className="font-code text-2xl font-bold">{value}%</span>
+        <span className="font-mono text-2xl font-bold">{value}%</span>
       </div>
     </div>
   );

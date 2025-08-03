@@ -54,50 +54,50 @@ export default function HelpPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
-      <Card className="max-w-4xl w-full shadow-xl bg-card/90 backdrop-blur-sm">
+      <Card className="max-w-4xl w-full shadow-xl bg-card/90 backdrop-blur-sm border-2 border-border/20">
         <CardHeader className="text-center">
-          <CardTitle className="text-4xl font-headline">How to Play</CardTitle>
-          <CardDescription className="pt-2 font-body text-base text-muted-foreground">A guide to surviving your dark and ironic journey.</CardDescription>
+          <CardTitle className="text-5xl font-headline font-bold">How to Survive</CardTitle>
+          <CardDescription className="pt-2 font-body text-xl text-muted-foreground">A guide to your dark and ironic journey.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 p-6 md:p-8">
           <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
             <AccordionItem value="item-1">
-              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
-                <GoalIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> The Goal
+              <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
+                <GoalIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> The Goal
               </AccordionTrigger>
-              <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 font-body">
+              <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 font-body">
                 Your quest is to travel from the accursed lands of **San Francisco** to the promised land of **Portland**. The path is long and treacherous, measured by your **Progress**. Reach 100% progress to achieve ultimate coolness and win the game. But beware, the journey is fraught with existential dread!
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2">
-              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
-                <VitalsIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> Your Vitals
+              <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
+                <VitalsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Your Vitals
               </AccordionTrigger>
-              <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">
-                <p className="flex items-start"><HungerIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Hunger:** If this reaches zero, you succumb to artisanal starvation. Keep it topped up by foraging or through scenario choices.</span></p>
-                <p className="flex items-start"><BikeIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Bike Health:** Your trusty fixed-gear bike is your only way forward. If its health drops to zero, you're stranded. Perform maintenance to keep it in good shape.</span></p>
+              <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
+                <p className="flex items-start"><HungerIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Hunger:** If this reaches zero, you succumb to artisanal starvation. Keep it topped up by foraging or through scenario choices.</span></p>
+                <p className="flex items-start"><BikeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Bike Health:** Your trusty fixed-gear bike is your only way forward. If its health drops to zero, you're stranded. Perform maintenance to keep it in good shape.</span></p>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
-              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
-                <SocialStatsIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> Social Stats & Resources
+              <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
+                <SocialStatsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Social Stats & Resources
               </AccordionTrigger>
-              <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">
-                <p className="flex items-start"><StyleIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Style:** Your aesthetic sense. High style might open up unique opportunities.</span></p>
-                <p className="flex items-start"><IronyIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Irony:** Your ability to find humor in the mundane. A sharp wit can be a powerful tool.</span></p>
-                <p className="flex items-start"><AuthenticityIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Authenticity:** How "real" you are. This can be a double-edged sword in the world of hipsters.</span></p>
-                <p className="flex items-start"><CoffeeIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Coffee Beans:** The currency of the trail. Spend it on actions like bike tune-ups or thrifting.</span></p>
-                <p className="flex items-start"><VinylIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Vinyls:** Prized possessions that prove your superior taste. A collection is a status symbol.</span></p>
+              <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
+                <p className="flex items-start"><StyleIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Style:** Your aesthetic sense. High style might open up unique opportunities.</span></p>
+                <p className="flex items-start"><IronyIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Irony:** Your ability to find humor in the mundane. A sharp wit can be a powerful tool.</span></p>
+                <p className="flex items-start"><AuthenticityIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Authenticity:** How "real" you are. This can be a double-edged sword in the world of hipsters.</span></p>
+                <p className="flex items-start"><CoffeeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Coffee Beans:** The currency of the trail. Spend it on actions like bike tune-ups or thrifting.</span></p>
+                <p className="flex items-start"><VinylIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Vinyls:** Prized possessions that prove your superior taste. A collection is a status symbol.</span></p>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-4">
-              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
-                <MapIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> Gameplay Loop
+              <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
+                <MapIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Gameplay Loop
               </AccordionTrigger>
-              <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">
+              <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
                 <p>The game unfolds in a turn-based loop:</p>
                 <ol className="list-decimal list-inside space-y-2">
                   <li>**Scenario:** The game presents you with an AI-generated scenario. Read it carefully to understand the situation.</li>
@@ -107,10 +107,10 @@ export default function HelpPage() {
               </AccordionContent>
             </AccordionItem>
              <AccordionItem value="item-5">
-              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
-                <CardsIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> On-Screen Cards
+              <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
+                <CardsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> On-Screen Cards
               </AccordionTrigger>
-              <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">
+              <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
                 <p>**Status Dashboard:** Your character sheet. All your vitals, stats, and inventory are here.</p>
                 <p>**Actions Card:** Your available actions between story events. Use them wisely!</p>
                 <p>**The Trail Map:** Shows your overall progress towards Portland.</p>
@@ -122,7 +122,7 @@ export default function HelpPage() {
 
           <div className="text-center pt-4">
             <Link href="/" passHref>
-              <Button size="lg" className="font-headline text-lg">
+              <Button size="lg" className="font-headline text-xl">
                 <LeftArrowIcon className="mr-2 h-5 w-5" />
                 Return to Game
               </Button>

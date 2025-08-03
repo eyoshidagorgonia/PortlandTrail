@@ -17,20 +17,19 @@ interface ScenarioDisplayProps {
 }
 
 const LoadingState = () => (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg bg-card/80 backdrop-blur-sm">
       <CardHeader className="p-4 pb-2">
-        <Skeleton className="h-6 w-3/4" />
-        <Skeleton className="h-4 w-1/2 mt-1" />
+        <Skeleton className="h-8 w-3/4" />
       </CardHeader>
       <CardContent className="p-4 pt-2 space-y-3">
-        <Skeleton className="w-full aspect-video rounded-md" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
+        <Skeleton className="w-full aspect-video" />
+        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-5 w-5/6" />
       </CardContent>
       <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t border-border/50">
-        <Skeleton className="h-10 w-32" />
-        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-12 w-40" />
+        <Skeleton className="h-12 w-40" />
       </CardFooter>
     </Card>
   );
@@ -41,12 +40,12 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
   }
 
   return (
-    <Card className="shadow-lg h-full flex flex-col">
-      <CardHeader className="p-4 pb-2">
-        <CardTitle className="font-headline text-3xl">{scenario.challenge}</CardTitle>
+    <Card className="shadow-lg h-full flex flex-col bg-card/80 backdrop-blur-sm border border-border/20">
+      <CardHeader className="p-6 pb-2">
+        <CardTitle className="font-headline text-4xl font-bold">{scenario.challenge}</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 pt-2 flex-grow">
-        <div className="mb-4 rounded-md overflow-hidden border border-border/50 bg-muted/30">
+      <CardContent className="p-6 pt-2 flex-grow">
+        <div className="mb-4 overflow-hidden border-2 border-border/50 bg-muted/30">
           {isImageLoading || !sceneImage ? (
             <Skeleton className="w-full aspect-video" />
           ) : (
@@ -61,14 +60,14 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
             />
           )}
         </div>
-        <p className="text-lg text-foreground/90 leading-relaxed whitespace-pre-wrap font-body">{scenario.scenario}</p>
+        <p className="text-xl text-foreground/90 leading-relaxed whitespace-pre-wrap font-body">{scenario.scenario}</p>
         {scenario.diablo2Element && (
-           <p className="mt-4 text-base text-accent/80 border-l-2 border-accent/50 pl-3 italic font-body">
+           <p className="mt-4 text-lg text-accent/80 border-l-4 border-accent/50 pl-4 italic font-body">
             {scenario.diablo2Element}
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t border-border/50">
+      <CardFooter className="flex flex-wrap gap-4 p-6 pt-4 border-t-2 border-border/50">
         <TooltipProvider>
           {scenario.choices.map((choice, index) => (
             <Tooltip key={index}>
@@ -77,7 +76,8 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant={index === 0 ? 'default' : 'secondary'} 
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
-                  className="font-headline text-lg"
+                  className="font-headline text-xl"
+                  size="lg"
                 >
                   {choice.text}
                 </Button>

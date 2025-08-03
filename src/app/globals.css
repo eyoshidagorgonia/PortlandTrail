@@ -4,57 +4,58 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%; /* Light, clean off-white */
-    --foreground: 215 15% 15%; /* Dark, soft charcoal */
+    --background: 220 12% 8%; /* Very dark, cool gray */
+    --foreground: 45 30% 90%; /* Aged parchment off-white */
     
-    --card: 0 0% 100%;
-    --card-foreground: 215 15% 15%;
+    --card: 220 12% 12%; /* Slightly lighter dark gray for cards */
+    --card-foreground: 45 30% 90%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 15% 15%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 45 30% 90%;
 
-    --primary: 180 40% 35%; /* Muted Teal */
+    --primary: 0 60% 45%; /* Deep blood red */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 15% 90%; /* Light gray */
-    --secondary-foreground: 215 15% 25%;
+    --secondary: 220 10% 25%; /* Medium-dark gray */
+    --secondary-foreground: 45 20% 80%;
 
-    --muted: 210 15% 94%;
-    --muted-foreground: 215 10% 45%;
+    --muted: 220 10% 20%;
+    --muted-foreground: 220 10% 55%;
     
-    --accent: 40 90% 55%; /* Warm mustard yellow */
-    --accent-foreground: 215 15% 15%;
+    --accent: 40 80% 55%; /* Demonic, artisanal gold */
+    --accent-foreground: 40 100% 10%;
     
     --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 210 10% 85%;
-    --input: 210 10% 92%;
-    --ring: 180 40% 35%;
+    --border: 220 10% 30%;
+    --input: 220 10% 22%;
+    --ring: 40 80% 55%;
 
-    --radius: 0.5rem;
+    --radius: 0rem; /* Sharp corners */
   }
 
   .dark {
-    --background: 215 15% 15%;
-    --foreground: 210 20% 98%;
-    --card: 215 15% 20%;
-    --card-foreground: 210 20% 98%;
-    --popover: 215 15% 15%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 180 40% 45%;
+    /* Dark theme is the only theme */
+    --background: 220 12% 8%;
+    --foreground: 45 30% 90%;
+    --card: 220 12% 12%;
+    --card-foreground: 45 30% 90%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 45 30% 90%;
+    --primary: 0 60% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 215 10% 30%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 10% 25%;
-    --muted-foreground: 210 15% 70%;
-    --accent: 40 80% 60%;
-    --accent-foreground: 215 15% 15%;
-    --destructive: 0 63% 45%;
+    --secondary: 220 10% 25%;
+    --secondary-foreground: 45 20% 80%;
+    --muted: 220 10% 20%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 40 80% 55%;
+    --accent-foreground: 40 100% 10%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 215 10% 35%;
-    --input: 215 10% 25%;
-    --ring: 180 40% 45%;
+    --border: 220 10% 30%;
+    --input: 220 10% 22%;
+    --ring: 40 80% 55%;
   }
 }
 
@@ -64,6 +65,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%232e3440' fill-opacity='0.1'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 }
 

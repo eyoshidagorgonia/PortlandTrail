@@ -1,17 +1,18 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Cinzel_Decorative, EB_Garamond } from 'next/font/google';
 import { cn } from '@/lib/utils';
 
-const fontBody = Inter({
+const fontBody = EB_Garamond({
   subsets: ['latin'],
   variable: '--font-body',
 });
 
-const fontHeadline = Playfair_Display({
+const fontHeadline = Cinzel_Decorative({
   subsets: ['latin'],
   variable: '--font-headline',
+  weight: ['400', '700'],
 });
 
 export const metadata: Metadata = {

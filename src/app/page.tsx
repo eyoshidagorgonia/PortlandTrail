@@ -164,7 +164,7 @@ export default function PortlandTrailPage() {
     setIsIntroAvatarLoading(true);
 
     const imageInput = {
-      scenarioDescription: `A quirky, indie comic book style portrait of a hipster named ${name}, who works as a ${job}.`,
+      scenarioDescription: `A dark fantasy style portrait of a hero named ${name}, who is a ${job}.`,
       character: { name, job, vibe: "Just starting out", avatarKaomoji },
     };
 
@@ -469,31 +469,32 @@ export default function PortlandTrailPage() {
   if (gameState === 'intro') {
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
-        <Card className="max-w-2xl w-full text-center shadow-xl relative bg-card/90 backdrop-blur-sm">
+        <Card className="max-w-2xl w-full text-center shadow-xl relative bg-card/80 backdrop-blur-sm border border-border/20">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
-              <h1 className="text-5xl font-headline font-bold text-primary">The Portland Trail</h1>
-              <p className="text-muted-foreground font-body text-lg">
+              <h1 className="text-6xl font-headline font-bold text-primary">The Portland Trail</h1>
+              <p className="text-muted-foreground font-body text-xl">
                 A cursed journey of survival and irony.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-8 text-left">
+            <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0">
-                <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl">
+                <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline">
                   {isIntroAvatarLoading || !introAvatarImage ? (
                     <Skeleton className="h-full w-full" />
                   ) : (
                     <AvatarImage src={introAvatarImage} alt={name} data-ai-hint="avatar portrait" />
                   )}
+                   <AvatarFallback>{name.charAt(0) || '?'}</AvatarFallback>
                 </Avatar>
               </div>
 
               <div className="space-y-4 flex-1 w-full">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className='font-headline text-lg'>Persona</Label>
+                  <Label htmlFor="name" className='font-headline text-xl'>Your Name</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., River, Kale, Britta" disabled={isNameLoading} />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isNameLoading} className="text-lg" />
                     <Button 
                       type="button"
                       size="icon" 
@@ -507,14 +508,14 @@ export default function PortlandTrailPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="job" className='font-headline text-lg'>Calling</Label>
+                  <Label htmlFor="job" className='font-headline text-xl'>Your Calling</Label>
                   <Select value={job} onValueChange={setJob}>
-                    <SelectTrigger id="job">
-                      <SelectValue placeholder="Select a hipster profession" />
+                    <SelectTrigger id="job" className="text-lg">
+                      <SelectValue placeholder="Select a dark profession" />
                     </SelectTrigger>
                     <SelectContent>
                       {HIPSTER_JOBS.map((j) => (
-                        <SelectItem key={j} value={j}>{j}</SelectItem>
+                        <SelectItem key={j} value={j} className="text-base">{j}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -522,12 +523,12 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job} className="font-headline text-xl">
+            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job} className="font-headline text-2xl mt-4">
               {(isLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
-              Begin Journey
+              Begin Your Descent
             </Button>
             <Link href="/help" passHref>
-                <Button variant="link" className="text-muted-foreground mt-2">How to Play</Button>
+                <Button variant="link" className="text-muted-foreground mt-2">How to Survive</Button>
             </Link>
           </CardContent>
            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
@@ -559,14 +560,14 @@ export default function PortlandTrailPage() {
 
           <div className="lg:col-span-3 flex flex-col gap-6">
             <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <Card>
+            <Card className="bg-card/80 backdrop-blur-sm">
               <CardHeader className="pb-4">
                 <CardContent className="p-0">
-                    <h3 className="font-headline text-2xl tracking-wider mb-2">Travel Diary</h3>
-                    <div className="text-sm text-muted-foreground space-y-2 font-body max-h-96 overflow-y-auto pr-2">
+                    <h3 className="font-headline text-2xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
+                    <div className="text-base text-foreground/80 space-y-3 font-body max-h-96 overflow-y-auto pr-2 border-t border-border/50 pt-3">
                         {eventLog.map((log, i) => (
-                        <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
-                            <p className="text-primary/70 text-xs pt-0.5 whitespace-nowrap">
+                        <div key={i} className="flex items-start gap-3 opacity-80 first:opacity-100">
+                            <p className="text-primary/70 text-sm pt-0.5 whitespace-nowrap">
                             [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
                             </p>
                             <p>{log.message}</p>

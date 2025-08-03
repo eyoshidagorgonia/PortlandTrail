@@ -42,9 +42,9 @@ const actions: PlayerAction[] = [
 
 export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
   return (
-    <Card>
+    <Card className="bg-card/80 backdrop-blur-sm">
       <CardHeader className="pb-4">
-        <CardTitle className="font-headline text-2xl tracking-wider">Actions</CardTitle>
+        <CardTitle className="font-headline text-3xl font-bold tracking-wider text-center">Actions</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3">
         <TooltipProvider>
@@ -57,8 +57,8 @@ export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
                   onClick={() => onAction(action)}
                   disabled={isLoading}
                 >
-                  <action.icon className="h-7 w-7" />
-                  <span className="text-xs leading-tight font-body">{action.text}</span>
+                  <action.icon className="h-8 w-8" />
+                  <span className="text-sm leading-tight font-body">{action.text}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
