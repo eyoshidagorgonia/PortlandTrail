@@ -4,57 +4,57 @@
 
 @layer base {
   :root {
-    --background: 220 15% 10%; /* Very dark, cool navy */
-    --foreground: 40 20% 90%; /* Aged parchment */
+    --background: 210 10% 8%; /* Very dark, slightly cool stone gray */
+    --foreground: 35 25% 92%; /* Warm, aged parchment off-white */
     
-    --card: 220 15% 13%; /* Slightly lighter card background */
-    --card-foreground: 40 20% 90%;
+    --card: 210 10% 11%; /* Slightly lighter card background */
+    --card-foreground: 35 25% 92%;
     
-    --popover: 220 15% 8%;
-    --popover-foreground: 40 20% 90%;
+    --popover: 210 10% 7%;
+    --popover-foreground: 35 25% 92%;
 
-    --primary: 350 70% 55%; /* Rich, classic red */
+    --primary: 0 65% 45%; /* Deep, slightly desaturated blood red */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 25%; /* Muted dark stone */
-    --secondary-foreground: 40 20% 90%;
+    --secondary: 210 10% 20%; /* Muted dark stone */
+    --secondary-foreground: 35 25% 92%;
 
-    --muted: 220 15% 20%;
-    --muted-foreground: 40 20% 70%;
+    --muted: 210 10% 15%;
+    --muted-foreground: 35 25% 75%;
     
-    --accent: 45 80% 55%; /* Glimmering Gold */
-    --accent-foreground: 45 100% 10%;
+    --accent: 40 70% 50%; /* Rich, ancient gold */
+    --accent-foreground: 35 100% 8%;
     
-    --destructive: 0 63% 41%;
+    --destructive: 0 70% 42%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 30%;
-    --input: 220 15% 20%;
-    --ring: 350 70% 55%; /* Rich red for rings */
+    --border: 210 10% 25%;
+    --input: 210 10% 15%;
+    --ring: 0 65% 45%; /* Deep red for rings */
 
     --radius: 0.1rem;
   }
 
   .dark {
-    --background: 220 15% 10%;
-    --foreground: 40 20% 90%;
-    --card: 220 15% 13%;
-    --card-foreground: 40 20% 90%;
-    --popover: 220 15% 8%;
-    --popover-foreground: 40 20% 90%;
-    --primary: 350 70% 55%;
+    --background: 210 10% 8%;
+    --foreground: 35 25% 92%;
+    --card: 210 10% 11%;
+    --card-foreground: 35 25% 92%;
+    --popover: 210 10% 7%;
+    --popover-foreground: 35 25% 92%;
+    --primary: 0 65% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 25%;
-    --secondary-foreground: 40 20% 90%;
-    --muted: 220 15% 20%;
-    --muted-foreground: 40 20% 70%;
-    --accent: 45 80% 55%;
-    --accent-foreground: 45 100% 10%;
-    --destructive: 0 63% 41%;
+    --secondary: 210 10% 20%;
+    --secondary-foreground: 35 25% 92%;
+    --muted: 210 10% 15%;
+    --muted-foreground: 35 25% 75%;
+    --accent: 40 70% 50%;
+    --accent-foreground: 35 100% 8%;
+    --destructive: 0 70% 42%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 15% 30%;
-    --input: 220 15% 20%;
-    --ring: 350 70% 55%;
+    --border: 210 10% 25%;
+    --input: 210 10% 15%;
+    --ring: 0 65% 45%;
   }
 }
 
