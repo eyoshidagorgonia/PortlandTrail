@@ -1,12 +1,13 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Cinzel_Decorative, EB_Garamond } from 'next/font/google';
+import { Cinzel_Decorative, Lato } from 'next/font/google';
 import { cn } from '@/lib/utils';
 
-const fontBody = EB_Garamond({
+const fontBody = Lato({
   subsets: ['latin'],
   variable: '--font-body',
+  weight: ['400', '700'],
 });
 
 const fontHeadline = Cinzel_Decorative({
