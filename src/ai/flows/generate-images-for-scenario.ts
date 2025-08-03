@@ -21,9 +21,9 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
 }
 
 const ImageGenPromptOutputSchema = z.object({
-    avatarPrompt: z.string().describe("A detailed DALL-E prompt for the character's avatar portrait."),
-    scenePrompt: z.string().describe("A detailed DALL-E prompt for the scene depiction."),
-    badgePrompt: z.string().nullable().optional().describe("A detailed DALL-E prompt for the badge icon, if a badge was awarded."),
+    avatarPrompt: z.string().describe("A detailed text-to-image prompt for the character's avatar portrait."),
+    scenePrompt: z.string().describe("A detailed text-to-image prompt for the scene depiction."),
+    badgePrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the badge icon, if a badge was awarded."),
 });
 
 const generateImagesFlow = ai.defineFlow(
@@ -42,8 +42,8 @@ const generateImagesFlow = ai.defineFlow(
     if (isDirectPrompt) {
         console.log('[generateImagesFlow] Direct prompt detected. Skipping prompt generation and generating avatar directly.');
         const avatarImage = await generateImage(
-            input.scenarioDescription, // Use the description as the full prompt
-            'photorealistic, 3d render, photo',
+            `${input.scenarioDescription}, Diablo IV x Hipster x Studio Ghibli style, high-detail painterly illustration, dark fantasy shadows, soft natural lighting`,
+            'photorealistic, 3d render, photo, realism, ugly, deformed',
             512, 512
         );
         return {
@@ -61,33 +61,34 @@ const generateImagesFlow = ai.defineFlow(
         : '';
 
     const prompt = `You are an expert prompt engineer for a text-to-image model.
-Your task is to create three distinct, detailed, and artistic prompts based on a game scenario.
-The overall art style should be consistent: "Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting".
+Your goal is to create three distinct, detailed prompts based on a game scenario, following the "Diablo IV x Hipster x Studio Ghibli" style guide.
 
-**1. Avatar Portrait Prompt (Style: "Ghibli Noir")**
-- Create a prompt for a head-to-chest portrait of the player character.
-- **Mood**: Brooding, mysterious, indie introspective.
-- **Lighting**: Dramatic chiaroscuro with soft candlelight or ambient glows.
-- **Colors**: Use a desaturated earth-tone palette, like Grave Moss, Blood Plum, and Espresso Charcoal.
-- **Features & Style**: Give the character expressive but shadowed eyes, perhaps with a single glint of light. Hair should be tousled or styled (e.g., messy bun, undercut). You must incorporate a strong, unmistakable hipster fashion sense. Think layered flannel, turtlenecks under denim jackets, wool coats, chunky-knit beanies, round glasses, enamel pins, or visible tattoos.
-- **Job Relevance**: The character is a '${input.character.job}'. It is crucial that you incorporate specific, visible elements of this job into their clothing, accessories, or immediate surroundings, blending it with the hipster aesthetic.
-- **Background**: A simple, moody background like a stone wall, foggy forest, or dark wood.
+**Core Style Formula:**
+- **Art Style:** "High-detail painterly illustration with subtle grain, dark fantasy shadows, soft natural lighting, character-focused composition, Ghibli-inspired linework and brush textures."
+- **Mood/Tone:** "Moody, melancholic atmosphere with magical realism and ironic modern flair."
+
+**1. Avatar Portrait Prompt:**
+- **Task:** Create a prompt for a head-to-chest portrait of the player character.
+- **Style:** "Ghibli-style fantasy character with a modern hipster aesthetic."
+- **Composition:** The character should be the focus. Incorporate their job into their appearance or an item they are holding.
+- **Lighting & Mood:** "Soft magical light, candle-lit fog, neon glow meets firefly shimmer." Use Diablo IV's dark, moody atmosphere with soft, emotional lighting reminiscent of Studio Ghibli.
+- **Details:** The character is a '${input.character.job}'. Include specific hipster accessories like round glasses, wool caps, layered clothing, tattoos, etc. The character's expression should match their current vibe: "${input.character.vibe}".
 
 **2. Scene Depiction Prompt:**
-- Create a prompt for a wide-angle shot that captures the entire scenario description.
-- Include key elements, mood, and the environment.
-- The style must match the "Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting" direction.
+- **Task:** Create a prompt for a wide-angle shot of the entire scenario.
+- **Style:** Blend Ghibli's painterly environments with Diablo's dark, gothic architecture and grit.
+- **Content:** Include the key elements from the scenario description, focusing on the environment, mood, and any specific actions.
+- **Lighting:** Use dramatic lighting sources like "floating lanterns," "firelight from windows," or "glowing runes."
 
 **3. Badge Icon Prompt (if applicable):**
-- If a badge is present, create a prompt for a simple, iconic, circular merit badge.
-- The design should be inspired by the badge's description and emoji. It should be a single, clean icon on a simple background.
-- Style: Focus on a simple, graphic icon.
+- **Task:** If a badge is present, create a prompt for a simple, iconic inventory item.
+- **Style:** "Hand-drawn magical object on a faded parchment background, high-res fantasy sketch with ink and watercolor."
+- **Content:** The icon should be a single, clean object representing the badge's description and emoji.
 
 **Input Data:**
 - Character Name: ${input.character.name}
 - Character Job: ${input.character.job}
 - Character Vibe: ${input.character.vibe}
-- Character Avatar Kaomoji: ${input.character.avatarKaomoji}
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
@@ -108,7 +109,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         prompts = {
             avatarPrompt: `A portrait of ${input.character.name} the ${input.character.job}`,
             scenePrompt: input.scenarioDescription,
-            badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : undefined,
+            badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : null,
         };
         dataSource = 'hardcoded';
     }
@@ -119,23 +120,23 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
     // Avatar Image Promise
     imagePromises.push(generateImage(
-        `${prompts.avatarPrompt}, Ghibli Noir, Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting`,
-        'photorealistic, 3d render, photo, realism',
+        `${prompts.avatarPrompt}, Ghibli style, Diablo IV mood, hipster aesthetic, painterly illustration, soft shadows`,
+        'photorealistic, 3d render, photo, realism, ugly, deformed',
         512, 512
     ));
 
     // Scene Image Promise
     imagePromises.push(generateImage(
-        `${prompts.scenePrompt}, Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting`,
-        'photorealistic, 3d render, photo, realism',
+        `${prompts.scenePrompt}, Studio Ghibli brushwork, Diablo IV darkness, painterly illustration`,
+        'photorealistic, 3d render, photo, realism, ugly, deformed',
         768, 512
     ));
     
     // Badge Image Promise (conditional)
     if (prompts.badgePrompt) {
         imagePromises.push(generateImage(
-            `${prompts.badgePrompt}, simple graphic icon, on a patch, white background, circular`,
-            'photorealistic, 3d render, complex',
+            `${prompts.badgePrompt}, hand-drawn magical object, inventory icon, ink and watercolor, on faded parchment background`,
+            'photorealistic, 3d render, complex, photo, realism',
             256, 256
         ));
     } else {
