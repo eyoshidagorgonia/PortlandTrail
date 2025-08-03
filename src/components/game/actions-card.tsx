@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,7 @@ const actions: PlayerAction[] = [
 
 export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
   return (
-    <Card className="bg-card/80 backdrop-blur-sm">
+    <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
       <CardHeader className="pb-4">
         <CardTitle className="font-headline text-3xl font-bold tracking-wider text-center">Actions</CardTitle>
       </CardHeader>

@@ -28,7 +28,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { Skeleton } from '../ui/skeleton';
-import { Vial } from '../ui/vial';
+import { Vial } from '@/components/game/vial';
 import { Separator } from '../ui/separator';
 
 interface StatItemProps {
@@ -107,15 +107,15 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
 
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm">
+    <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
       <CardHeader className="text-center items-center pb-4">
-        <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl font-headline rounded-sm">
+        <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl font-headline">
             {isImageLoading || !avatarImage ? (
                 <Skeleton className="h-full w-full" />
             ) : (
-                <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" className="rounded-sm"/>
+                <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
             )}
-            <AvatarFallback className="rounded-sm">{name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
 
         <div className="space-y-1 pt-2">
@@ -124,7 +124,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
               <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Badge variant={ironicStatus.variant} className="cursor-help whitespace-nowrap rounded-sm">
+                        <Badge variant={ironicStatus.variant} className="cursor-help whitespace-nowrap">
                           {ironicStatus.text}
                         </Badge>
                     </TooltipTrigger>

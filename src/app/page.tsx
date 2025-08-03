@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge } from '@/lib/types';
 import { getScenarioAction, getImagesAction } from '@/app/actions';
@@ -467,7 +467,7 @@ export default function PortlandTrailPage() {
   if (gameState === 'intro') {
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
-        <Card className="max-w-2xl w-full text-center shadow-xl relative bg-card/80 backdrop-blur-sm border border-border/20">
+        <Card className="max-w-2xl w-full text-center shadow-xl relative bg-card/80 backdrop-blur-sm border-2 border-border/20">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
               <h1 className="text-6xl font-headline font-bold text-primary">The Portland Trail</h1>
@@ -558,7 +558,7 @@ export default function PortlandTrailPage() {
 
           <div className="lg:col-span-3 flex flex-col gap-6">
             <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <Card className="bg-card/80 backdrop-blur-sm">
+            <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
               <CardHeader className="pb-4">
                 <CardContent className="p-0">
                     <h3 className="font-headline text-2xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
