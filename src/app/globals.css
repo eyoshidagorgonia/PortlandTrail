@@ -4,66 +4,65 @@
 
 @layer base {
   :root {
-    --background: 0 0% 18%; /* Cryptstone Grey: #2E2E2E */
-    --foreground: 40 56% 95%; /* Bone Ash: #F9F5EC */
+    --background: 0 0% 4%; /* Obsidian Black: #0A0A0A */
+    --foreground: 41 44% 90%; /* Burnt Bone: #EAE3D2 */
     
-    --card: 21 41% 25%; /* Wyrmwood Brown: #5A3825 */
-    --card-foreground: 40 56% 95%; /* Bone Ash */
+    --card: 0 0% 8%; /* Slightly lighter Obsidian */
+    --card-foreground: 41 44% 90%;
     
-    --popover: 0 0% 12%; /* Darker Cryptstone */
-    --popover-foreground: 40 56% 95%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 41 44% 90%;
 
-    --primary: 16 100% 60%; /* Hellfire Amber: #FF6B35 */
-    --primary-foreground: 0 0% 10%; /* Dark for contrast on amber */
+    --primary: 45 87% 62%; /* Gold of Zakarum: #F0C75E */
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 0 0% 25%; /* Lighter Cryptstone */
-    --secondary-foreground: 40 56% 95%;
+    --secondary: 0 0% 12%; 
+    --secondary-foreground: 41 44% 90%;
 
     --muted: 0 0% 12%;
-    --muted-foreground: 40 20% 65%; /* Muted Bone Ash */
+    --muted-foreground: 0 0% 49%; /* Arcane Smoke */
     
-    --accent: 45 65% 52%; /* Blessed Gold: #D4AF37 */
-    --accent-foreground: 0 0% 10%;
+    --accent: 16 100% 60%; /* Hellfire Ember: #FF6B35 */
+    --accent-foreground: 0 0% 4%;
     
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 40 56% 95%;
+    --destructive: 0 100% 27%; /* Blood Rune: #8B0000 */
+    --destructive-foreground: 41 44% 90%;
 
-    --border: 0 0% 30%;
-    --input: 0 0% 30%;
-    --ring: 16 100% 60%; /* Hellfire Amber */
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 45 87% 62%; /* Gold of Zakarum */
 
     --radius: 0.3rem;
   }
 
   .dark {
-    /* The style guide is inherently dark, so this matches the root */
-    --background: 0 0% 18%; /* Cryptstone Grey: #2E2E2E */
-    --foreground: 40 56% 95%; /* Bone Ash: #F9F5EC */
+    --background: 0 0% 4%; /* Obsidian Black: #0A0A0A */
+    --foreground: 41 44% 90%; /* Burnt Bone: #EAE3D2 */
     
-    --card: 21 41% 25%; /* Wyrmwood Brown: #5A3825 */
-    --card-foreground: 40 56% 95%; /* Bone Ash */
+    --card: 0 0% 8%;
+    --card-foreground: 41 44% 90%;
     
-    --popover: 0 0% 12%; /* Darker Cryptstone */
-    --popover-foreground: 40 56% 95%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 41 44% 90%;
 
-    --primary: 16 100% 60%; /* Hellfire Amber: #FF6B35 */
-    --primary-foreground: 0 0% 10%; /* Dark for contrast on amber */
+    --primary: 45 87% 62%; /* Gold of Zakarum: #F0C75E */
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 0 0% 25%; /* Lighter Cryptstone */
-    --secondary-foreground: 40 56% 95%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 41 44% 90%;
 
     --muted: 0 0% 12%;
-    --muted-foreground: 40 20% 65%; /* Muted Bone Ash */
+    --muted-foreground: 0 0% 49%; /* Arcane Smoke */
     
-    --accent: 45 65% 52%; /* Blessed Gold: #D4AF37 */
-    --accent-foreground: 0 0% 10%;
+    --accent: 16 100% 60%; /* Hellfire Ember: #FF6B35 */
+    --accent-foreground: 0 0% 4%;
     
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 40 56% 95%;
+    --destructive: 0 100% 27%; /* Blood Rune: #8B0000 */
+    --destructive-foreground: 41 44% 90%;
 
-    --border: 0 0% 30%;
-    --input: 0 0% 30%;
-    --ring: 16 100% 60%; /* Hellfire Amber */
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 45 87% 62%; /* Gold of Zakarum */
   }
 }
 
@@ -73,7 +72,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23F9F5EC' fill-opacity='0.03'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23EAE3D2' fill-opacity='0.03'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 }
 
