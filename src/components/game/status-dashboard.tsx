@@ -29,7 +29,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { Skeleton } from '../ui/skeleton';
-import { Vial } from '@/components/game/vial';
+import { Vial } from '@/components/ui/vial';
 import { Separator } from '../ui/separator';
 
 interface StatItemProps {
@@ -93,6 +93,14 @@ interface StatusDashboardProps {
     isImageLoading: boolean;
 }
 
+const ThematicSeparator = () => (
+    <div className="flex items-center justify-center my-2" aria-hidden="true">
+        <div className="h-px flex-grow bg-border/20"></div>
+        <div className="w-4 h-4 mx-2 rotate-45 border-2 border-border/50 border-t-accent border-r-accent"></div>
+        <div className="h-px flex-grow bg-border/20"></div>
+    </div>
+);
+
 export default function StatusDashboard({ playerState, avatarImage, isImageLoading }: StatusDashboardProps) {
   const { stats, resources, name, job, bio } = playerState;
 
@@ -120,7 +128,18 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         </Avatar>
 
         <div className="space-y-1 pt-2">
-            <CardTitle className="font-headline text-4xl font-bold">{name}</CardTitle>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <CardTitle className="font-headline text-4xl font-bold cursor-help">{name}</CardTitle>
+                    </TooltipTrigger>
+                    {bio && (
+                        <TooltipContent>
+                            <p className="max-w-xs">{bio}</p>
+                        </TooltipContent>
+                    )}
+                </Tooltip>
+            </TooltipProvider>
             <CardDescription className="font-body text-lg text-muted-foreground">{job}</CardDescription>
               <TooltipProvider>
                 <Tooltip>
@@ -135,19 +154,14 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                 </Tooltip>
             </TooltipProvider>
         </div>
-        {bio && (
-            <CardDescription className="pt-3 text-base italic font-body text-foreground/80 border-t border-border/50 mt-4 text-center">
-                {bio}
-            </CardDescription>
-        )}
       </CardHeader>
-      <CardContent className="space-y-6 pt-0">
+      <CardContent className="space-y-4 pt-0">
         <div className="flex justify-center gap-4">
             <Vial label="Hunger" value={stats.hunger} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--primary))"/>
             <Vial label="Bike Health" value={resources.bikeHealth} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(var(--accent))"/>
         </div>
         
-        <Separator />
+        <ThematicSeparator />
 
         <div className="space-y-4 px-2">
             <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your flair. Essential for navigating coffee shops."/>
@@ -155,7 +169,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
             <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A delicate balance."/>
         </div>
         
-        <Separator />
+        <ThematicSeparator />
 
          <div className="grid grid-cols-2 gap-4 px-2">
             <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="Rare records increase your standing." />
@@ -164,8 +178,8 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
 
         {resources.badges.length > 0 && (
           <div className="space-y-3 pt-2">
-             <Separator />
-            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest pt-4 text-center">Badges of Dishonor</h3>
+             <ThematicSeparator />
+            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest pt-1 text-center">Badges of Dishonor</h3>
             <TooltipProvider>
               <div className="flex flex-wrap gap-2 justify-center">
                 {resources.badges.map((badge, index) => (
@@ -219,5 +233,3 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
     </Card>
   );
 }
-
-    
