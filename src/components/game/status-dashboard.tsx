@@ -29,7 +29,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
 import { Skeleton } from '../ui/skeleton';
-import { Vial } from '@/components/ui/vial';
+import { Orb } from '@/components/ui/orb';
 import { Separator } from '../ui/separator';
 
 interface StatItemProps {
@@ -156,9 +156,9 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         </div>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
-        <div className="flex justify-center gap-4">
-            <Vial label="Hunger" value={stats.hunger} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--primary))"/>
-            <Vial label="Bike Health" value={resources.bikeHealth} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(var(--accent))"/>
+        <div className="flex justify-around gap-4 px-4">
+            <Orb label="Hunger" value={stats.hunger} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--primary))"/>
+            <Orb label="Bike Health" value={resources.bikeHealth} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(var(--accent))"/>
         </div>
         
         <ThematicSeparator />
