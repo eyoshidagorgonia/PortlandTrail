@@ -123,7 +123,7 @@ export async function callNexixApiFallback<T extends z.ZodType<any, any, any>>(
     prompt: string,
     schema: T
   ): Promise<z.infer<T>> {
-    const url = 'https://modelapi.nexix.ai/api/v1/proxy/generate';
+    const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
     const apiKey = process.env.NEXIX_API_KEY;
   
     if (!apiKey) {
@@ -132,9 +132,8 @@ export async function callNexixApiFallback<T extends z.ZodType<any, any, any>>(
   
     const requestBody = {
       model: "gemma:2b-instruct-q8_0", // Using a smaller, faster model for the fallback
-      prompt: prompt,
-      format: "json",
-      stream: false
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 1.2, // A bit more creative for the fallback
     };
   
     console.log(`[callNexixApiFallback] Sending request to ${url}`);
@@ -156,15 +155,21 @@ export async function callNexixApiFallback<T extends z.ZodType<any, any, any>>(
     }
   
     const result = await response.json();
-    
-    // The proxy endpoint returns a stringified JSON in the `response` field
-    const jsonString = result.response;
-    if (!jsonString || typeof jsonString !== 'string') {
+    const parsedResponse = NexixApiResponseSchema.safeParse(result);
+
+    if (!parsedResponse.success || parsedResponse.data.choices.length === 0 || !parsedResponse.data.choices[0].message.content) {
         console.error('[callNexixApiFallback] Invalid response structure from fallback API.', { result });
-        throw new Error('Invalid response from Nexix fallback API. Response field is missing or not a string.');
+        throw new Error('Invalid response from Nexix fallback API. Content is missing.');
     }
     
+    const rawContent = parsedResponse.data.choices[0].message.content;
     console.log(`[callNexixApiFallback] Successfully received response.`);
+    
+    const jsonString = extractJson(rawContent);
+    if (!jsonString) {
+        console.error('[callNexixApiFallback] Failed to extract valid JSON from the fallback API response content.', { rawContent });
+        throw new Error('Could not find a valid JSON object in the fallback response.');
+    }
   
     try {
       const data = JSON.parse(jsonString);
