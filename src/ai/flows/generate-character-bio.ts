@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { callNexixApi } from '@/ai/nexix-api';
+import { callNexixApi, callNexixApiFallback } from '@/ai/nexix-api';
 
 const GenerateCharacterBioInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
@@ -56,13 +56,24 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
 
     try {
+      console.log("[generateCharacterBioFlow] Trying primary AI service...");
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
       return { ...parsedResult, dataSource: 'primary' };
-    } catch (error) {
-        console.error(`[generateCharacterBioFlow] Call failed. Returning hard-coded bio.`, { error });
-        return {
-            bio: "They believe their artisanal pickles can change the world, one jar at a time.",
-            dataSource: 'hardcoded',
+    } catch (primaryError) {
+        console.warn(`[generateCharacterBioFlow] Primary call failed. Trying fallback service.`, { primaryError });
+        try {
+            console.log("[generateCharacterBioFlow] Trying fallback AI service...");
+            const fallbackResult = await callNexixApiFallback(prompt, GenerateCharacterBioOutputSchema);
+            return {
+                ...fallbackResult,
+                dataSource: 'fallback',
+            }
+        } catch (fallbackError) {
+            console.error(`[generateCharacterBioFlow] All AI calls failed. Returning hard-coded bio.`, { fallbackError });
+            return {
+                bio: "They believe their artisanal pickles can change the world, one jar at a time.",
+                dataSource: 'hardcoded',
+            }
         }
     }
   }
