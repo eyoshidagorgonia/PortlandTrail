@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -15,7 +16,7 @@ const Vial = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', too
   const percentage = (value / maxValue) * 100;
 
   const content = (
-    <div className="relative w-full h-full flex flex-col justify-end text-center p-2 rounded-none border-2 border-secondary bg-black/30 overflow-hidden">
+    <div className="relative w-full h-full flex flex-col justify-end text-center p-2 rounded-sm border-2 border-secondary bg-black/30 overflow-hidden">
       <div 
         className="absolute bottom-0 left-0 right-0 transition-all duration-500" 
         style={{ height: `${percentage}%`, backgroundColor: color, zIndex: 1 }}
@@ -52,3 +53,5 @@ const Vial = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', too
 };
 
 export { Vial }
+
+    
