@@ -2,65 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'IBM Plex Mono', monospace;
-}
-
 @layer base {
   :root {
-    --background: 40 2% 18%; /* #2E2F2E Overcast French Press */
-    --foreground: 48 33% 90%; /* #EFECE3 Oat Milk Manifesto */
+    --background: 240 10% 12%; /* Deep, dark charcoal */
+    --foreground: 40 20% 90%; /* Aged parchment */
     
-    --card: 40 2% 22%; /* A slightly lighter shade for cards */
-    --card-foreground: 48 33% 90%;
+    --card: 240 10% 15%; /* Slightly lighter card background */
+    --card-foreground: 40 20% 90%;
     
-    --popover: 40 2% 16%;
-    --popover-foreground: 48 33% 90%;
+    --popover: 240 10% 10%;
+    --popover-foreground: 40 20% 90%;
 
-    --primary: 125 15% 49%; /* #6B8F71 Forest Floor Moss */
-    --primary-foreground: 125 15% 95%;
+    --primary: 0 65% 51%; /* Blood Red */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 279 8% 35%; /* #574D68 Indie Ink Stain Plum */
-    --secondary-foreground: 279 8% 95%;
+    --secondary: 240 10% 25%; /* Muted dark stone */
+    --secondary-foreground: 40 20% 90%;
 
-    --muted: 279 8% 25%;
-    --muted-foreground: 48 33% 80%;
+    --muted: 240 10% 20%;
+    --muted-foreground: 40 20% 70%;
     
-    --accent: 28 55% 50%; /* #C57C3B Handmade Amber Ale */
-    --accent-foreground: 28 55% 95%;
+    --accent: 50 80% 50%; /* Demonic Gold */
+    --accent-foreground: 50 100% 5%;
     
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 40 2% 28%;
-    --input: 40 2% 28%;
-    --ring: 125 15% 49%; /* Forest Floor Moss for rings */
+    --border: 240 10% 20%;
+    --input: 240 10% 20%;
+    --ring: 0 65% 51%; /* Blood Red for rings */
 
-    --btn-hover: 206 25% 47%; /* #5C7E99 Portland Denim Wash */
-
-    --radius: 0.3rem;
+    --radius: 0.1rem;
   }
 
   .dark {
-    --background: 40 2% 18%;
-    --foreground: 48 33% 90%;
-    --card: 40 2% 22%;
-    --card-foreground: 48 33% 90%;
-    --popover: 40 2% 16%;
-    --popover-foreground: 48 33% 90%;
-    --primary: 125 15% 49%;
-    --primary-foreground: 125 15% 95%;
-    --secondary: 279 8% 35%;
-    --secondary-foreground: 279 8% 95%;
-    --muted: 279 8% 25%;
-    --muted-foreground: 48 33% 80%;
-    --accent: 28 55% 50%;
-    --accent-foreground: 28 55% 95%;
+    --background: 240 10% 12%;
+    --foreground: 40 20% 90%;
+    --card: 240 10% 15%;
+    --card-foreground: 40 20% 90%;
+    --popover: 240 10% 10%;
+    --popover-foreground: 40 20% 90%;
+    --primary: 0 65% 51%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 10% 25%;
+    --secondary-foreground: 40 20% 90%;
+    --muted: 240 10% 20%;
+    --muted-foreground: 40 20% 70%;
+    --accent: 50 80% 50%;
+    --accent-foreground: 50 100% 5%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 40 2% 28%;
-    --input: 40 2% 28%;
-    --ring: 125 15% 49%;
+    --border: 240 10% 25%;
+    --input: 240 10% 25%;
+    --ring: 0 65% 51%;
   }
 }
 
@@ -70,20 +64,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    letter-spacing: 0.025em;
-  }
-  body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXVדהבנוריזוvrqsrKygpKVZWViHh4dHR0d/f39/f39wcHB1dXVnZ2c8PDw3Nzc4ODg5OTlbW1s0NDRoaGjp6el8fHxubm5TU1Np9N+LAAAAIXRSTlMABwoHCgoKCgoKChITEhUeHh4eJCYnJycqPB4eHh4eHh4eHh4eHh4eCs3o/AAAAjJJREFUeNqV1dsWoyAIANB2gA2u4tjcf/v9Pt9S0MdkUuT7gE9wY3HMJbsA503G7wPA5/dY+c5oA4dMA7Or884c7zYDAAIAYgYAQEAAAEBAAMBAQEA8AIBAQGBAQMDAwEBAgICAgICAgICAgICAgICAwMDAwECAgIBAQIDAwMDAwEBAQECAgIDAwECAgICAgECAgICAgICAgECAgECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgECAgEBAgEBAgECAgECAgIBAgICAgICAgICAgICAgICAgICAgICAgICAgECAgIBAgEBAgECAgIBAgEBAgECAgICAgEBAgICAgICAgICAgICAgICAgICAgICAgICAgECAgEBAgIBAgEBAgEBAgECAgICAgECAgIBAgICAgICAgECAgIBAgICAgIBAgECAgIBAgICAgIBAgICAgIBAgICAgECAgICAgICAgECAgIBAgECAgICAgIBAgICAgECAgICAgICAgECAgICAgICAgIBAgICAgIBAgICAgICAgICAgECAgEBAgEBAgECAgEBAgECAgECAgECAgEBAgECAgECAgECAgECAgEBAgECAgECAgECAgEBAgECAgECAgECAgECAgEBAgECAgECAgECAgECAgECAgEBAgICAgICAgICAgICAgICAgICAgIDAwMDAwECAgEBAgIDAwMDAwECAgIBAQGBAQMDAwECAgICAgECAgIBAQGBAwEBAgEBAgIBAQGBAQEB8QEA8AIBAQGBAQMDAwMDAwEBAf//8A+65E5zmu2sLAAAAAElFTkSuQmCC');
-    pointer-events: none;
-    z-index: 100;
-    opacity: 0.08;
-    mix-blend-mode: overlay;
   }
 }
 
@@ -100,8 +80,4 @@ body {
   animation: vibrate 0.2s linear infinite;
   box-shadow: 0 0 8px 2px hsl(var(--accent)), 0 0 12px 4px hsl(var(--accent) / 0.5);
   border-color: hsl(var(--accent));
-}
-
-.hover\:glow-sm:hover {
-  box-shadow: 0 0 5px 1px #B3B3B344;
 }

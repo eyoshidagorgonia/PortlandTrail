@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Vial } from '@/components/ui/vial';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { PlayerState } from '@/lib/types';
 import {
@@ -44,15 +44,15 @@ const StatItem = ({ icon: Icon, label, value, maxValue = 100, tooltip }: StatIte
   <TooltipProvider>
     <Tooltip>
       <TooltipTrigger className="w-full text-left">
-        <div className="group space-y-1 font-code">
+        <div className="group space-y-2 font-body">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Icon className="h-4 w-4 text-foreground/70" />
               <span>{label}</span>
             </div>
-            <span className="font-code text-foreground">{value}{maxValue !== 100 ? '' : '%'}</span>
+            <span className="font-code text-foreground">{value}{maxValue === 100 ? '%' : ''}</span>
           </div>
-          <Progress value={value} max={maxValue} className="h-2" />
+          {/* <Progress value={(value / maxValue) * 100} max={100} className="h-1.5" /> */}
         </div>
       </TooltipTrigger>
       <TooltipContent>
@@ -74,11 +74,11 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger className="w-full text-left">
-            <div className="flex items-center gap-3 bg-muted/40 p-2 rounded-md group hover:glow-sm transition-shadow duration-300">
-                <Icon className="h-6 w-6 text-foreground/70"/>
-                <div>
-                    <div className="font-code text-lg text-foreground">{value}</div>
-                    <div className="text-xs text-muted-foreground">{label}</div>
+            <div className="flex items-center gap-3 bg-muted/40 p-2 rounded-sm group hover:bg-muted transition-colors duration-300">
+                <Icon className="h-7 w-7 text-foreground/70"/>
+                <div className="text-left">
+                    <div className="font-headline text-lg text-foreground tracking-wider">{value}</div>
+                    <div className="text-xs text-muted-foreground font-body">{label}</div>
                 </div>
             </div>
         </TooltipTrigger>
@@ -110,20 +110,21 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
 
 
   return (
-    <Card className="shadow-lg border-border/50 border">
+    <Card>
       <CardHeader>
         <div className="flex items-start gap-4">
-            <Avatar className="h-20 w-20 border-2 border-primary/50 shrink-0 text-3xl">
+            <Avatar className="h-24 w-24 border-2 border-secondary shrink-0">
                 {isImageLoading || !avatarImage ? (
-                    <Skeleton className="h-full w-full rounded-md" />
+                    <Skeleton className="h-full w-full" />
                 ) : (
-                    <AvatarImage src={avatarImage} alt={name} className="rounded-md" data-ai-hint="avatar portrait" />
+                    <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
                 )}
             </Avatar>
 
           <div className="flex-grow space-y-1.5">
-            <CardTitle className="font-headline text-3xl">{name}</CardTitle>
-            <TooltipProvider>
+            <CardTitle className="font-headline text-4xl tracking-wider">{name}</CardTitle>
+            <CardDescription className="font-body text-lg">{job}</CardDescription>
+             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Badge variant={ironicStatus.variant} className="cursor-help whitespace-nowrap">{ironicStatus.text}</Badge>
@@ -133,28 +134,27 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <CardDescription className="font-body">{job}</CardDescription>
           </div>
         </div>
         {bio && (
-            <CardDescription className="pt-4 text-sm italic font-body text-foreground/80">
+            <CardDescription className="pt-4 text-base italic font-body text-foreground/80 border-l-4 border-secondary pl-4 mt-4">
                 {bio}
             </CardDescription>
         )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-4 mb-6">
-            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Vitals</h3>
-            <StatItem icon={HungerIcon} label="Hunger" value={stats.hunger} tooltip="Gotta eat to keep up the non-conformity. Don't starve." />
-            <StatItem icon={BikeIcon} label="Bike Health" value={resources.bikeHealth} tooltip="Your fixed-gear's condition. A breakdown is social suicide."/>
+        <div className="flex gap-4 mb-6">
+            <Vial label="Hunger" value={stats.hunger} color="hsl(var(--primary))" tooltip="Gotta eat to keep up the non-conformity. Don't starve." />
+            <Vial label="Bike Health" value={resources.bikeHealth} color="hsl(var(--accent))" tooltip="Your fixed-gear's condition. A breakdown is social suicide." />
         </div>
-        <div className="space-y-4 mb-6">
+        
+        <div className="space-y-3 mb-6">
             <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Social Stats</h3>
             <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your flair. Essential for navigating coffee shops." maxValue={200}/>
             <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your ability to appreciate things in a detached, humorous way." maxValue={200}/>
             <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A delicate balance." maxValue={200}/>
         </div>
-         <div className="space-y-4 mb-6">
+         <div className="space-y-3 mb-6">
             <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Inventory</h3>
             <div className="grid grid-cols-2 gap-4">
                 <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="Rare records increase your standing." />
@@ -172,11 +172,11 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                       <TooltipTrigger asChild>
                         <AlertDialogTrigger>
                           <div className={cn(
-                            "h-12 w-12 rounded-full border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer overflow-hidden hover:glow-sm",
+                            "h-12 w-12 rounded-sm border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer overflow-hidden hover:border-accent",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
-                                <Image src={badge.image} alt={badge.description} width={48} height={48} className="rounded-full" unoptimized data-ai-hint="badge icon" />
+                                <Image src={badge.image} alt={badge.description} width={48} height={48} className="rounded-sm" unoptimized data-ai-hint="badge icon" />
                             ) : (
                                 badge.emoji
                             )}
@@ -190,11 +190,11 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                     <AlertDialogContent>
                       <AlertDialogHeader className='items-center'>
                          <div className={cn(
-                            "h-24 w-24 rounded-full border-4 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-5xl transition-all duration-300 cursor-pointer overflow-hidden",
+                            "h-24 w-24 rounded-sm border-4 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-5xl transition-all duration-300 cursor-pointer overflow-hidden",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
-                                <Image src={badge.image} alt={badge.description} width={96} height={96} className="rounded-full" unoptimized />
+                                <Image src={badge.image} alt={badge.description} width={96} height={96} className="rounded-sm" unoptimized />
                             ) : (
                                 badge.emoji
                             )}

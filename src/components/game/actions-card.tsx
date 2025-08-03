@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PlayerAction } from '@/lib/types';
-import { HungerIcon, WrenchIcon, ShoppingBagIcon, GuitarIcon } from './icons';
+import { ForageIcon, TuneUpIcon, ThriftIcon, StreetPerformIcon } from './icons';
 
 interface ActionsCardProps {
   onAction: (action: PlayerAction) => void;
@@ -16,25 +16,25 @@ const actions: PlayerAction[] = [
   {
     text: 'Forage for Food',
     description: 'Scour for snacks. [+10 Hunger, -2 Style, -1 Progress]',
-    icon: HungerIcon,
+    icon: ForageIcon,
     consequences: { hunger: 10, style: -2, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: -1, bikeHealth: 0 },
   },
   {
     text: 'Tune-up Bike',
     description: 'Maintain your fixie. [-5 Coffee, +15 Bike Health, -1 Progress]',
-    icon: WrenchIcon,
+    icon: TuneUpIcon,
     consequences: { hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: -5, vinyls: 0, progress: -1, bikeHealth: 15 },
   },
   {
     text: 'Go Thrifting',
     description: 'Hunt for vintage threads. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
-    icon: ShoppingBagIcon,
+    icon: ThriftIcon,
     consequences: { hunger: 0, style: 10, irony: 0, authenticity: -5, coffee: -5, vinyls: 0, progress: -1, bikeHealth: 0 },
   },
   {
     text: 'Street Perform',
     description: 'Share your "art". [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
-    icon: GuitarIcon,
+    icon: StreetPerformIcon,
     consequences: { hunger: 0, style: 0, irony: 5, authenticity: -5, coffee: 10, vinyls: 0, progress: -1, bikeHealth: 0 },
   },
 ];
@@ -42,9 +42,9 @@ const actions: PlayerAction[] = [
 
 export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
   return (
-    <Card className="shadow-lg border">
+    <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="font-headline text-lg">Actions</CardTitle>
+        <CardTitle className="font-headline text-2xl tracking-wider">Actions</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3">
         <TooltipProvider>
@@ -53,12 +53,12 @@ export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
               <TooltipTrigger asChild>
                 <Button
                   variant="secondary"
-                  className="flex flex-col h-auto p-3 text-center gap-1"
+                  className="flex flex-col h-auto p-3 text-center gap-2"
                   onClick={() => onAction(action)}
                   disabled={isLoading}
                 >
-                  <action.icon className="h-6 w-6" />
-                  <span className="text-xs leading-tight">{action.text}</span>
+                  <action.icon className="h-7 w-7" />
+                  <span className="text-xs leading-tight font-body">{action.text}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

@@ -17,9 +17,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"IBM Plex Mono"', 'monospace'],
-        headline: ['"EB Garamond"', 'serif'],
-        code: ['"IBM Plex Mono"', 'monospace'],
+        body: ['"EB Garamond"', 'serif'],
+        headline: ['"Uncial Antiqua"', 'cursive'],
+        code: ['"EB Garamond"', 'serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -55,14 +55,6 @@ export default {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        'btn-hover': 'hsl(var(--btn-hover))',
-        chart: {
-          '1': 'hsl(var(--chart-1))',
-          '2': 'hsl(var(--chart-2))',
-          '3': 'hsl(var(--chart-3))',
-          '4': 'hsl(var(--chart-4))',
-          '5': 'hsl(var(--chart-5))',
-        },
       },
       borderRadius: {
         lg: 'var(--radius)',
