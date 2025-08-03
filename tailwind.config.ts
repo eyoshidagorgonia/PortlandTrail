@@ -1,4 +1,5 @@
 import type {Config} from 'tailwindcss';
+const { fontFamily } = require("tailwindcss/defaultTheme")
 
 export default {
   darkMode: ['class'],
@@ -17,9 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"EB Garamond"', 'serif'],
-        headline: ['"Cinzel Decorative"', 'cursive'],
-        code: ['"EB Garamond"', 'serif'],
+        body: ["var(--font-body)", ...fontFamily.sans],
+        headline: ["var(--font-headline)", ...fontFamily.serif],
       },
       colors: {
         background: 'hsl(var(--background))',

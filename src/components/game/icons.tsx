@@ -1,140 +1,125 @@
 import type { LucideProps } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Diablo-esque Icons
+// Minimalist Hipster Icons
 
 export const HungerIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7.21.93 2.05 6.09a3 3 0 0 0 0 4.24l5.16 5.16a3 3 0 0 0 4.24 0l5.16-5.16a3 3 0 0 0 0-4.24L11.45.93a3 3 0 0 0-4.24 0Z"/>
-    <path d="m20.71 16.04-5.16-5.16a3 3 0 0 0-4.24 0l-5.16 5.16a3 3 0 0 0 0 4.24l5.16 5.16a3 3 0 0 0 4.24 0l5.16-5.16a3 3 0 0 0 0-4.24Z"/>
+  <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
   </svg>
 );
 
 export const StyleIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14.5 4h-5L7 7l-4 1 2 5 2 1h10l2-1 2-5-4-1-2.5-3z"/>
-    <path d="M12 13V7"/>
-    <path d="M10 13v-2h4v2"/>
-    <path d="M8 17h8v4H8z"/>
-  </svg>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
 );
 
 export const IronyIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.13 10.33c-.32.28-.53.71-.53 1.17s.21.89.53 1.17C10.45 12.95 11 13 12 13h2"/>
-    <path d="M12 21c-4.24 0-4.63-5.8-4.63-5.8s.4-5.8 4.63-5.8c4.24 0 4.63 5.8 4.63 5.8S16.24 21 12 21Z"/>
-    <path d="M12 9.4c-2.43 0-2.82-3.83-2.82-3.83S9.57 2 12 2c2.43 0 2.82 3.57 2.82 3.57S14.43 9.4 12 9.4Z"/>
-  </svg>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
 );
 
 export const AuthenticityIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m16 2-3 3 3 3 3-3-3-3Z"/>
-    <path d="m8 2-3 3 3 3 3-3-3-3Z"/>
-    <path d="m16 16-3 3 3 3 3-3-3-3Z"/>
-    <path d="m8 16-3 3 3 3 3-3-3-3Z"/>
-    <path d="M13 3h-2"/>
-    <path d="M21 11v2"/>
-    <path d="M13 21h-2"/>
-    <path d="M3 11v2"/>
-  </svg>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+    </svg>
 );
 
 export const VinylIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2a10 10 0 1 0 10 10H12V2Z"/>
-    <path d="M12 12a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/>
-  </svg>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="3"/>
+    </svg>
 );
 
 export const CoffeeIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2a2.83 2.83 0 0 0-2 5 2.83 2.83 0 0 0 2 5 2.83 2.83 0 0 0 2-5 2.83 2.83 0 0 0-2-5Z"/>
-    <path d="M12 12v5a2.83 2.83 0 0 1-2-5 2.83 2.83 0 0 1-2-5 2.83 2.83 0 0 1 2-5"/>
-    <path d="M12 12v5a2.83 2.83 0 0 0 2-5 2.83 2.83 0 0 0 2-5 2.83 2.83 0 0 0-2-5"/>
-  </svg>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+        <line x1="6" y1="1" x2="6" y2="4"/>
+        <line x1="10" y1="1" x2="10" y2="4"/>
+        <line x1="14" y1="1" x2="14" y2="4"/>
+    </svg>
 );
 
 export const BikeIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5.5 17.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
-    <path d="M18.5 17.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
-    <path d="M12 14a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
-    <path d="m14.5 11.5-1.5-1.5"/>
-    <path d="M8.33 11.17 6.4 9.24"/>
-    <path d="M15.17 11.67l2.83-2.83"/>
-  </svg>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="5.5" cy="17.5" r="3.5"/>
+        <circle cx="18.5" cy="17.5" r="3.5"/>
+        <path d="M15 6l-4 4-4-4"/>
+        <path d="M15 6V3h-1a2 2 0 0 0-2 2v1"/>
+        <path d="M9 9l-2.5 8.5"/>
+        <path d="M17.5 14l-2.5-8.5"/>
+    </svg>
 );
 
 // Actions
 export const ForageIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M11 20A7 7 0 0 1 4 13V7a3 3 0 0 1 6 0v2"/>
-    <path d="M14 10a3 3 0 0 0-6 0v2"/>
-    <path d="M12 18a7 7 0 0 0 7-7V7a3 3 0 1 0-6 0"/>
+  <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2a.7.7 0 0 0-.7.7v11.6a.7.7 0 0 0 .7.7h11.6a.7.7 0 0 0 .7-.7V2.7a.7.7 0 0 0-.7-.7Z"/>
+    <path d="M10.7 13.3a.7.7 0 0 1-.7.7H2.7a.7.7 0 0 1-.7-.7V2.7a.7.7 0 0 1 .7-.7h8a.7.7 0 0 1 .7.7Z"/>
   </svg>
 );
 export const TuneUpIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+  <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
   </svg>
 );
 export const ThriftIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2v20"/>
-    <path d="M17 3.34a10 10 0 1 1-10 0"/>
+  <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3.8 3.8l16.4 16.4M20.2 3.8L3.8 20.2"/>
+    <path d="M12 22V12"/>
+    <path d="M12 12V2L8 6"/>
+    <path d="m16 6-4-4"/>
   </svg>
 );
 export const StreetPerformIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 12c-1.657 0-3-2.686-3-6s1.343-6 3-6 3 2.686 3 6-1.343 6-3 6Z"/>
-    <path d="M15 12c1.657 0 3-2.686 3-6s-1.343-6-3-6-3 2.686-3 6 1.343 6 3 6Z"/>
-    <path d="M2 22s1-4 4-4 4 4 4 4-4 4-4 4-4-4-4-4Z"/>
-    <path d="M14 22s1-4 4-4 4 4 4 4-4 4-4 4-4-4-4-4Z"/>
+  <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
   </svg>
 );
 
 
 // Help Page Icons
 export const GoalIcon = (props: LucideProps) => (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="m12 16 4-4-4-4"/>
-        <path d="M8 12h8"/>
-        <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
     </svg>
 );
 
 export const VitalsIcon = (props: LucideProps) => (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 21a9 9 0 0 0-9-9c0-4.97 4.03-9 9-9s9 4.03 9 9a9 9 0 0 0-9 9Z"/>
-        <path d="M12 21a9 9 0 0 1-9-9c0-4.97 4.03-9 9-9s9 4.03 9 9a9 9 0 0 1-9 9Z"/>
-        <path d="M12 3v18"/>
-        <path d="M3 12h18"/>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
     </svg>
 );
 
 export const SocialStatsIcon = (props: LucideProps) => (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
     </svg>
 );
 
 export const MapIcon = (props: LucideProps) => (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14.5 14.5 18 22l-5-1-1-4-4 1-3-5 7-2 6 6-3 3Z"/>
-        <path d="m9.6 12.6-6-2.4.9-5.7 5.7-.9 2.4 6Z"/>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+        <line x1="8" y1="2" x2="8" y2="18"/>
+        <line x1="16" y1="6" x2="16" y2="22"/>
     </svg>
 );
 
 export const CardsIcon = (props: LucideProps) => (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="m20.61 10.16-5.74-.9-2.4-6-2.4 6-5.73.9 4.15 4.05-1 5.78 5.13-2.7 5.13 2.7-1-5.78 4.15-4.05Z"/>
-        <path d="M12 2v20"/>
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/>
+        <path d="M17.5 2a2.5 2.5 0 0 1 0 5M6.5 2a2.5 2.5 0 0 0 0 5"/>
     </svg>
 );
 
 export const LeftArrowIcon = (props: LucideProps) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="m12 19-7-7 7-7" />
     <path d="M19 12H5" />
   </svg>
