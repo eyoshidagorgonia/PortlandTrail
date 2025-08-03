@@ -26,11 +26,11 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     let choices: Choice[] = scenarioDetails.choices;
     
     // The AI flow now attaches badge info directly to the consequence object of a choice.
-    // We can check if any choice has a badge to be awarded.
-    const choiceWithBadge = choices.find(c => (c.consequences as any).badge);
+    // We check if any choice has a badge to determine if we need to set the badge data source.
+    const choiceWithBadge = choices.find(c => c.consequences.badge);
 
     if (choiceWithBadge) {
-        const badge = (choiceWithBadge.consequences as any).badge;
+        const badge = choiceWithBadge.consequences.badge!;
         dataSources.badge = scenarioDetails.dataSource;
         console.log(`[getScenarioAction] Badge "${badge.badgeDescription}" details found on choice "${choiceWithBadge.text}".`);
     }
@@ -40,13 +40,13 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       challenge: scenarioDetails.challenge,
       diablo2Element: scenarioDetails.diablo2Element,
       choices,
-      playerAvatar: scenarioDetails.playerAvatar,
+      playerAvatar: scenarioDetails.avatarKaomoji, // The kaomoji is now here
       dataSources,
     };
     
     // Also include top-level badge info for the image generation step if a badge was part of the winning choice
     if (choiceWithBadge) {
-        const badgeInfo = (choiceWithBadge.consequences as any).badge;
+        const badgeInfo = choiceWithBadge.consequences.badge!;
         finalScenario.badge = {
             description: badgeInfo.badgeDescription,
             emoji: badgeInfo.badgeEmoji,

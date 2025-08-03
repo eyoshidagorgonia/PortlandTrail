@@ -9,6 +9,12 @@ export interface PlayerStats {
   vibes: number;
 }
 
+export const BadgeSchema = z.object({
+  badgeDescription: z.string().describe('A short, witty description for a merit badge.'),
+  badgeEmoji: z.string().describe('A single emoji that represents the badge.'),
+  isUber: z.boolean().optional().describe('Whether this is a powerful, rare "Uber" badge.'),
+});
+
 export interface Badge {
   emoji: string;
   description: string;
@@ -42,22 +48,24 @@ export interface PlayerState {
   events: TrailEvent[];
 }
 
-export interface Choice {
-  text: string;
-  description: string;
-  consequences: {
-    health: number;
-    style: number;
-    irony: number;
-    authenticity: number;
-    vibes: number;
-    coffee: number;
-    vinyls: number;
-    progress: number;
-    stamina: number;
-    badge?: Omit<Badge, 'image'>; // Badge info is now part of consequences
-  };
-}
+export const ChoiceSchema = z.object({
+    text: z.string().describe("The text for the choice button, e.g., 'Embrace the weirdness'"),
+    description: z.string().describe("A tooltip description for the choice."),
+    consequences: z.object({
+        health: z.number().describe('The change in health. Can be positive or negative.'),
+        style: z.number().describe('The change in style. Can be positive or negative.'),
+        irony: z.number().describe('The change in irony. Can be positive or negative.'),
+        authenticity: z.number().describe('The change in authenticity. Can be positive or negative.'),
+        vibes: z.number().describe('The change in vibes. Can be positive or negative.'),
+        progress: z.number().describe('The change in progress towards Portland.'),
+        coffee: z.number().describe('The change in coffee beans. Can be positive or negative.'),
+        vinyls: z.number().describe('The change in vinyl records. Can be positive or negative.'),
+        stamina: z.number().describe('The change in bike stamina. Can be positive or negative.'),
+        badge: BadgeSchema.optional(), // Badge info is now part of consequences
+    }),
+});
+export type Choice = z.infer<typeof ChoiceSchema>;
+
 
 export interface PlayerAction {
     text: string;

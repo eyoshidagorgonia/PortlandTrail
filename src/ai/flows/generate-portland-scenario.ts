@@ -11,6 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import { callNexixApi } from '@/ai/nexix-api';
+import { ChoiceSchema, BadgeSchema } from '@/lib/types';
 
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
@@ -24,36 +25,11 @@ const GeneratePortlandScenarioInputSchema = z.object({
 });
 export type GeneratePortlandScenarioInput = z.infer<typeof GeneratePortlandScenarioInputSchema>;
 
-const BadgeSchema = z.object({
-  badgeDescription: z.string().describe('A short, witty description for a merit badge earned by embracing this weird scenario.'),
-  badgeEmoji: z.string().describe('A single emoji that represents the badge.'),
-  isUber: z.boolean().optional().describe('Whether this is a powerful, rare "Uber" badge.'),
-});
-
-const ConsequencesSchema = z.object({
-    health: z.number().describe('The change in health. Can be positive or negative.'),
-    style: z.number().describe('The change in style. Can be positive or negative.'),
-    irony: z.number().describe('The change in irony. Can be positive or negative.'),
-    authenticity: z.number().describe('The change in authenticity. Can be positive or negative.'),
-    vibes: z.number().describe('The change in vibes. Can be positive or negative.'),
-    progress: z.number().describe('The change in progress towards Portland.'),
-    coffee: z.number().describe('The change in coffee beans. Can be positive or negative.'),
-    vinyls: z.number().describe('The change in vinyl records. Can be positive or negative.'),
-    stamina: z.number().describe('The change in bike stamina. Can be positive or negative.'),
-});
-
-const ChoiceSchema = z.object({
-    text: z.string().describe("The text for the choice button, e.g., 'Embrace the weirdness'"),
-    description: z.string().describe("A tooltip description for the choice."),
-    consequences: ConsequencesSchema,
-});
-
 const GeneratePortlandScenarioOutputSchema = z.object({
   scenario: z.string().describe('A description of the generated scenario.'),
   challenge: z.string().describe('A challenge the player must overcome in the scenario.'),
   diablo2Element: z.string().optional().describe('The subtle Diablo II reference.'),
   avatarKaomoji: z.string().describe('A Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～` )┌) representing the player character.'),
-  badge: BadgeSchema.optional(),
   choices: z.array(ChoiceSchema).describe("An array of 2-3 choices for the player."),
   dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
@@ -65,13 +41,6 @@ const OllamaResponseSchema = z.object({
   challenge: z.string(),
   diablo2Element: z.string().optional(),
   avatarKaomoji: z.string(),
-  shouldAwardBadge: z.boolean().describe("Whether the scenario is weird enough to award a merit badge."),
-  badgeDescription: z.string().optional().describe("The badge description, if one is awarded."),
-  badgeEmoji: z.string().optional().describe("A single emoji for the badge, if one is awarded."),
-  summonChoice: ChoiceSchema.extend({
-      summonSuccess: z.boolean().describe("Whether the hipster summoning was successful."),
-      uberBadge: BadgeSchema.optional().describe("The Uber badge details if summoning was successful."),
-  }),
   choices: z.array(ChoiceSchema),
 });
 
@@ -87,19 +56,20 @@ First, analyze the player's current status.
 - If the player is struggling, generate choices with more generous rewards and less severe penalties. The "avoid" choice should have minimal negative impact.
 - If the player is doing well, you can create more challenging scenarios.
 - The consequences you generate should be logical. For example, choosing to leave a scenario should always grant some progress.
+- The consequences for each choice must include all required fields: health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina.
 
-**Scenario Generation:**
-1.  **Scenario**: A quirky, random, and challenging scenario based on the player's status and location. It must be HIGHLY SPECIFIC to the location. Incorporate local landmarks, stereotypes, or cultural touchstones. Also, subtly weave in an unexpected element inspired by the dark fantasy world of Diablo II.
+**Scenario Generation & Choices:**
+1.  **Scenario & Challenge**: A quirky, random scenario based on the player's status and location. It must be HIGHLY SPECIFIC to the location. Incorporate local landmarks or stereotypes. Subtly weave in an unexpected element inspired by the dark fantasy world of Diablo II.
 2.  **Avatar Kaomoji**: Generate a creative Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～\` )┌) that represents the player's character based on their name and job.
-3.  **Standard Choices**: Create exactly TWO standard choices for the player.
-    -   The first choice should be about EMBRACING the scenario.
-    -   The second choice should be about AVOIDING or LEAVING the scenario.
-    -   For EACH choice, generate a full set of consequences based on your player analysis.
-4.  **Badge Decision**: Decide if the "Embrace" choice is weird enough to award a standard merit badge.
-5.  **"Summon Hipsters" Choice (High-Risk/High-Reward)**: Create a THIRD choice called "Summon Hipsters". This is a gamble.
+3.  **Standard Choices (2 total)**:
+    -   Choice 1: About EMBRACING the scenario. Decide if this is weird enough to award a standard merit badge. If so, add a 'badge' object to its consequences.
+    -   Choice 2: About AVOIDING or LEAVING the scenario.
+    -   For EACH choice, generate a full set of balanced consequences.
+4.  **"Summon Hipsters" Choice (1 total)**:
+    -   This is a HIGH-RISK/HIGH-REWARD choice.
     -   Randomly decide if the summoning is a SUCCESS or a FAILURE.
-    -   **If SUCCESS**: The player overcomes the challenge spectacularly. The consequences should be highly beneficial (e.g., large gains in stats, resources, and progress). You MUST also award a special "Uber" Badge. Uber badges are powerful and rare. Create a suitably epic description and emoji for it.
-    -   **If FAILURE**: The summoning goes horribly wrong. You must choose one of the following "Misidentified Hipster Archetypes" to be the cause of the failure. The consequences MUST be DEVASTATING (e.g., health -50, style -20, massive resource loss). The archetype chosen will determine the flavor of the failure text.
+    -   **If SUCCESS**: The player overcomes the challenge spectacularly. Consequences should be highly beneficial. You MUST award a special "Uber" Badge by adding a 'badge' object to its consequences with 'isUber' set to true. Create a suitably epic description and emoji for it.
+    -   **If FAILURE**: The summoning goes horribly wrong. Choose a "Misidentified Hipster Archetype" to be the cause. Consequences MUST be DEVASTATING (e.g., health -50, massive resource loss).
         -   **Hipster Misidentification Chart**:
             -   Lawful Good: Art Student (Politely causes immense collateral damage)
             -   Neutral Good: Barista (Spills scalding, ethically-sourced coffee everywhere)
@@ -116,66 +86,37 @@ First, analyze the player's current status.
 **Location:** ${input.location}
 **Character:** Name: ${input.character.name}, Job: ${input.character.job}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object must conform to this structure:
+You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object must have a 'scenario', 'challenge', 'diablo2Element', 'avatarKaomoji', and a 'choices' array containing exactly THREE choice objects. Each choice object MUST conform to the schema:
 {
-  "scenario": "A description of the generated scenario.",
-  "challenge": "A challenge the player must overcome in the scenario.",
-  "diablo2Element": "The subtle Diablo II reference.",
-  "avatarKaomoji": "The generated Kaomoji for the player.",
-  "choices": [
-    { "text": "Embrace", "description": "...", "consequences": { ... } },
-    { "text": "Avoid", "description": "...", "consequences": { ... } }
-  ],
-  "summonChoice": {
-      "text": "Summon Hipsters",
-      "description": "Call upon the local cognoscenti for aid. What could go wrong?",
-      "summonSuccess": boolean,
-      "consequences": { ... }, // Consequences for success or failure
-      "uberBadge": { "badgeDescription": "...", "badgeEmoji": "...", "isUber": true } // Only if summonSuccess is true
-  },
-  "shouldAwardBadge": boolean, // For the standard "Embrace" choice
-  "badgeDescription": "Description for the standard badge (if awarded).",
-  "badgeEmoji": "Emoji for the standard badge (if awarded)."
+  "text": "The text for the choice button.",
+  "description": "A tooltip description for the choice.",
+  "consequences": {
+    "health": number, "style": number, "irony": number, "authenticity": number, "vibes": number,
+    "progress": number, "coffee": number, "vinyls": number, "stamina": number,
+    "badge": { "badgeDescription": string, "badgeEmoji": string, "isUber": boolean } // Optional: only include if a badge is awarded for this specific choice.
+  }
 }`;
 
   try {
     const parsedResult = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
-
-    // Combine the standard choices with the special summon choice
-    const allChoices = [...parsedResult.choices, parsedResult.summonChoice];
 
     const output: GeneratePortlandScenarioOutput = {
       scenario: parsedResult.scenario,
       challenge: parsedResult.challenge,
       diablo2Element: parsedResult.diablo2Element,
       avatarKaomoji: parsedResult.avatarKaomoji,
-      choices: allChoices,
+      choices: parsedResult.choices,
       dataSource: 'primary'
     };
 
-    // Handle the Uber badge from the summon choice
-    if (parsedResult.summonChoice.summonSuccess && parsedResult.summonChoice.uberBadge) {
-        console.log('[generatePortlandScenario] Model decided to award an UBER badge.');
-        // The badge is attached to the choice's consequences now.
-        // We find the choice in the final array and add the badge to its consequences.
-        const summonChoiceInOutput = output.choices.find(c => c.text === "Summon Hipsters");
-        if (summonChoiceInOutput) {
-            (summonChoiceInOutput.consequences as any).badge = parsedResult.summonChoice.uberBadge;
-        }
+    // Log badge decisions for debugging
+    const embraceChoice = output.choices.find(c => c.text.toLowerCase().includes('embrace'));
+    if (embraceChoice && (embraceChoice.consequences as any).badge) {
+        console.log('[generatePortlandScenario] Model decided to award a standard badge.');
     }
-    // Handle the standard badge from the embrace choice
-    else if (parsedResult.shouldAwardBadge && parsedResult.badgeDescription && parsedResult.badgeEmoji) {
-      console.log('[generatePortlandScenario] Model decided to award a standard badge.');
-      // Attach the standard badge to the first choice ('Embrace')
-      if (output.choices.length > 0) {
-        (output.choices[0].consequences as any).badge = {
-            badgeDescription: parsedResult.badgeDescription,
-            badgeEmoji: parsedResult.badgeEmoji,
-            isUber: false
-        };
-      }
-    } else {
-      console.log('[generatePortlandScenario] Model did not award any badge.');
+    const summonChoice = output.choices.find(c => c.text.toLowerCase().includes('summon'));
+    if (summonChoice && (summonChoice.consequences as any).badge) {
+        console.log('[generatePortlandScenario] Model decided to award an UBER badge.');
     }
     
     return output;
@@ -192,7 +133,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         {
             text: 'Embrace the weirdness',
             description: "What's the worst that could happen?",
-            consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0 },
+            consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0, badge: { badgeDescription: 'Fedorapocalypse Witness', badgeEmoji: '🐦', isUber: false } },
         },
         {
             text: 'Skedaddle',
@@ -205,13 +146,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
             consequences: { health: -50, style: -20, irony: -20, authenticity: -20, vibes: -50, progress: 0, coffee: -10, vinyls: -2, stamina: -50 },
         }
       ],
-      badge: {
-        badgeDescription: 'Fedorapocalypse Witness',
-        badgeEmoji: '🐦',
-      },
       dataSource: 'hardcoded',
     };
   }
 }
-
-    
