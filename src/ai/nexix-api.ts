@@ -42,7 +42,7 @@ function extractJson(str: string): string | null {
  * @param primaryModel - The primary model to use for the completion.
  * @param prompt - The user prompt to send to the model.
  * @param schema - The Zod schema to validate the response against.
- * @param temperature - The temperature for the generation.
+ * @param temperature - The temperature for the generation. Defaults to 1.0.
  * @returns The parsed and validated data object.
  * @throws {Error} If the API key is not set, or if both primary and fallback calls fail.
  */
