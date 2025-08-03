@@ -12,7 +12,7 @@ interface TrailMapProps {
 
 export default function TrailMap({ progress, waypoints, currentLocation }: TrailMapProps) {
   return (
-    <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
+    <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="flex-row items-center justify-between pb-4">
         <CardTitle className="font-headline text-3xl font-bold">The Trail</CardTitle>
         <div className="text-sm text-muted-foreground flex items-center gap-2 font-body">
@@ -60,3 +60,5 @@ export default function TrailMap({ progress, waypoints, currentLocation }: Trail
     </Card>
   );
 }
+
+    

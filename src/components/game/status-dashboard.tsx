@@ -108,15 +108,15 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
 
 
   return (
-    <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
+    <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="text-center items-center pb-4">
-        <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl font-headline rounded-full">
+        <Avatar className="h-32 w-32 border-2 border-border/50 text-4xl font-headline rounded-none">
             {isImageLoading || !avatarImage ? (
-                <Skeleton className="h-full w-full rounded-full" />
+                <Skeleton className="h-full w-full rounded-none" />
             ) : (
-                <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
+                <AvatarImage src={avatarImage} alt={name} className="rounded-none" data-ai-hint="avatar portrait" />
             )}
-            <AvatarFallback className="rounded-full">{name.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="rounded-none">{name.charAt(0)}</AvatarFallback>
         </Avatar>
 
         <div className="space-y-1 pt-2">
@@ -174,11 +174,11 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                       <TooltipTrigger asChild>
                         <AlertDialogTrigger>
                           <div className={cn(
-                            "h-14 w-14 border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:border-accent rounded-full",
+                            "h-14 w-14 border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-3xl transition-all duration-300 cursor-pointer overflow-hidden rounded-none hover:border-accent",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
-                                <Image src={badge.image} alt={badge.description} width={56} height={56} className="rounded-full" unoptimized data-ai-hint="badge icon" />
+                                <Image src={badge.image} alt={badge.description} width={56} height={56} className="rounded-none" unoptimized data-ai-hint="badge icon" />
                             ) : (
                                 <span className='mt-1'>{badge.emoji}</span>
                             )}
@@ -192,11 +192,11 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                     <AlertDialogContent>
                       <AlertDialogHeader className='items-center'>
                          <div className={cn(
-                            "h-24 w-24 border-4 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-5xl transition-all duration-300 cursor-pointer overflow-hidden rounded-full",
+                            "h-24 w-24 border-4 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-5xl transition-all duration-300 cursor-pointer overflow-hidden rounded-none",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
-                                <Image src={badge.image} alt={badge.description} width={96} height={96} className="rounded-full" unoptimized />
+                                <Image src={badge.image} alt={badge.description} width={96} height={96} className="rounded-none" unoptimized />
                             ) : (
                                 <span className='mt-2'>{badge.emoji}</span>
                             )}
@@ -219,3 +219,5 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
     </Card>
   );
 }
+
+    

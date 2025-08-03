@@ -16,7 +16,7 @@ interface ScenarioDisplayProps {
 }
 
 const LoadingState = () => (
-    <Card className="shadow-lg bg-card/90 backdrop-blur-sm border-2 border-border/20">
+    <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-4 pb-2">
         <Skeleton className="h-8 w-3/4" />
       </CardHeader>
@@ -39,7 +39,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
   }
 
   return (
-    <Card className="shadow-lg h-full flex flex-col bg-card/90 backdrop-blur-sm border-2 border-border/20">
+    <Card className="h-full flex flex-col bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-6 pb-2">
         <CardTitle className="font-headline text-4xl font-bold">{scenario.challenge}</CardTitle>
       </CardHeader>
@@ -91,3 +91,5 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     </Card>
   );
 }
+
+    

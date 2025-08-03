@@ -41,7 +41,7 @@ const actions: PlayerAction[] = [
 
 export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
   return (
-    <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
+    <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="pb-4">
         <CardTitle className="font-headline text-3xl font-bold tracking-wider text-center">Actions</CardTitle>
       </CardHeader>
@@ -70,3 +70,5 @@ export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
     </Card>
   );
 }
+
+    

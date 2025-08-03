@@ -465,7 +465,7 @@ export default function PortlandTrailPage() {
   if (gameState === 'intro') {
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
-        <Card className="max-w-2xl w-full text-center shadow-xl relative bg-card/80 backdrop-blur-sm border-2 border-border/20">
+        <Card className="max-w-2xl w-full text-center shadow-2xl relative bg-card/80 backdrop-blur-sm border-2 border-border/20">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
               <h1 className="text-6xl font-headline font-bold text-primary">The Portland Trail</h1>
@@ -476,13 +476,13 @@ export default function PortlandTrailPage() {
 
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0">
-                <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
+                <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-none">
                   {isIntroAvatarLoading || !introAvatarImage ? (
-                    <Skeleton className="h-full w-full rounded-full" />
+                    <Skeleton className="h-full w-full rounded-none" />
                   ) : (
-                    <AvatarImage src={introAvatarImage} alt={name} data-ai-hint="avatar portrait" />
+                    <AvatarImage src={introAvatarImage} alt={name} className="rounded-none" data-ai-hint="avatar portrait" />
                   )}
-                   <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>
+                   <AvatarFallback className="rounded-none">{name.charAt(0) || '?'}</AvatarFallback>
                 </Avatar>
               </div>
 
@@ -556,7 +556,7 @@ export default function PortlandTrailPage() {
 
           <div className="lg:col-span-3 flex flex-col gap-6">
             <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
+            <Card className="bg-card/90 backdrop-blur-sm">
               <CardHeader className="pb-4">
                 <CardContent className="p-0">
                     <h3 className="font-headline text-2xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
@@ -583,3 +583,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
