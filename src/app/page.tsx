@@ -292,7 +292,6 @@ export default function PortlandTrailPage() {
     setSceneImage('');
     setBadgeImage(null);
     
-    // If it's the first turn, we don't need to re-fetch the avatar image as it's carried from the intro screen
     if (!isFirstTurn) {
         setAvatarImage('');
     }
@@ -313,7 +312,6 @@ export default function PortlandTrailPage() {
     if ('error' in imageResult) {
       toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
     } else {
-      // Only set avatar if it wasn't already set on intro (or it's not the first turn)
       if (!isFirstTurn) {
         setAvatarImage(imageResult.avatarImage);
       }
@@ -585,8 +583,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
-
-    
-
