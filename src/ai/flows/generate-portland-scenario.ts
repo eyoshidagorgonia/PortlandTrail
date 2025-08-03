@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { callNexixApi } from '@/ai/nexix-api';
+import { callNexixApi, callNexixApiFallback } from '@/ai/nexix-api';
 import { ChoiceSchema, BadgeSchema } from '@/lib/types';
 
 const GeneratePortlandScenarioInputSchema = z.object({
@@ -97,19 +97,58 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   }
 }`;
 
+  let result;
+  let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary';
+
   try {
-    const parsedResult = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
+    console.log('[generatePortlandScenario] Trying primary AI service...');
+    result = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
+  } catch (primaryError) {
+    console.warn(`[generatePortlandScenario] Primary call failed. Trying fallback service.`, { primaryError });
+    dataSource = 'fallback';
+    try {
+        console.log("[generatePortlandScenario] Trying fallback AI service...");
+        result = await callNexixApiFallback(prompt, OllamaResponseSchema);
+    } catch (fallbackError) {
+        console.error(`[generatePortlandScenario] All AI calls failed. Returning hard-coded scenario.`, { fallbackError });
+        dataSource = 'hardcoded';
+        result = {
+            scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
+            challenge: 'Question your reality',
+            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
+            avatarKaomoji: '(o_O;)',
+            choices: [
+                {
+                    text: 'Embrace the weirdness',
+                    description: "What's the worst that could happen?",
+                    consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0, badge: { badgeDescription: 'Fedorapocalypse Witness', badgeEmoji: '🐦', isUber: false } },
+                },
+                {
+                    text: 'Skedaddle',
+                    description: 'This is too much. Time to leave.',
+                    consequences: { health: -1, style: -2, irony: 0, authenticity: 0, vibes: -5, progress: 3, coffee: 0, vinyls: 0, stamina: -5 },
+                },
+                {
+                    text: 'Summon Hipsters',
+                    description: 'Call upon the local cognoscenti for aid. What could go wrong?',
+                    consequences: { health: -50, style: -20, irony: -20, authenticity: -20, vibes: -50, progress: 0, coffee: -10, vinyls: -2, stamina: -50 },
+                }
+            ],
+        };
+    }
+  }
 
-    const output: GeneratePortlandScenarioOutput = {
-      scenario: parsedResult.scenario,
-      challenge: parsedResult.challenge,
-      diablo2Element: parsedResult.diablo2Element,
-      avatarKaomoji: parsedResult.avatarKaomoji,
-      choices: parsedResult.choices,
-      dataSource: 'primary'
-    };
+  const output: GeneratePortlandScenarioOutput = {
+    scenario: result.scenario,
+    challenge: result.challenge,
+    diablo2Element: result.diablo2Element,
+    avatarKaomoji: result.avatarKaomoji,
+    choices: result.choices,
+    dataSource: dataSource,
+  };
 
-    // Log badge decisions for debugging
+  // Log badge decisions for debugging, only if not hardcoded
+  if (dataSource !== 'hardcoded') {
     const embraceChoice = output.choices.find(c => c.text.toLowerCase().includes('embrace'));
     if (embraceChoice && (embraceChoice.consequences as any).badge) {
         console.log('[generatePortlandScenario] Model decided to award a standard badge.');
@@ -118,35 +157,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     if (summonChoice && (summonChoice.consequences as any).badge) {
         console.log('[generatePortlandScenario] Model decided to award an UBER badge.');
     }
-    
-    return output;
-
-  } catch (error) {
-    console.error(`[generatePortlandScenario] Agent call failed. Returning hard-coded scenario.`, {error});
-    return {
-      scenario:
-        "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
-      challenge: 'Question your reality',
-      diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-      avatarKaomoji: '(o_O;)',
-      choices: [
-        {
-            text: 'Embrace the weirdness',
-            description: "What's the worst that could happen?",
-            consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0, badge: { badgeDescription: 'Fedorapocalypse Witness', badgeEmoji: '🐦', isUber: false } },
-        },
-        {
-            text: 'Skedaddle',
-            description: 'This is too much. Time to leave.',
-            consequences: { health: -1, style: -2, irony: 0, authenticity: 0, vibes: -5, progress: 3, coffee: 0, vinyls: 0, stamina: -5 },
-        },
-        {
-            text: 'Summon Hipsters',
-            description: 'Call upon the local cognoscenti for aid. What could go wrong?',
-            consequences: { health: -50, style: -20, irony: -20, authenticity: -20, vibes: -50, progress: 0, coffee: -10, vinyls: -2, stamina: -50 },
-        }
-      ],
-      dataSource: 'hardcoded',
-    };
   }
+  
+  return output;
 }
