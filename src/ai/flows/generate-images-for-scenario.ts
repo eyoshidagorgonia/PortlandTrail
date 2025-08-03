@@ -69,8 +69,8 @@ The overall art style should be consistent: "Studio Ghibli anime style, beautifu
 - **Mood**: Brooding, mysterious, indie introspective.
 - **Lighting**: Dramatic chiaroscuro with soft candlelight or ambient glows.
 - **Colors**: Use a desaturated earth-tone palette, like Grave Moss, Blood Plum, and Espresso Charcoal.
-- **Features**: Give the character expressive but shadowed eyes, perhaps with a single glint of light. Hair should be tousled or styled (e.g., messy bun, undercut).
-- **Clothing & Job**: The character is a '${input.character.job}'. It is crucial that you incorporate specific, visible elements of this job into their clothing, accessories, or immediate surroundings. Combine this with general hipster aesthetics (e.g., layered flannel, wool coat, round glasses, beanies, enamel pins, tattoos).
+- **Features & Style**: Give the character expressive but shadowed eyes, perhaps with a single glint of light. Hair should be tousled or styled (e.g., messy bun, undercut). You must incorporate a strong, unmistakable hipster fashion sense. Think layered flannel, turtlenecks under denim jackets, wool coats, chunky-knit beanies, round glasses, enamel pins, or visible tattoos.
+- **Job Relevance**: The character is a '${input.character.job}'. It is crucial that you incorporate specific, visible elements of this job into their clothing, accessories, or immediate surroundings, blending it with the hipster aesthetic.
 - **Background**: A simple, moody background like a stone wall, foggy forest, or dark wood.
 
 **2. Scene Depiction Prompt:**
