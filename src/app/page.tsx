@@ -195,7 +195,7 @@ export default function PortlandTrailPage() {
     if (gameState === 'intro' && name && job) {
         generateIntroAvatar();
     }
-  }, [job, gameState, name, generateIntroAvatar]);
+  }, [name, job, gameState, generateIntroAvatar]);
 
   // Regenerate bio when vibe changes during gameplay
   useEffect(() => {
