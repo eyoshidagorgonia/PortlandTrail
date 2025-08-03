@@ -16,8 +16,8 @@ const Auto1111ResponseSchema = z.object({
  * @param negative_prompt - The negative prompt.
  * @param width - The width of the image.
  * @param height - The height of the image.
- * @returns A Base64 encoded PNG image data URI.
- * @throws {Error} If the API call fails or returns an unexpected format.
+ * @returns A Base64 encoded PNG image data URI, or a placeholder URL on failure.
+ * @throws {Error} If the API key is not set.
  */
 export async function generateImage(
   prompt: string,
@@ -61,7 +61,8 @@ export async function generateImage(
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[generateImage] API Error: ${response.status}`, { errorText });
-      throw new Error(`Image generation API request failed with status ${response.status}: ${errorText}`);
+      // Do not throw here, instead return a placeholder.
+      return `https://placehold.co/${width}x${height}.png`;
     }
 
     const result = await response.json();
@@ -69,19 +70,15 @@ export async function generateImage(
 
     if (!parsed.success) {
       console.error('[generateImage] Invalid response structure from API.', { result });
-      throw new Error('Invalid response structure from Image Generation API.');
+      return `https://placehold.co/${width}x${height}.png`;
     }
     
     console.log('[generateImage] Successfully generated image.');
     return `data:image/png;base64,${parsed.data.images[0]}`;
   } catch (error) {
-    if (error instanceof Error) {
-        console.error('[generateImage] A call to the image generation API failed.', { error: error.message });
-        throw error; // Re-throw the original error to be caught by the action
-    }
-    // This could be a fetch error (e.g., server not running) or an error thrown above.
-    console.error('[generateImage] An unknown error occurred during image generation.', { error });
-    // Return a placeholder if generation fails for an unknown reason
+    // This could be a fetch error (e.g., server not running) or a JSON parsing error.
+    console.error('[generateImage] A call to the image generation API failed.', { error: error instanceof Error ? error.message : String(error) });
+    // Return a placeholder if generation fails for any reason inside the try block.
     return `https://placehold.co/${width}x${height}.png`;
   }
 }
