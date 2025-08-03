@@ -119,7 +119,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
 
   try {
-    const apiResponse = await callNexixApi('deepseek-r1:8b', prompt);
+    const apiResponse = await callNexixApi('gemma3:12b', prompt);
       
     let parsedResult;
     try {
