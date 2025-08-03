@@ -121,15 +121,14 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   try {
     const apiResponse = await callNexixApi('gemma3:12b', prompt);
       
-    let parsedResult;
-    try {
-        // AI might return a JSON string, or an escaped JSON string.
-        parsedResult = OllamaResponseSchema.parse(JSON.parse(apiResponse));
-    } catch (e) {
-        console.warn("[generatePortlandScenario] Failed to parse directly, attempting to unescape and parse again.", { error: e });
-        const unescapedResponse = JSON.parse(apiResponse); // Unescape the outer string
-        parsedResult = OllamaResponseSchema.parse(JSON.parse(unescapedResponse)); // Parse the inner JSON
+    // The AI can sometimes return a stringified JSON object within the JSON response.
+    // This robustly handles parsing it, whether it's a direct object or a string.
+    let data = JSON.parse(apiResponse);
+    if (typeof data === 'string') {
+        data = JSON.parse(data);
     }
+
+    const parsedResult = OllamaResponseSchema.parse(data);
 
       const output: GeneratePortlandScenarioOutput = {
         scenario: parsedResult.scenario,
