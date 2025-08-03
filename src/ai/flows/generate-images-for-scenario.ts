@@ -35,6 +35,25 @@ const generateImagesFlow = ai.defineFlow(
   async (input) => {
     console.log('[generateImagesFlow] Started.');
 
+    // If the scenario description already seems to be a specific, detailed prompt, use it directly.
+    // This handles the special case from the intro screen.
+    const isDirectPrompt = input.scenarioDescription.toLowerCase().includes('portrait of a hipster named');
+
+    if (isDirectPrompt) {
+        console.log('[generateImagesFlow] Direct prompt detected. Skipping prompt generation and generating avatar directly.');
+        const avatarImage = await generateImage(
+            input.scenarioDescription, // Use the description as the full prompt
+            'photorealistic, 3d render',
+            512, 512
+        );
+        return {
+            avatarImage,
+            sceneImage: '', // No scene for direct avatar prompts
+            badgeImage: undefined,
+            dataSource: 'primary',
+        };
+    }
+
     const badgeSection = input.badge 
         ? `
 - Badge Description: ${input.badge.description}
@@ -138,3 +157,5 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     };
   }
 );
+
+    
