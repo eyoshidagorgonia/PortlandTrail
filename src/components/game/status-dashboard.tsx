@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -109,13 +110,13 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
   return (
     <Card className="bg-card/90 backdrop-blur-sm border-2 border-border/20">
       <CardHeader className="text-center items-center pb-4">
-        <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl font-headline">
+        <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl font-headline rounded-full">
             {isImageLoading || !avatarImage ? (
-                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full rounded-full" />
             ) : (
                 <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
             )}
-            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="rounded-full">{name.charAt(0)}</AvatarFallback>
         </Avatar>
 
         <div className="space-y-1 pt-2">

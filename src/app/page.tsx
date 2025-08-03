@@ -478,13 +478,13 @@ export default function PortlandTrailPage() {
 
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0">
-                <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline">
+                <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
                   {isIntroAvatarLoading || !introAvatarImage ? (
-                    <Skeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full rounded-full" />
                   ) : (
                     <AvatarImage src={introAvatarImage} alt={name} data-ai-hint="avatar portrait" />
                   )}
-                   <AvatarFallback>{name.charAt(0) || '?'}</AvatarFallback>
+                   <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>
                 </Avatar>
               </div>
 
@@ -589,3 +589,4 @@ export default function PortlandTrailPage() {
     
 
     
+
