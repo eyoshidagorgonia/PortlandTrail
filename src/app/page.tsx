@@ -492,7 +492,7 @@ export default function PortlandTrailPage() {
 
               <div className="space-y-4 flex-1 w-full">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className='font-headline text-xl'>Your Name</Label>
+                  <Label htmlFor="name" className='font-headline text-xl'>HIPSTER NAME</Label>
                   <div className="flex items-center gap-2">
                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isNameLoading} className="text-lg" />
                     <Button 
