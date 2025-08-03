@@ -35,8 +35,10 @@ const generateHipsterNameFlow = ai.defineFlow(
   async () => {
     console.log('[generateHipsterNameFlow] Started.');
     const prompt = `You are a creative writer for a hipster video game.
-Your only job is to generate a single, quirky, gender-neutral hipster name.
+Your only job is to generate a single, quirky, gender-neutral hipster name. You MUST generate a different name each time.
 Examples: River, Kale, Birch, Pip, Wren.
+
+To ensure a unique name, use this random seed in your generation process: ${Math.random()}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
 {
