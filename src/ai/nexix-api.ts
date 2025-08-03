@@ -109,3 +109,71 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
      throw new Error('Failed to parse the JSON response from the API.');
   }
 }
+
+/**
+ * Calls the Nexix.ai proxy endpoint, which is typically faster but may have different capabilities.
+ * This serves as a fallback if the primary chat completions endpoint fails or times out.
+ *
+ * @param prompt - The user prompt to send to the model.
+ * @param schema - The Zod schema to validate the response against.
+ * @returns The parsed and validated data object.
+ * @throws {Error} If the API key is not set, the call fails, or validation fails.
+ */
+export async function callNexixApiFallback<T extends z.ZodType<any, any, any>>(
+    prompt: string,
+    schema: T
+  ): Promise<z.infer<T>> {
+    const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+    const apiKey = process.env.NEXIX_API_KEY;
+  
+    if (!apiKey) {
+      throw new Error('NEXIX_API_KEY environment variable is not set for fallback.');
+    }
+  
+    const requestBody = {
+      model: "gemma:2b-instruct-q8_0", // Using a smaller, faster model for the fallback
+      prompt: prompt,
+      format: "json",
+      stream: false
+    };
+  
+    console.log(`[callNexixApiFallback] Sending request to ${url}`);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(requestBody),
+    });
+  
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`[callNexixApiFallback] API Error: ${response.status}`, { errorBody });
+      throw new Error(`Nexix fallback API request failed with status ${response.status}: ${errorBody}`);
+    }
+  
+    const result = await response.json();
+    
+    // The proxy endpoint returns a stringified JSON in the `response` field
+    const jsonString = result.response;
+    if (!jsonString || typeof jsonString !== 'string') {
+        console.error('[callNexixApiFallback] Invalid response structure from fallback API.', { result });
+        throw new Error('Invalid response from Nexix fallback API. Response field is missing or not a string.');
+    }
+    
+    console.log(`[callNexixApiFallback] Successfully received response.`);
+  
+    try {
+      const data = JSON.parse(jsonString);
+      return schema.parse(data);
+    } catch (error) {
+       console.error('[callNexixApiFallback] Failed to parse or validate the JSON content.', { jsonString, error });
+       if (error instanceof z.ZodError) {
+          throw new Error(`Zod validation failed: ${error.issues.map(i => i.message).join(', ')}`);
+       }
+       throw new Error('Failed to parse the JSON response from the fallback API.');
+    }
+  }

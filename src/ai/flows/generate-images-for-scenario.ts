@@ -99,6 +99,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
     
     let prompts;
+    let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary';
     try {
         prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     } catch(error) {
@@ -109,6 +110,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
             scenePrompt: input.scenarioDescription,
             badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : undefined,
         };
+        dataSource = 'hardcoded';
     }
     
     console.log('[generateImagesFlow] Generated prompts:', prompts);
@@ -148,7 +150,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       avatarImage,
       sceneImage,
       badgeImage,
-      dataSource: 'primary',
+      dataSource,
     };
   }
 );

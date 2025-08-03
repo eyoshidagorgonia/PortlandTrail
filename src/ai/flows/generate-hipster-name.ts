@@ -9,7 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { callNexixApi } from '@/ai/nexix-api';
+import { callNexixApi, callNexixApiFallback } from '@/ai/nexix-api';
 
 const GenerateHipsterNameOutputSchema = z.object({
   name: z.string().describe('A single, quirky, gender-neutral hipster name.'),
@@ -17,7 +17,7 @@ const GenerateHipsterNameOutputSchema = z.object({
 export type GenerateHipsterNameOutput = z.infer<typeof GenerateHipsterNameOutputSchema>;
 
 const GenerateHipsterNameAndSourceOutputSchema = GenerateHipsterNameOutputSchema.extend({
-    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
+    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 type GenerateHipsterNameAndSourceOutput = z.infer<typeof GenerateHipsterNameAndSourceOutputSchema>;
 
@@ -46,19 +46,29 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
     
     try {
+      console.log("[generateHipsterNameFlow] Trying primary AI service...");
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);
       return {
         ...parsedResult,
         dataSource: 'primary',
       };
-
-    } catch (error) {
-        console.error(`[generateHipsterNameFlow] Call failed. Returning hard-coded name.`, { error });
-        const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
-        const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
-        return {
-            name: randomName,
-            dataSource: 'hardcoded',
+    } catch (primaryError) {
+        console.warn(`[generateHipsterNameFlow] Primary call failed. Trying fallback service.`, { primaryError });
+        try {
+            console.log("[generateHipsterNameFlow] Trying fallback AI service...");
+            const fallbackResult = await callNexixApiFallback(prompt, GenerateHipsterNameOutputSchema);
+            return {
+                ...fallbackResult,
+                dataSource: 'fallback',
+            }
+        } catch (fallbackError) {
+            console.error(`[generateHipsterNameFlow] All AI calls failed. Returning hard-coded name.`, { fallbackError });
+            const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
+            const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
+            return {
+                name: randomName,
+                dataSource: 'hardcoded',
+            }
         }
     }
   }

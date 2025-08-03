@@ -14,10 +14,9 @@ describe('generateHipsterName', () => {
         process.env.NEXIX_API_KEY = 'test-api-key';
     });
 
-  it('should return a name from the AI service on success', async () => {
+  it('should return a name from the primary AI service on success', async () => {
     const mockResponse = {
-      content: JSON.stringify({ name: 'Birch' }),
-      isCached: false,
+      choices: [{ message: { content: '{"name": "Birch"}' }}]
     };
     (fetch as any).mockResolvedValue(createFetchResponse(mockResponse));
 
@@ -27,6 +26,9 @@ describe('generateHipsterName', () => {
     expect(result.dataSource).toBe('primary');
     expect(fetch).toHaveBeenCalledTimes(1);
     const firstCall = (fetch as any).mock.calls[0];
+    const firstCallBody = JSON.parse(firstCall[1].body);
+    expect(firstCall[0]).toBe('https://modelapi.nexix.ai/api/v1/chat/completions');
+    expect(firstCallBody.model).toBe('gemma3:12b');
     expect(firstCall[1].cache).toBe('no-store');
   });
 
@@ -49,6 +51,7 @@ describe('generateHipsterName', () => {
     const secondCall = (fetch as any).mock.calls[1];
     const secondCallBody = JSON.parse(secondCall[1].body);
     expect(secondCall[0]).toBe('http://modelapi.nexix.ai/api/v1/proxy/generate');
+    expect(secondCallBody.model).toBe('gemma:2b-instruct-q8_0');
     expect(secondCallBody.format).toBe('json');
     expect(secondCall[1].cache).toBe('no-store');
   });
@@ -78,8 +81,7 @@ describe('generateHipsterName', () => {
 
   it('should return a hardcoded fallback name when the response JSON is malformed and nexix fails', async () => {
     const mockResponse = {
-        content: 'this is not json',
-        isCached: false,
+        choices: [{ message: { content: 'this is not json' }}]
     };
     (fetch as any)
         .mockResolvedValueOnce(createFetchResponse(mockResponse))

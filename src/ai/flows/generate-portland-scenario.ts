@@ -53,7 +53,7 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   avatarKaomoji: z.string().describe('A Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～` )┌) representing the player character.'),
   badge: BadgeSchema.optional(),
   choices: z.array(ChoiceSchema).describe("An array of 2-3 choices for the player."),
-  dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
+  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 

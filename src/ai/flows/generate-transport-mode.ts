@@ -17,7 +17,7 @@ const GenerateTransportModeOutputSchema = z.object({
 export type GenerateTransportModeOutput = z.infer<typeof GenerateTransportModeOutputSchema>;
 
 const GenerateTransportModeAndSourceOutputSchema = GenerateTransportModeOutputSchema.extend({
-    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
+    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 type GenerateTransportModeAndSourceOutput = z.infer<typeof GenerateTransportModeAndSourceOutputSchema>;
 
