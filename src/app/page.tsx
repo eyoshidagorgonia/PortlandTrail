@@ -174,8 +174,6 @@ export default function PortlandTrailPage() {
       toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
     } else {
       setIntroAvatarImage(imageResult.avatarImage);
-      // We save the game avatar here too, so it's ready when the game starts
-      setAvatarImage(imageResult.avatarImage); 
     }
     setIsIntroAvatarLoading(false);
   }, [name, job, avatarKaomoji, toast]);
@@ -241,6 +239,8 @@ export default function PortlandTrailPage() {
     };
     
     setPlayerState(initialState);
+    setAvatarImage(introAvatarImage); // Carry over the avatar from the intro screen
+    
     const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
     if ('error' in result && result.error) {
       toast({
@@ -271,9 +271,9 @@ export default function PortlandTrailPage() {
 
     // Fetch images for the first scenario
     // We pass the *full* new player state, including the potentially new kaomoji
-    fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
+    fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji }, true);
 
-  }, [name, job, avatarKaomoji, bio, toast, addLog, updateSystemStatus]);
+  }, [name, job, avatarKaomoji, bio, toast, addLog, updateSystemStatus, introAvatarImage]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
@@ -292,11 +292,15 @@ export default function PortlandTrailPage() {
     localStorage.removeItem('fullyOfflineServices');
   }, []);
 
-  const fetchImages = async (currentScenario: Scenario, currentPlayerState: PlayerState) => {
+  const fetchImages = async (currentScenario: Scenario, currentPlayerState: PlayerState, isFirstTurn: boolean = false) => {
     setIsImageLoading(true);
-    // Don't clear avatar image here, as it may have been generated on the intro screen
     setSceneImage('');
     setBadgeImage(null);
+    
+    // If it's the first turn, we don't need to re-fetch the avatar image as it's carried from the intro screen
+    if (!isFirstTurn) {
+        setAvatarImage('');
+    }
 
     const imageInput = {
       scenarioDescription: currentScenario.scenario,
@@ -314,8 +318,8 @@ export default function PortlandTrailPage() {
     if ('error' in imageResult) {
       toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
     } else {
-      // Only set avatar if it wasn't already set on intro
-      if (!avatarImage) {
+      // Only set avatar if it wasn't already set on intro (or it's not the first turn)
+      if (!isFirstTurn) {
         setAvatarImage(imageResult.avatarImage);
       }
       setSceneImage(imageResult.sceneImage);
@@ -464,7 +468,7 @@ export default function PortlandTrailPage() {
 
   if (gameState === 'intro') {
     return (
-      <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center">
+      <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
         <Card className="max-w-2xl w-full text-center shadow-xl border-border/50 border relative bg-card/90 backdrop-blur-sm">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
@@ -476,9 +480,9 @@ export default function PortlandTrailPage() {
 
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left">
               <div className="relative shrink-0">
-                <Avatar className="h-32 w-32 border-4 border-primary/50 text-4xl">
+                <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl">
                   {isIntroAvatarLoading || !introAvatarImage ? (
-                    <Skeleton className="h-full w-full rounded-full" />
+                    <Skeleton className="h-full w-full" />
                   ) : (
                     <AvatarImage src={introAvatarImage} alt={name} data-ai-hint="avatar portrait" />
                   )}
@@ -487,9 +491,9 @@ export default function PortlandTrailPage() {
 
               <div className="space-y-4 flex-1 w-full">
                 <div className="space-y-2">
-                  <Label htmlFor="name">persona</Label>
+                  <Label htmlFor="name" className='font-headline text-lg'>Persona</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., river, kale, britta" disabled={isNameLoading} className="lowercase" />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., River, Kale, Britta" disabled={isNameLoading} />
                     <Button 
                       type="button"
                       size="icon" 
@@ -503,10 +507,10 @@ export default function PortlandTrailPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="job">calling</Label>
+                  <Label htmlFor="job" className='font-headline text-lg'>Calling</Label>
                   <Select value={job} onValueChange={setJob}>
                     <SelectTrigger id="job">
-                      <SelectValue placeholder="select a hipster profession" />
+                      <SelectValue placeholder="Select a hipster profession" />
                     </SelectTrigger>
                     <SelectContent>
                       {HIPSTER_JOBS.map((j) => (
@@ -518,12 +522,12 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job} className="lowercase font-headline text-xl">
+            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job} className="font-headline text-xl">
               {(isLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
-              begin the descent
+              Begin Journey
             </Button>
             <Link href="/help" passHref>
-                <Button variant="link" className="text-muted-foreground mt-2 lowercase">consult the oracle</Button>
+                <Button variant="link" className="text-muted-foreground mt-2">How to Play</Button>
             </Link>
           </CardContent>
            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
@@ -553,10 +557,10 @@ export default function PortlandTrailPage() {
             <Card>
               <CardContent className="p-4">
                  <h3 className="font-headline text-lg mb-2">Travel Diary</h3>
-                 <div className="text-sm text-muted-foreground space-y-2 font-code">
+                 <div className="text-sm text-muted-foreground space-y-2 font-body">
                     {eventLog.map((log, i) => (
                       <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
-                        <p className="text-primary/70 font-code text-xs pt-0.5 whitespace-nowrap">
+                        <p className="text-primary/70 text-xs pt-0.5 whitespace-nowrap">
                           [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
                         </p>
                         <p>{log.message}</p>

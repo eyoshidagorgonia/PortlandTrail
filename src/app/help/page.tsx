@@ -53,35 +53,35 @@ export default function HelpPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
+    <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
       <Card className="max-w-4xl w-full shadow-xl border border-border/50 bg-card/90 backdrop-blur-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-4xl font-headline">How to Play The Portland Trail</CardTitle>
-          <CardDescription className="pt-2 font-body text-base">A guide to surviving your hipster journey.</CardDescription>
+          <CardTitle className="text-4xl font-headline">How to Play</CardTitle>
+          <CardDescription className="pt-2 font-body text-base text-muted-foreground">A guide to surviving your dark and ironic journey.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 p-6 md:p-8">
           <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
             <AccordionItem value="item-1">
-              <AccordionTrigger className="font-headline text-xl text-left">
+              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
                 <GoalIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> The Goal
               </AccordionTrigger>
               <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 font-body">
-                Your quest is to travel from the sunny shores of **San Francisco** to the promised land of **Portland**. The path is long and treacherous, measured by your **Progress**. Reach 100% progress to achieve ultimate coolness and win the game. But beware, the journey is fraught with peril!
+                Your quest is to travel from the accursed lands of **San Francisco** to the promised land of **Portland**. The path is long and treacherous, measured by your **Progress**. Reach 100% progress to achieve ultimate coolness and win the game. But beware, the journey is fraught with existential dread!
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2">
-              <AccordionTrigger className="font-headline text-xl text-left">
+              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
                 <VitalsIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> Your Vitals
               </AccordionTrigger>
               <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">
-                <p className="flex items-start"><HungerIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Hunger:** If this reaches zero, you succumb to starvation. Keep it topped up by foraging or through scenario choices.</span></p>
+                <p className="flex items-start"><HungerIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Hunger:** If this reaches zero, you succumb to artisanal starvation. Keep it topped up by foraging or through scenario choices.</span></p>
                 <p className="flex items-start"><BikeIcon className="h-5 w-5 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Bike Health:** Your trusty fixed-gear bike is your only way forward. If its health drops to zero, you're stranded. Perform maintenance to keep it in good shape.</span></p>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
-              <AccordionTrigger className="font-headline text-xl text-left">
+              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
                 <SocialStatsIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> Social Stats & Resources
               </AccordionTrigger>
               <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">
@@ -94,7 +94,7 @@ export default function HelpPage() {
             </AccordionItem>
 
             <AccordionItem value="item-4">
-              <AccordionTrigger className="font-headline text-xl text-left">
+              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
                 <MapIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> Gameplay Loop
               </AccordionTrigger>
               <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">
@@ -107,7 +107,7 @@ export default function HelpPage() {
               </AccordionContent>
             </AccordionItem>
              <AccordionItem value="item-5">
-              <AccordionTrigger className="font-headline text-xl text-left">
+              <AccordionTrigger className="font-headline text-xl text-left hover:no-underline">
                 <CardsIcon className="mr-3 h-5 w-5 text-primary shrink-0" /> On-Screen Cards
               </AccordionTrigger>
               <AccordionContent className="text-base text-foreground/90 pl-10 pt-2 space-y-4 font-body">

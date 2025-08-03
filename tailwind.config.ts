@@ -18,7 +18,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['"EB Garamond"', 'serif'],
-        headline: ['"Uncial Antiqua"', 'cursive'],
+        headline: ['"Cinzel Decorative"', 'cursive'],
         code: ['"EB Garamond"', 'serif'],
       },
       colors: {
