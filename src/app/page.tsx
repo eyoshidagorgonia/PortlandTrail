@@ -19,6 +19,7 @@ import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
 import { Coffee, Route, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
+import { PennyFarthingIcon } from '@/components/game/icons';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
@@ -477,6 +478,7 @@ export default function PortlandTrailPage() {
   }
 
   if (gameState === 'intro') {
+    const isAnythingLoading = isLoading || isNameLoading || isBioLoading || isIntroAvatarLoading;
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
         <Card className="max-w-2xl w-full text-center shadow-2xl relative bg-card/80 backdrop-blur-sm border-2 border-border/20">
@@ -533,9 +535,9 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isNameLoading || isBioLoading || isIntroAvatarLoading || !job} className="font-headline text-2xl mt-4">
-              {(isLoading || isNameLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
-              Begin Your Descent
+            <Button size="lg" onClick={startGame} disabled={isAnythingLoading || !job || !name || !bio} className="font-headline text-2xl mt-4">
+                <PennyFarthingIcon className="mr-2 h-5 w-5" isloading={String(isAnythingLoading)} />
+                Begin Your Descent
             </Button>
             <Link href="/help" passHref>
                 <Button variant="link" className="text-muted-foreground mt-2">Whisper to the Vibe Sage</Button>

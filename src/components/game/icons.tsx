@@ -11,9 +11,9 @@ export const HealthIcon = (props: LucideProps) => (
 
 export const VibeIcon = (props: LucideProps) => (
     <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2a10 10 0 1 0 10 10c0-2.2-.7-4.2-2-5.7" />
-        <path d="M12 6V2" />
-        <path d="M12 12l4 4m0-4l-4 4" />
+      <path d="M12 2a10 10 0 1 0 10 10c0-2.2-.7-4.2-2-5.7" />
+      <path d="M12 6V2" />
+      <path d="M12 12l4 4m0-4l-4 4" />
     </svg>
 );
 
@@ -148,4 +148,18 @@ export const LeftArrowIcon = (props: LucideProps) => (
     <path d="m12 19-7-7 7-7" />
     <path d="M19 12H5" />
   </svg>
+);
+
+interface PennyFarthingIconProps extends LucideProps {
+  isloading?: string;
+}
+export const PennyFarthingIcon = ({ isloading, ...props }: PennyFarthingIconProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9.5" cy="11.5" r="7.5" className={isloading === 'true' ? 'animate-spin-wheel' : ''} style={{ transformOrigin: '9.5px 11.5px' }}/>
+      <circle cx="20" cy="17" r="2" className={isloading === 'true' ? 'animate-spin-wheel' : ''} style={{ transformOrigin: '20px 17px' }}/>
+      <path d="M9.5 4V2.5" />
+      <path d="M14 8.5 L18.5 16" />
+      <path d="M9.5 19 L11.5 8.5 L7 8.5" />
+      <path d="M7 8.5L2 8.5" />
+    </svg>
 );
