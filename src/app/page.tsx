@@ -533,8 +533,8 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isLoading || isBioLoading || isIntroAvatarLoading || !job} className="font-headline text-2xl mt-4">
-              {(isLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
+            <Button size="lg" onClick={startGame} disabled={isLoading || isNameLoading || isBioLoading || isIntroAvatarLoading || !job} className="font-headline text-2xl mt-4">
+              {(isLoading || isNameLoading || isBioLoading || isIntroAvatarLoading) ? <Loader2 className="mr-2 animate-spin" /> : <Route className="mr-2 h-5 w-5" />}
               Begin Your Descent
             </Button>
             <Link href="/help" passHref>
