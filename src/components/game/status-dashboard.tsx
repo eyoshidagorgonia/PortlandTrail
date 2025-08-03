@@ -157,7 +157,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         <div className="flex justify-around gap-2 px-2">
             <Orb label="Health" value={stats.health} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--primary))"/>
             <Orb label="Vibes" value={stats.vibes} tooltip="Your creative and spiritual energy. Needed for... things." color="hsl(var(--accent))"/>
-            <Orb label="Stamina" value={resources.stamina} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(33, 58%, 30%)"/>
+            <Orb label="Fixie Bike" value={resources.stamina} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(33, 58%, 30%)"/>
         </div>
         
         <ThematicSeparator />

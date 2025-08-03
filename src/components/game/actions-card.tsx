@@ -20,7 +20,7 @@ const actions: PlayerAction[] = [
   },
   {
     text: 'Tune-up Bike',
-    description: 'Maintain your fixie. [-5 Coffee, +15 Stamina, -1 Progress]',
+    description: 'Maintain your fixie. [-5 Coffee, +15 Fixie Bike, -1 Progress]',
     icon: TuneUpIcon,
     consequences: { health: 0, style: 0, irony: 0, authenticity: 0, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 15 },
   },
