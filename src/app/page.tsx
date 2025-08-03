@@ -508,7 +508,7 @@ export default function PortlandTrailPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="job" className='font-headline text-xl'>Your Calling</Label>
+                  <Label htmlFor="job" className='font-headline text-xl'>WHAT YOU DO IN BETWEEN GIGS</Label>
                   <Select value={job} onValueChange={setJob}>
                     <SelectTrigger id="job" className="text-lg">
                       <SelectValue placeholder="Select a dark profession" />
@@ -587,3 +587,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
