@@ -11,6 +11,7 @@ import {
   AuthenticityIcon,
   VinylIcon,
   CoffeeIcon,
+  BikeIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -28,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Skeleton } from '../ui/skeleton';
 import { Orb } from '@/components/ui/orb';
-import { Separator } from '../ui/separator';
+import { Progress } from '../ui/progress';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -154,10 +155,26 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         </div>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
-        <div className="flex justify-around gap-2 px-2">
+        <div className="flex justify-center gap-4 px-2">
             <Orb label="Health" value={stats.health} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--destructive))"/>
             <Orb label="Vibes" value={stats.vibes} tooltip="Your creative and spiritual energy. Needed for... things." color="hsl(220, 60%, 50%)"/>
-            <Orb label="Fixie Bike" value={resources.stamina} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(var(--foreground))"/>
+        </div>
+
+        <div className="px-4 space-y-2">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger className="w-full">
+                        <div className="flex items-center justify-between text-muted-foreground mb-1">
+                            <label className="font-headline text-lg tracking-wider">Fixie Bike</label>
+                            <span className="font-mono font-bold text-foreground">{resources.stamina}%</span>
+                        </div>
+                        <Progress value={resources.stamina} className="h-3" />
+                    </TooltipTrigger>
+                     <TooltipContent>
+                        <p>Your fixed-gear's condition. A breakdown is social suicide.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
         </div>
         
         <ThematicSeparator />
