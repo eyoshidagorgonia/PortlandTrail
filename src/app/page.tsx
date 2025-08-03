@@ -56,9 +56,6 @@ export default function PortlandTrailPage() {
   // Intro-specific image state
   const [introAvatarImage, setIntroAvatarImage] = useState<string>('');
   const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
-  
-  const jobChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
 
   const { toast } = useToast();
 
@@ -177,9 +174,12 @@ export default function PortlandTrailPage() {
       setIntroAvatarImage(''); // Clear image on failure
     } else {
       setIntroAvatarImage(imageResult.avatarImage);
+      if (imageResult.dataSource) {
+        updateSystemStatus({ image: imageResult.dataSource });
+      }
     }
     setIsIntroAvatarLoading(false);
-  }, [name, job, avatarKaomoji, toast]);
+  }, [name, job, avatarKaomoji, toast, updateSystemStatus]);
 
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
@@ -189,52 +189,21 @@ export default function PortlandTrailPage() {
       setHasInitialized(true);
     }
   }, [gameState, hasInitialized, handleGenerateName]);
-  
-  useEffect(() => {
-    if (gameState === 'intro' && !job) {
-       const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
-       setJob(randomJob);
-    }
-  }, [gameState, job]);
-  
+
   useEffect(() => {
     if (gameState === 'intro' && name && job) {
       handleGenerateBio("Just starting out");
     }
   }, [gameState, name, job, handleGenerateBio]);
   
-  // New useEffect to generate avatar on intro screen
+  // This useEffect now handles initial load AND job changes for the avatar.
   useEffect(() => {
-    // Only run if we are on the intro, and the bio has been loaded (final step of initial load)
-    if (gameState === 'intro' && !isBioLoading && bio) {
+    if (gameState === 'intro' && name && job) {
         generateIntroAvatar();
     }
-  }, [isBioLoading, bio, gameState, generateIntroAvatar]);
+  }, [job, gameState, name, generateIntroAvatar]);
 
-  // Regenerate avatar after a delay when job changes on the intro screen
-  useEffect(() => {
-    // Only run on the intro screen after the initial load is complete
-    if (gameState === 'intro' && hasInitialized && !isBioLoading) {
-        // Clear any existing timer
-        if (jobChangeTimeoutRef.current) {
-            clearTimeout(jobChangeTimeoutRef.current);
-        }
-        
-        // Set a new timer
-        jobChangeTimeoutRef.current = setTimeout(() => {
-            generateIntroAvatar();
-        }, 3000); // 3-second delay
-    }
-
-    // Cleanup timer on component unmount
-    return () => {
-        if (jobChangeTimeoutRef.current) {
-            clearTimeout(jobChangeTimeoutRef.current);
-        }
-    };
-  }, [job, gameState, hasInitialized, isBioLoading, generateIntroAvatar]);
-
-  // Regenerate bio when vibe changes
+  // Regenerate bio when vibe changes during gameplay
   useEffect(() => {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
@@ -351,6 +320,9 @@ export default function PortlandTrailPage() {
       setSceneImage(imageResult.sceneImage);
       if (imageResult.badgeImage) {
         setBadgeImage(imageResult.badgeImage);
+      }
+       if (imageResult.dataSource) {
+        updateSystemStatus({ image: imageResult.dataSource });
       }
     }
     setIsImageLoading(false);
@@ -613,5 +585,7 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
 
     
