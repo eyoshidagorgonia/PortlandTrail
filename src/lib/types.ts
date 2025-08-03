@@ -16,6 +16,11 @@ export interface Badge {
   image?: string; // Data URI for the generated badge image
 }
 
+export interface TrailEvent {
+  progress: number;
+  description: string;
+}
+
 export interface PlayerResources {
   vinyls: number;
   coffee: number;
@@ -33,6 +38,7 @@ export interface PlayerState {
   location: string;
   progress: number;
   vibe: string;
+  events: TrailEvent[];
 }
 
 export interface Choice {

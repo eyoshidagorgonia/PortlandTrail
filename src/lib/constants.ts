@@ -37,6 +37,7 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
   location: 'San Francisco',
   progress: 0,
   vibe: 'Just starting out',
+  events: [],
 };
 
 export const TRAIL_WAYPOINTS = [

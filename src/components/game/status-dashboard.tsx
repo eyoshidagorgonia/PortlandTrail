@@ -11,7 +11,6 @@ import {
   AuthenticityIcon,
   VinylIcon,
   CoffeeIcon,
-  BikeIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -30,6 +29,8 @@ import {
 import { Skeleton } from '../ui/skeleton';
 import { Orb } from '@/components/ui/orb';
 import { Progress } from '../ui/progress';
+import TrailMap from './trail-map';
+import { TRAIL_WAYPOINTS } from '@/lib/constants';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -101,7 +102,7 @@ const ThematicSeparator = () => (
 );
 
 export default function StatusDashboard({ playerState, avatarImage, isImageLoading }: StatusDashboardProps) {
-  const { stats, resources, name, job, bio } = playerState;
+  const { stats, resources, name, job, bio, progress, location, events } = playerState;
 
   const normalizedHealth =
     ((stats.health / 100) +
@@ -157,7 +158,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
       <CardContent className="space-y-4 pt-0">
         <div className="flex justify-center gap-4 px-2">
             <Orb label="Health" value={stats.health} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--destructive))"/>
-            <Orb label="Vibes" value={stats.vibes} tooltip="Your creative and spiritual energy. Needed for... things." color="hsl(220, 60%, 50%)"/>
+            <Orb label="Vibes" value={stats.vibes} tooltip="Your creative and spiritual energy. Needed for... things." color="hsl(260, 80%, 70%)"/>
         </div>
 
         <div className="px-4 space-y-2">
@@ -245,6 +246,16 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
             </TooltipProvider>
           </div>
         )}
+        
+        <ThematicSeparator />
+        <div className="px-2">
+            <TrailMap 
+                progress={progress}
+                waypoints={TRAIL_WAYPOINTS}
+                currentLocation={location}
+                events={events}
+            />
+        </div>
       </CardContent>
     </Card>
   );

@@ -10,12 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent } from '@/lib/types';
 import { getScenarioAction, getImagesAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterBio } from '@/ai/flows/generate-character-bio';
 import StatusDashboard from '@/components/game/status-dashboard';
-import TrailMap from '@/components/game/trail-map';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
@@ -232,6 +231,7 @@ export default function PortlandTrailPage() {
       avatar: avatarKaomoji,
       bio: bio,
       vibe: "Just starting out",
+      events: [{ progress: 0, description: "Your journey begins in San Francisco."}]
     };
     
     setPlayerState(initialState);
@@ -436,6 +436,13 @@ export default function PortlandTrailPage() {
     
     tempState.location = currentLocation;
 
+    // Add a trail event for the choice made
+    const newEvent: TrailEvent = {
+        progress: tempState.progress,
+        description: `You chose to "${choice.text}".`
+    };
+    tempState.events = [...tempState.events, newEvent];
+
     setPlayerState(tempState);
     advanceTurn(tempState);
   };
@@ -554,9 +561,6 @@ export default function PortlandTrailPage() {
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="opacity-0 animate-fade-in animate-delay-200">
-                <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
-            </div>
              <div className="opacity-0 animate-fade-in animate-delay-300">
                 <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
             </div>
