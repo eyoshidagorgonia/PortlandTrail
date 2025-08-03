@@ -100,11 +100,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     
     let prompts;
     try {
-        const apiResponse = await callNexixApi('gemma3:12b', prompt);
-        const data = JSON.parse(apiResponse);
-        const parsedResult = ImageGenPromptOutputSchema.parse(data);
-        prompts = parsedResult;
-
+        prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     } catch(error) {
         console.error("[generateImagesFlow] Failed to generate prompts via API, using fallbacks.", { error });
         // Fallback prompts

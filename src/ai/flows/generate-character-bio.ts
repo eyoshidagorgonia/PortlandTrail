@@ -56,12 +56,8 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
 
     try {
-      const apiResponse = await callNexixApi('gemma3:12b', prompt);
-      const data = JSON.parse(apiResponse);
-      const parsedResult = GenerateCharacterBioOutputSchema.parse(data);
-
+      const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
       return { ...parsedResult, dataSource: 'primary' };
-
     } catch (error) {
         console.error(`[generateCharacterBioFlow] Call failed. Returning hard-coded bio.`, { error });
         return {

@@ -46,10 +46,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
     
     try {
-      const apiResponse = await callNexixApi('gemma3:12b', prompt, 1.5);
-      const data = JSON.parse(apiResponse);
-      const parsedResult = GenerateHipsterNameOutputSchema.parse(data);
-
+      const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);
       return {
         ...parsedResult,
         dataSource: 'primary',

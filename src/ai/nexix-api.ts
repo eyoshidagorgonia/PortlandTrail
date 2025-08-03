@@ -35,20 +35,21 @@ function extractJson(str: string): string | null {
 
 /**
  * Calls the Nexix.ai OpenAI-compatible chat completions endpoint.
+ * It now handles parsing and Zod schema validation internally.
  *
  * @param model - The model to use for the completion.
  * @param prompt - The user prompt to send to the model.
+ * @param schema - The Zod schema to validate the response against.
  * @param temperature - The temperature for the generation.
- * @returns The content string from the first choice in the response.
- * @throws {Error} If the API key is not set.
- * @throws {Error} If the API call fails or returns a non-ok status.
- * @throws {Error} If the response format is invalid.
+ * @returns The parsed and validated data object.
+ * @throws {Error} If the API key is not set, the call fails, or validation fails.
  */
-export async function callNexixApi(
+export async function callNexixApi<T extends z.ZodType<any, any, any>>(
   model: string,
   prompt: string,
+  schema: T,
   temperature: number = 1.0
-): Promise<string> {
+): Promise<z.infer<T>> {
   const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
   const apiKey = process.env.NEXIX_API_KEY;
 
@@ -89,7 +90,7 @@ export async function callNexixApi(
   }
   
   const rawContent = parsedResponse.data.choices[0].message.content;
-  console.log(`[callNexixApi] Successfully received response. Now extracting JSON.`);
+  console.log(`[callNexixApi] Successfully received response. Now extracting and parsing JSON.`);
 
   const jsonString = extractJson(rawContent);
   if (!jsonString) {
@@ -97,5 +98,14 @@ export async function callNexixApi(
     throw new Error('Could not find a valid JSON object in the response.');
   }
 
-  return jsonString;
+  try {
+    const data = JSON.parse(jsonString);
+    return schema.parse(data);
+  } catch (error) {
+     console.error('[callNexixApi] Failed to parse or validate the JSON content.', { jsonString, error });
+     if (error instanceof z.ZodError) {
+        throw new Error(`Zod validation failed: ${error.issues.map(i => i.message).join(', ')}`);
+     }
+     throw new Error('Failed to parse the JSON response from the API.');
+  }
 }

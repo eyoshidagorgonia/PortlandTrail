@@ -119,30 +119,28 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
 
   try {
-    const apiResponse = await callNexixApi('gemma3:12b', prompt);
-    const data = JSON.parse(apiResponse);
-    const parsedResult = OllamaResponseSchema.parse(data);
+    const parsedResult = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
 
-      const output: GeneratePortlandScenarioOutput = {
-        scenario: parsedResult.scenario,
-        challenge: parsedResult.challenge,
-        diablo2Element: parsedResult.diablo2Element,
-        avatarKaomoji: parsedResult.avatarKaomoji,
-        choices: parsedResult.choices,
-        dataSource: 'primary'
+    const output: GeneratePortlandScenarioOutput = {
+      scenario: parsedResult.scenario,
+      challenge: parsedResult.challenge,
+      diablo2Element: parsedResult.diablo2Element,
+      avatarKaomoji: parsedResult.avatarKaomoji,
+      choices: parsedResult.choices,
+      dataSource: 'primary'
+    };
+
+    if (parsedResult.shouldAwardBadge && parsedResult.badgeDescription && parsedResult.badgeEmoji) {
+      console.log('[generatePortlandScenario] Model decided to award a badge.');
+      output.badge = {
+          badgeDescription: parsedResult.badgeDescription,
+          badgeEmoji: parsedResult.badgeEmoji,
       };
-
-      if (parsedResult.shouldAwardBadge && parsedResult.badgeDescription && parsedResult.badgeEmoji) {
-        console.log('[generatePortlandScenario] Model decided to award a badge.');
-        output.badge = {
-            badgeDescription: parsedResult.badgeDescription,
-            badgeEmoji: parsedResult.badgeEmoji,
-        };
-      } else {
-        console.log('[generatePortlandScenario] Model did not award a badge.');
-      }
-      
-      return output;
+    } else {
+      console.log('[generatePortlandScenario] Model did not award a badge.');
+    }
+    
+    return output;
 
   } catch (error) {
     console.error(`[generatePortlandScenario] Agent call failed. Returning hard-coded scenario.`, {error});

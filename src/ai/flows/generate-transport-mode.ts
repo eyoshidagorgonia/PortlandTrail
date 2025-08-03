@@ -48,10 +48,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   "text": "The generated phrase."
 }`;
     try {
-      const apiResponse = await callNexixApi('gemma3:12b', prompt);
-      const data = JSON.parse(apiResponse);
-      const parsedResult = GenerateTransportModeOutputSchema.parse(data);
-      
+      const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
       return { ...parsedResult, dataSource: 'primary' };
 
     } catch (error) {
