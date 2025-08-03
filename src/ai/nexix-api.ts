@@ -123,7 +123,7 @@ export async function callNexixApiFallback<T extends z.ZodType<any, any, any>>(
     prompt: string,
     schema: T
   ): Promise<z.infer<T>> {
-    const url = 'http://modelapi.nexix.ai/api/v1/proxy/generate';
+    const url = 'https://modelapi.nexix.ai/api/v1/proxy/generate';
     const apiKey = process.env.NEXIX_API_KEY;
   
     if (!apiKey) {
@@ -177,3 +177,4 @@ export async function callNexixApiFallback<T extends z.ZodType<any, any, any>>(
        throw new Error('Failed to parse the JSON response from the fallback API.');
     }
   }
+
