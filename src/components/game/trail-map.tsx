@@ -22,9 +22,9 @@ export default function TrailMap({ progress, waypoints, currentLocation }: Trail
       </CardHeader>
       <CardContent className="pt-2">
         <div className="relative h-12 w-full mb-2">
-          <div className="absolute top-1/2 left-0 right-0 h-1 bg-muted rounded-none -translate-y-1/2" />
+          <div className="absolute top-1/2 left-0 right-0 h-1 bg-muted rounded-sm -translate-y-1/2" />
           <div
-            className="absolute top-1/2 left-0 h-1 bg-primary rounded-none -translate-y-1/2"
+            className="absolute top-1/2 left-0 h-1 bg-primary rounded-sm -translate-y-1/2"
             style={{ width: `${progress}%` }}
           />
           <div className="absolute top-1/2 left-0 right-0 flex justify-between -translate-y-1/2">
@@ -38,7 +38,7 @@ export default function TrailMap({ progress, waypoints, currentLocation }: Trail
                   <Tooltip>
                     <TooltipTrigger>
                       <div
-                        className={`h-4 w-4 rounded-none border-2 ${
+                        className={`h-4 w-4 rounded-sm border-2 ${
                           isCurrent ? 'bg-primary border-primary-foreground animate-pulse' : isPassed ? 'bg-primary border-primary/50' : 'bg-muted border-border'
                         } transition-colors duration-500 transform rotate-45`}
                       />

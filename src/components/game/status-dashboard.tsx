@@ -71,7 +71,7 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger className="w-full text-left">
-            <div className="flex items-center gap-3 bg-card p-2 rounded-none group hover:bg-muted/40 transition-colors duration-300">
+            <div className="flex items-center gap-3 bg-card p-2 rounded-sm group hover:bg-muted/40 transition-colors duration-300">
                 <Icon className="h-8 w-8 text-foreground/70"/>
                 <div className="text-left">
                     <div className="font-headline text-2xl text-foreground">{value}</div>
@@ -109,13 +109,13 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
   return (
     <Card className="bg-card/80 backdrop-blur-sm">
       <CardHeader className="text-center items-center pb-4">
-        <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl font-headline rounded-none">
+        <Avatar className="h-32 w-32 border-4 border-secondary/50 text-4xl font-headline rounded-sm">
             {isImageLoading || !avatarImage ? (
                 <Skeleton className="h-full w-full" />
             ) : (
-                <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" className="rounded-none"/>
+                <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" className="rounded-sm"/>
             )}
-            <AvatarFallback className="rounded-none">{name.charAt(0)}</AvatarFallback>
+            <AvatarFallback className="rounded-sm">{name.charAt(0)}</AvatarFallback>
         </Avatar>
 
         <div className="space-y-1 pt-2">

@@ -1,19 +1,19 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { Cinzel_Decorative, Lato } from 'next/font/google';
+import { Uncial_Antiqua, Cormorant_Garamond } from 'next/font/google';
 import { cn } from '@/lib/utils';
 
-const fontBody = Lato({
+const fontBody = Cormorant_Garamond({
   subsets: ['latin'],
   variable: '--font-body',
   weight: ['400', '700'],
 });
 
-const fontHeadline = Cinzel_Decorative({
+const fontHeadline = Uncial_Antiqua({
   subsets: ['latin'],
   variable: '--font-headline',
-  weight: ['400', '700'],
+  weight: ['400'],
 });
 
 export const metadata: Metadata = {
