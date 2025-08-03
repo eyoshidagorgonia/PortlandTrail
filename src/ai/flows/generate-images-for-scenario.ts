@@ -62,18 +62,21 @@ const generateImagesFlow = ai.defineFlow(
 
     const prompt = `You are an expert prompt engineer for a text-to-image model.
 Your task is to create three distinct, detailed, and artistic prompts based on a game scenario.
-The art style should be consistent: "Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting".
+The overall art style should be consistent: "Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting".
 
-**1. Avatar Portrait Prompt:**
-- Create a prompt for a head-and-shoulders portrait of the player character.
-- The character's current state is represented by a Kaomoji. Interpret this Kaomoji emotionally to influence the portrait.
-- Incorporate elements of their job ('${input.character.job}') and general hipster aesthetics (e.g., tattoos, piercings, unique clothing, artisanal accessories).
-- Style: Focus on a character portrait.
+**1. Avatar Portrait Prompt (Style: "Ghibli Noir")**
+- Create a prompt for a head-to-chest portrait of the player character.
+- **Mood**: Brooding, mysterious, indie introspective.
+- **Lighting**: Dramatic chiaroscuro with soft candlelight or ambient glows.
+- **Colors**: Use a desaturated earth-tone palette, like Grave Moss, Blood Plum, and Espresso Charcoal.
+- **Features**: Give the character expressive but shadowed eyes, perhaps with a single glint of light. Hair should be tousled or styled (e.g., messy bun, undercut).
+- **Clothing & Job**: The character is a '${input.character.job}'. Incorporate elements of their job and hipster aesthetics (e.g., layered flannel, wool coat, round glasses, beanies, enamel pins, tattoos).
+- **Background**: A simple, moody background like a stone wall, foggy forest, or dark wood.
 
 **2. Scene Depiction Prompt:**
 - Create a prompt for a wide-angle shot that captures the entire scenario description.
 - Include key elements, mood, and the environment.
-- Style: Focus on a full scene.
+- The style must match the "Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting" direction.
 
 **3. Badge Icon Prompt (if applicable):**
 - If a badge is present, create a prompt for a simple, iconic, circular merit badge.
@@ -123,7 +126,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
     // Avatar Image Promise
     imagePromises.push(generateImage(
-        `${prompts.avatarPrompt}, Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting`,
+        `${prompts.avatarPrompt}, Ghibli Noir, Studio Ghibli anime style, beautiful, painterly, nostalgic, soft lighting`,
         'photorealistic, 3d render, photo, realism',
         512, 512
     ));
