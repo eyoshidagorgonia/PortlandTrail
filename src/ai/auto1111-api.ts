@@ -25,7 +25,13 @@ export async function generateImage(
   width: number = 512,
   height: number = 512,
 ): Promise<string> {
-  const url = 'http://host.docker.internal:7860/sdapi/v1/txt2img';
+  const url = 'https://modelapi.nexix.ai/api/v1/sd/txt2img';
+  const apiKey = process.env.NEXIX_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('NEXIX_API_KEY environment variable is not set for image generation.');
+  }
+
   console.log(`[generateImage] Sending request to ${url}`);
 
   const body = {
@@ -47,6 +53,7 @@ export async function generateImage(
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify(body),
     });
