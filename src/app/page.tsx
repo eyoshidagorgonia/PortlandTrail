@@ -566,17 +566,9 @@ export default function PortlandTrailPage() {
 
           <div className="lg:col-span-2 flex flex-col gap-6">
             <div className="opacity-0 animate-fade-in animate-delay-200">
-                <TrailMap 
-                    progress={playerState.progress}
-                    waypoints={TRAIL_WAYPOINTS}
-                    currentLocation={playerState.location}
-                    events={playerState.events}
-                />
-            </div>
-            <div className="opacity-0 animate-fade-in animate-delay-300">
                 <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
             </div>
-            <div className="opacity-0 animate-fade-in animate-delay-400">
+            <div className="opacity-0 animate-fade-in animate-delay-300">
                 <Card className="bg-card/90 backdrop-blur-sm">
                     <CardHeader className="pb-4">
                     <CardContent className="p-0">
