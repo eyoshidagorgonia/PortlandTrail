@@ -4,65 +4,65 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%; /* Obsidian Black: #0A0A0A */
-    --foreground: 41 44% 90%; /* Burnt Bone: #EAE3D2 */
+    --background: 257 14% 6%; /* charcoal black: #0D0C11 */
+    --foreground: 27 33% 95%; /* off-white: #F2EAE4 */
     
-    --card: 0 0% 8%; /* Slightly lighter Obsidian */
-    --card-foreground: 41 44% 90%;
+    --card: 257 14% 9%; /* Slightly lighter charcoal */
+    --card-foreground: 27 33% 95%;
     
-    --popover: 0 0% 4%;
-    --popover-foreground: 41 44% 90%;
+    --popover: 257 14% 6%;
+    --popover-foreground: 27 33% 95%;
 
-    --primary: 45 87% 62%; /* Gold of Zakarum: #F0C75E */
-    --primary-foreground: 0 0% 4%;
+    --primary: 33 58% 66%; /* brass: #D5A87A */
+    --primary-foreground: 257 14% 6%;
 
-    --secondary: 0 0% 12%; 
-    --secondary-foreground: 41 44% 90%;
+    --secondary: 257 14% 12%; 
+    --secondary-foreground: 27 33% 95%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 49%; /* Arcane Smoke */
+    --muted: 257 14% 12%;
+    --muted-foreground: 0 0% 92%; /* labels: #EAEAEA */
     
-    --accent: 16 100% 60%; /* Hellfire Ember: #FF6B35 */
-    --accent-foreground: 0 0% 4%;
+    --accent: 0 100% 64%; /* blood red: #FF4949 - used as accent */
+    --accent-foreground: 27 33% 95%;
     
-    --destructive: 0 100% 27%; /* Blood Rune: #8B0000 */
-    --destructive-foreground: 41 44% 90%;
+    --destructive: 0 100% 64%; /* blood red: #FF4949 */
+    --destructive-foreground: 27 33% 95%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 45 87% 62%; /* Gold of Zakarum */
+    --border: 33 58% 40%; /* Lighter Brass for borders */
+    --input: 33 58% 40%;
+    --ring: 33 58% 66%;
 
     --radius: 0.3rem;
   }
 
   .dark {
-    --background: 0 0% 4%; /* Obsidian Black: #0A0A0A */
-    --foreground: 41 44% 90%; /* Burnt Bone: #EAE3D2 */
+    --background: 257 14% 6%; /* charcoal black: #0D0C11 */
+    --foreground: 27 33% 95%; /* off-white: #F2EAE4 */
     
-    --card: 0 0% 8%;
-    --card-foreground: 41 44% 90%;
+    --card: 257 14% 9%;
+    --card-foreground: 27 33% 95%;
     
-    --popover: 0 0% 4%;
-    --popover-foreground: 41 44% 90%;
+    --popover: 257 14% 6%;
+    --popover-foreground: 27 33% 95%;
 
-    --primary: 45 87% 62%; /* Gold of Zakarum: #F0C75E */
-    --primary-foreground: 0 0% 4%;
+    --primary: 33 58% 66%; /* brass: #D5A87A */
+    --primary-foreground: 257 14% 6%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 41 44% 90%;
+    --secondary: 257 14% 12%; 
+    --secondary-foreground: 27 33% 95%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 49%; /* Arcane Smoke */
+    --muted: 257 14% 12%;
+    --muted-foreground: 0 0% 92%; /* labels: #EAEAEA */
     
-    --accent: 16 100% 60%; /* Hellfire Ember: #FF6B35 */
-    --accent-foreground: 0 0% 4%;
+    --accent: 0 100% 64%; /* blood red: #FF4949 */
+    --accent-foreground: 27 33% 95%;
     
-    --destructive: 0 100% 27%; /* Blood Rune: #8B0000 */
-    --destructive-foreground: 41 44% 90%;
+    --destructive: 0 100% 64%; /* blood red: #FF4949 */
+    --destructive-foreground: 27 33% 95%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 45 87% 62%; /* Gold of Zakarum */
+    --border: 33 58% 40%;
+    --input: 33 58% 40%;
+    --ring: 33 58% 66%;
   }
 }
 
@@ -72,7 +72,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23EAE3D2' fill-opacity='0.03'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23D5A87A' fill-opacity='0.03'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 }
 
