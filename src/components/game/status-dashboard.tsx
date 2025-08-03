@@ -174,13 +174,13 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                       <TooltipTrigger asChild>
                         <AlertDialogTrigger>
                           <div className={cn(
-                            "h-14 w-14 border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:border-accent",
+                            "h-14 w-14 border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-3xl transition-all duration-300 cursor-pointer overflow-hidden hover:border-accent rounded-full",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
-                                <Image src={badge.image} alt={badge.description} width={56} height={56} className="rounded-none" unoptimized data-ai-hint="badge icon" />
+                                <Image src={badge.image} alt={badge.description} width={56} height={56} className="rounded-full" unoptimized data-ai-hint="badge icon" />
                             ) : (
-                                badge.emoji
+                                <span className='mt-1'>{badge.emoji}</span>
                             )}
                           </div>
                         </AlertDialogTrigger>
@@ -192,13 +192,13 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                     <AlertDialogContent>
                       <AlertDialogHeader className='items-center'>
                          <div className={cn(
-                            "h-24 w-24 border-4 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-5xl transition-all duration-300 cursor-pointer overflow-hidden",
+                            "h-24 w-24 border-4 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-5xl transition-all duration-300 cursor-pointer overflow-hidden rounded-full",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
-                                <Image src={badge.image} alt={badge.description} width={96} height={96} className="rounded-none" unoptimized />
+                                <Image src={badge.image} alt={badge.description} width={96} height={96} className="rounded-full" unoptimized />
                             ) : (
-                                badge.emoji
+                                <span className='mt-2'>{badge.emoji}</span>
                             )}
                           </div>
                         <AlertDialogTitle className="font-headline text-2xl pt-4">
