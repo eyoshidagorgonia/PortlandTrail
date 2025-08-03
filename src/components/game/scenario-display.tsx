@@ -17,7 +17,7 @@ interface ScenarioDisplayProps {
 }
 
 const LoadingState = () => (
-    <Card className="shadow-lg border-border/50 border">
+    <Card className="shadow-lg">
       <CardHeader className="p-4 pb-2">
         <Skeleton className="h-6 w-3/4" />
         <Skeleton className="h-4 w-1/2 mt-1" />
@@ -40,17 +40,12 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     return <LoadingState />;
   }
 
-  const choiceTexts = [
-      { text: "heck yes", description: "Embrace the weirdness. What's the worst that could happen?" },
-      { text: "nah i'm good", description: "This is too much. Time to leave." },
-  ]
-
   return (
-    <Card className="shadow-lg border-border/50 border">
+    <Card className="shadow-lg h-full flex flex-col">
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="font-headline text-2xl">{scenario.challenge}</CardTitle>
+        <CardTitle className="font-headline text-3xl">{scenario.challenge}</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 pt-2">
+      <CardContent className="p-4 pt-2 flex-grow">
         <div className="mb-4 rounded-md overflow-hidden border border-border/50 bg-muted/30">
           {isImageLoading || !sceneImage ? (
             <Skeleton className="w-full aspect-video" />
@@ -66,9 +61,9 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
             />
           )}
         </div>
-        <p className="text-base text-foreground/90 leading-relaxed whitespace-pre-wrap font-body">{scenario.scenario}</p>
+        <p className="text-lg text-foreground/90 leading-relaxed whitespace-pre-wrap font-body">{scenario.scenario}</p>
         {scenario.diablo2Element && (
-           <p className="mt-4 text-sm text-accent/80 border-l-2 border-accent/50 pl-3 italic font-body">
+           <p className="mt-4 text-base text-accent/80 border-l-2 border-accent/50 pl-3 italic font-body">
             {scenario.diablo2Element}
           </p>
         )}
@@ -82,13 +77,13 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant={index === 0 ? 'default' : 'secondary'} 
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
-                  className="font-headline lowercase text-lg"
+                  className="font-headline text-lg"
                 >
-                  {choiceTexts[index] ? choiceTexts[index].text : choice.text}
+                  {choice.text}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{choiceTexts[index] ? choiceTexts[index].description : choice.description}</p>
+                <p>{choice.description}</p>
               </TooltipContent>
             </Tooltip>
           ))}

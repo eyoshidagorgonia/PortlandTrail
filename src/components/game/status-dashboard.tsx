@@ -13,7 +13,6 @@ import {
   AuthenticityIcon,
   VinylIcon,
   CoffeeIcon,
-  BikeIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
@@ -23,7 +22,6 @@ import { getIronicHealthStatus } from '@/lib/constants';
 import {
   AlertDialog,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -40,19 +38,18 @@ interface StatItemProps {
   tooltip: string;
 }
 
-const StatItem = ({ icon: Icon, label, value, maxValue = 100, tooltip }: StatItemProps) => (
+const StatItem = ({ icon: Icon, label, value, maxValue = 200, tooltip }: StatItemProps) => (
   <TooltipProvider>
     <Tooltip>
       <TooltipTrigger className="w-full text-left">
-        <div className="group space-y-2 font-body">
+        <div className="group space-y-1 font-body">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Icon className="h-4 w-4 text-foreground/70" />
               <span>{label}</span>
             </div>
-            <span className="font-code text-foreground">{value}{maxValue === 100 ? '%' : ''}</span>
+            <span className="font-code text-foreground">{value}</span>
           </div>
-          {/* <Progress value={(value / maxValue) * 100} max={100} className="h-1.5" /> */}
         </div>
       </TooltipTrigger>
       <TooltipContent>
@@ -111,20 +108,19 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-start gap-4">
-            <Avatar className="h-24 w-24 border-2 border-secondary shrink-0">
-                {isImageLoading || !avatarImage ? (
-                    <Skeleton className="h-full w-full" />
-                ) : (
-                    <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
-                )}
-            </Avatar>
+      <CardHeader className="text-center">
+        <Avatar className="h-32 w-32 border-2 border-secondary mx-auto">
+            {isImageLoading || !avatarImage ? (
+                <Skeleton className="h-full w-full" />
+            ) : (
+                <AvatarImage src={avatarImage} alt={name} data-ai-hint="avatar portrait" />
+            )}
+        </Avatar>
 
-          <div className="flex-grow space-y-1.5">
+        <div className="space-y-1.5 pt-4">
             <CardTitle className="font-headline text-4xl tracking-wider">{name}</CardTitle>
             <CardDescription className="font-body text-lg">{job}</CardDescription>
-             <TooltipProvider>
+              <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Badge variant={ironicStatus.variant} className="cursor-help whitespace-nowrap">{ironicStatus.text}</Badge>
@@ -134,10 +130,9 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-          </div>
         </div>
         {bio && (
-            <CardDescription className="pt-4 text-base italic font-body text-foreground/80 border-l-4 border-secondary pl-4 mt-4">
+            <CardDescription className="pt-4 text-base italic font-body text-foreground/80 border-l-4 border-secondary pl-4 mt-4 text-left">
                 {bio}
             </CardDescription>
         )}
@@ -145,24 +140,24 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
       <CardContent>
         <div className="flex gap-4 mb-6">
             <Vial label="Hunger" value={stats.hunger} color="hsl(var(--primary))" tooltip="Gotta eat to keep up the non-conformity. Don't starve." />
-            <Vial label="Bike Health" value={resources.bikeHealth} color="hsl(var(--accent))" tooltip="Your fixed-gear's condition. A breakdown is social suicide." />
+            <Vial label="Bike" value={resources.bikeHealth} color="hsl(var(--accent))" tooltip="Your fixed-gear's condition. A breakdown is social suicide." />
         </div>
         
-        <div className="space-y-3 mb-6">
+        <div className="space-y-4 mb-6">
             <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Social Stats</h3>
-            <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your flair. Essential for navigating coffee shops." maxValue={200}/>
-            <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your ability to appreciate things in a detached, humorous way." maxValue={200}/>
-            <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A delicate balance." maxValue={200}/>
+            <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your flair. Essential for navigating coffee shops."/>
+            <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your ability to appreciate things in a detached, humorous way."/>
+            <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A delicate balance."/>
         </div>
-         <div className="space-y-3 mb-6">
+         <div className="space-y-4 mb-6">
             <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Inventory</h3>
             <div className="grid grid-cols-2 gap-4">
                 <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="Rare records increase your standing." />
-                <ResourceItem icon={CoffeeIcon} label="Coffee Beans" value={resources.coffee} tooltip="Fair-trade, single-origin coffee beans. The currency of the trail."/>
+                <ResourceItem icon={CoffeeIcon} label="Coffee" value={resources.coffee} tooltip="Fair-trade, single-origin coffee beans. The currency of the trail."/>
             </div>
         </div>
         {resources.badges.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-wider">Badges</h3>
             <TooltipProvider>
               <div className="flex flex-wrap gap-2">
@@ -200,11 +195,8 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                             )}
                           </div>
                         <AlertDialogTitle className="font-headline text-2xl pt-4">
-                           Badge Earned!
+                           Badge Earned: {badge.description}
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-center pt-2 text-base font-body">
-                           {badge.description}
-                        </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogAction>Nice</AlertDialogAction>

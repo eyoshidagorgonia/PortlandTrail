@@ -54,7 +54,7 @@ export default function HelpPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
-      <Card className="max-w-4xl w-full shadow-xl border border-border/50 bg-card/90 backdrop-blur-sm">
+      <Card className="max-w-4xl w-full shadow-xl bg-card/90 backdrop-blur-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-headline">How to Play</CardTitle>
           <CardDescription className="pt-2 font-body text-base text-muted-foreground">A guide to surviving your dark and ironic journey.</CardDescription>

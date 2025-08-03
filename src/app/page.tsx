@@ -137,7 +137,7 @@ export default function PortlandTrailPage() {
 
 
   const addLog = useCallback((message: string) => {
-    setEventLog(prev => [{ message, timestamp: new Date() }, ...prev.slice(0, 4)]);
+    setEventLog(prev => [{ message, timestamp: new Date() }, ...prev.slice(0, 9)]);
   }, []);
 
   const handleGenerateName = useCallback(async () => {
@@ -469,7 +469,7 @@ export default function PortlandTrailPage() {
   if (gameState === 'intro') {
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
-        <Card className="max-w-2xl w-full text-center shadow-xl border-border/50 border relative bg-card/90 backdrop-blur-sm">
+        <Card className="max-w-2xl w-full text-center shadow-xl relative bg-card/90 backdrop-blur-sm">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
               <h1 className="text-5xl font-headline font-bold text-primary">The Portland Trail</h1>
@@ -545,29 +545,36 @@ export default function PortlandTrailPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8 relative">
-      <div className="container mx-auto border-2 shadow-xl p-4 md:p-6 bg-card/80 rounded-lg backdrop-blur-sm border-border/30">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 flex flex-col gap-6">
+      <div className="container mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <div className="lg:col-span-3 flex flex-col gap-6">
             <StatusDashboard playerState={playerState} avatarImage={avatarImage} isImageLoading={isImageLoading} />
             <ActionsCard onAction={handleAction} isLoading={isLoading || isImageLoading} />
           </div>
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
+
+          <div className="lg:col-span-6 flex flex-col gap-6">
             <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
+          </div>
+
+          <div className="lg:col-span-3 flex flex-col gap-6">
+            <TrailMap progress={playerState.progress} waypoints={TRAIL_WAYPOINTS} currentLocation={currentLocation} />
             <Card>
-              <CardContent className="p-4">
-                 <h3 className="font-headline text-lg mb-2">Travel Diary</h3>
-                 <div className="text-sm text-muted-foreground space-y-2 font-body">
-                    {eventLog.map((log, i) => (
-                      <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
-                        <p className="text-primary/70 text-xs pt-0.5 whitespace-nowrap">
-                          [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
-                        </p>
-                        <p>{log.message}</p>
-                      </div>
-                    ))}
-                 </div>
-              </CardContent>
+              <CardHeader className="pb-4">
+                <CardContent className="p-0">
+                    <h3 className="font-headline text-2xl tracking-wider mb-2">Travel Diary</h3>
+                    <div className="text-sm text-muted-foreground space-y-2 font-body max-h-96 overflow-y-auto pr-2">
+                        {eventLog.map((log, i) => (
+                        <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
+                            <p className="text-primary/70 text-xs pt-0.5 whitespace-nowrap">
+                            [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
+                            </p>
+                            <p>{log.message}</p>
+                        </div>
+                        ))}
+                    </div>
+                </CardContent>
+              </CardHeader>
             </Card>
           </div>
         </div>
