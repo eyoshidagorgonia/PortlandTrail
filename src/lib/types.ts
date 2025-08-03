@@ -126,5 +126,3 @@ export const GenerateImagesOutputSchema = z.object({
   dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateImagesOutput = z.infer<typeof GenerateImagesOutputSchema>;
-
-    
