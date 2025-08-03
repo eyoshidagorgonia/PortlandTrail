@@ -67,6 +67,7 @@ The art style should be consistent: "Studio Ghibli anime style, beautiful, paint
 **1. Avatar Portrait Prompt:**
 - Create a prompt for a head-and-shoulders portrait of the player character.
 - The character's current state is represented by a Kaomoji. Interpret this Kaomoji emotionally to influence the portrait.
+- Incorporate elements of their job ('${input.character.job}') and general hipster aesthetics (e.g., tattoos, piercings, unique clothing, artisanal accessories).
 - Style: Focus on a character portrait.
 
 **2. Scene Depiction Prompt:**
