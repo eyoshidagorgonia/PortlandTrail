@@ -6,13 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { PlayerState } from '@/lib/types';
 import {
-  HungerIcon,
   StyleIcon,
   IronyIcon,
   AuthenticityIcon,
   VinylIcon,
   CoffeeIcon,
-  BikeIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -105,8 +103,8 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
   const { stats, resources, name, job, bio } = playerState;
 
   const normalizedHealth =
-    ((stats.hunger / 100) +
-      (resources.bikeHealth / 100) +
+    ((stats.health / 100) +
+      (resources.stamina / 100) +
       (stats.style / 200) +
       (stats.irony / 200) +
       (stats.authenticity / 200)) /
@@ -156,9 +154,10 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         </div>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
-        <div className="flex justify-around gap-4 px-4">
-            <Orb label="Hunger" value={stats.hunger} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--primary))"/>
-            <Orb label="Bike Health" value={resources.bikeHealth} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(var(--accent))"/>
+        <div className="flex justify-around gap-2 px-2">
+            <Orb label="Health" value={stats.health} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--primary))"/>
+            <Orb label="Vibes" value={stats.vibes} tooltip="Your creative and spiritual energy. Needed for... things." color="hsl(var(--accent))"/>
+            <Orb label="Stamina" value={resources.stamina} tooltip="Your fixed-gear's condition. A breakdown is social suicide." color="hsl(33, 58%, 30%)"/>
         </div>
         
         <ThematicSeparator />

@@ -2,6 +2,22 @@ import type { LucideProps } from 'lucide-react';
 
 // Gritty, woodcut-style icons for Diablo II feel
 
+export const HealthIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z" />
+      <path d="M12 12l2.5-2.5M12 12l-2.5 2.5M12 12l2.5 2.5M12 12l-2.5-2.5" />
+    </svg>
+);
+
+export const VibeIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a10 10 0 1 0 10 10c0-2.2-.7-4.2-2-5.7" />
+        <path d="M12 6V2" />
+        <path d="M12 12l4 4m0-4l-4 4" />
+    </svg>
+);
+
+
 export const HungerIcon = (props: LucideProps) => (
   <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 4L20 20M4 20L20 4"/>

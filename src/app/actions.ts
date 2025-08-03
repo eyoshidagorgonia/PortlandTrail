@@ -9,7 +9,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
   try {
     const scenarioInput = {
-      playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Bio: ${playerState.bio}, Hunger: ${playerState.stats.hunger}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Bike Health: ${playerState.resources.bikeHealth}%, Progress: ${playerState.progress}%`,
+      playerStatus: `Name: ${playerState.name}, Job: ${playerState.job}, Bio: ${playerState.bio}, Health: ${playerState.stats.health}/100, Style: ${playerState.stats.style}, Vinyls: ${playerState.resources.vinyls}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}, Stamina: ${playerState.resources.stamina}%, Progress: ${playerState.progress}%`,
       location: playerState.location,
       character: { name: playerState.name, job: playerState.job },
     };

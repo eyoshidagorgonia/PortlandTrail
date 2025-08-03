@@ -2,10 +2,11 @@ import type { GeneratePortlandScenarioOutput } from "@/ai/flows/generate-portlan
 import { z } from "zod";
 
 export interface PlayerStats {
-  hunger: number;
+  health: number;
   style: number;
   irony: number;
   authenticity: number;
+  vibes: number;
 }
 
 export interface Badge {
@@ -18,7 +19,7 @@ export interface Badge {
 export interface PlayerResources {
   vinyls: number;
   coffee: number;
-  bikeHealth: number;
+  stamina: number;
   badges: Badge[];
 }
 
@@ -38,14 +39,15 @@ export interface Choice {
   text: string;
   description: string;
   consequences: {
-    hunger: number;
+    health: number;
     style: number;
     irony: number;
     authenticity: number;
+    vibes: number;
     coffee: number;
     vinyls: number;
     progress: number;
-    bikeHealth: number;
+    stamina: number;
     badge?: Omit<Badge, 'isUber' | 'image'>;
   };
 }
@@ -55,14 +57,15 @@ export interface PlayerAction {
     description: string;
     icon: React.ElementType;
     consequences: {
-        hunger: number;
+        health: number;
         style: number;
         irony: number;
         authenticity: number;
+        vibes: number;
         coffee: number;
         vinyls: number;
         progress: number;
-        bikeHealth: number;
+        stamina: number;
     };
 }
 

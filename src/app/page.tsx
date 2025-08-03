@@ -126,8 +126,8 @@ export default function PortlandTrailPage() {
   
   const currentVibe = useMemo(() => {
     const normalizedHealth =
-      ((playerState.stats.hunger / 100) +
-        (playerState.resources.bikeHealth / 100) +
+      ((playerState.stats.health / 100) +
+        (playerState.resources.stamina / 100) +
         (playerState.stats.style / 200) +
         (playerState.stats.irony / 200) +
         (playerState.stats.authenticity / 200)) /
@@ -328,13 +328,13 @@ export default function PortlandTrailPage() {
   };
 
   const advanceTurn = (tempState: PlayerState) => {
-    if (tempState.stats.hunger <= 0) {
+    if (tempState.stats.health <= 0) {
       setGameState('gameover');
-      addLog('You have succumbed to hunger. Your journey ends.');
+      addLog('You have succumbed to poor health. Your journey ends.');
       setIsLoading(false);
       return;
     }
-    if (tempState.resources.bikeHealth <= 0) {
+    if (tempState.resources.stamina <= 0) {
         setGameState('gameover');
         addLog('Your bike broke down, leaving you stranded. Your journey ends.');
         setIsLoading(false);
@@ -391,14 +391,15 @@ export default function PortlandTrailPage() {
     let tempState = { ...playerState };
     const consequences = action.consequences;
 
-    tempState.stats.hunger = Math.min(100, Math.max(0, tempState.stats.hunger + consequences.hunger));
+    tempState.stats.health = Math.min(100, Math.max(0, tempState.stats.health + consequences.health));
     tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
     tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
     tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
+    tempState.stats.vibes = Math.min(100, Math.max(0, tempState.stats.vibes + consequences.vibes));
     tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
     tempState.resources.vinyls = Math.max(0, tempState.resources.vinyls + consequences.vinyls);
     tempState.progress = Math.min(100, Math.max(0, tempState.progress + consequences.progress));
-    tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
+    tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
     tempState.location = currentLocation;
 
     setPlayerState(tempState);
@@ -413,14 +414,15 @@ export default function PortlandTrailPage() {
     let tempState = { ...playerState };
 
     const consequences = choice.consequences;
-    tempState.stats.hunger = Math.max(0, tempState.stats.hunger + consequences.hunger);
+    tempState.stats.health = Math.max(0, tempState.stats.health + consequences.health);
     tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
     tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
     tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
+    tempState.stats.vibes = Math.min(100, Math.max(0, tempState.stats.vibes + consequences.vibes));
     tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
     tempState.resources.vinyls += consequences.vinyls;
     tempState.progress = Math.min(100, tempState.progress + consequences.progress);
-    tempState.resources.bikeHealth = Math.min(100, Math.max(0, tempState.resources.bikeHealth + consequences.bikeHealth));
+    tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
     
     if (consequences.badge) {
         const newBadge: Badge = { 
@@ -588,7 +590,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
-
-    

@@ -22,15 +22,16 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
   avatar: '(o_O)', // Default Kaomoji
   bio: '',
   stats: {
-    hunger: 80,
+    health: 80,
     style: 50,
     irony: 20,
     authenticity: 60,
+    vibes: 75,
   },
   resources: {
     vinyls: 1,
     coffee: 10,
-    bikeHealth: 100,
+    stamina: 100,
     badges: [],
   },
   location: 'San Francisco',

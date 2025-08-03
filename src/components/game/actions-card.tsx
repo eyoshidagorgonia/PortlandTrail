@@ -14,27 +14,27 @@ interface ActionsCardProps {
 const actions: PlayerAction[] = [
   {
     text: 'Forage for Food',
-    description: 'Scour for snacks. [+10 Hunger, -2 Style, -1 Progress]',
+    description: 'Scour for snacks. [+10 Health, -2 Style, -1 Progress]',
     icon: ForageIcon,
-    consequences: { hunger: 10, style: -2, irony: 0, authenticity: 0, coffee: 0, vinyls: 0, progress: -1, bikeHealth: 0 },
+    consequences: { health: 10, style: -2, irony: 0, authenticity: 0, vibes: 0, coffee: 0, vinyls: 0, progress: -1, stamina: 0 },
   },
   {
     text: 'Tune-up Bike',
-    description: 'Maintain your fixie. [-5 Coffee, +15 Bike Health, -1 Progress]',
+    description: 'Maintain your fixie. [-5 Coffee, +15 Stamina, -1 Progress]',
     icon: TuneUpIcon,
-    consequences: { hunger: 0, style: 0, irony: 0, authenticity: 0, coffee: -5, vinyls: 0, progress: -1, bikeHealth: 15 },
+    consequences: { health: 0, style: 0, irony: 0, authenticity: 0, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 15 },
   },
   {
     text: 'Go Thrifting',
     description: 'Hunt for vintage threads. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
     icon: ThriftIcon,
-    consequences: { hunger: 0, style: 10, irony: 0, authenticity: -5, coffee: -5, vinyls: 0, progress: -1, bikeHealth: 0 },
+    consequences: { health: 0, style: 10, irony: 0, authenticity: -5, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 0 },
   },
   {
     text: 'Street Perform',
     description: 'Share your "art". [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
     icon: StreetPerformIcon,
-    consequences: { hunger: 0, style: 0, irony: 5, authenticity: -5, coffee: 10, vinyls: 0, progress: -1, bikeHealth: 0 },
+    consequences: { health: 0, style: 0, irony: 5, authenticity: -5, vibes: 0, coffee: 10, vinyls: 0, progress: -1, stamina: 0 },
   },
 ];
 
@@ -70,5 +70,3 @@ export default function ActionsCard({ onAction, isLoading }: ActionsCardProps) {
     </Card>
   );
 }
-
-    

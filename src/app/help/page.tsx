@@ -9,7 +9,7 @@ import { AlertTriangle } from 'lucide-react';
 import { 
     GoalIcon, VitalsIcon, SocialStatsIcon, MapIcon, CardsIcon, 
     HungerIcon, BikeIcon, StyleIcon, IronyIcon, AuthenticityIcon,
-    CoffeeIcon, VinylIcon, LeftArrowIcon
+    CoffeeIcon, VinylIcon, LeftArrowIcon, VibeIcon
 } from '@/components/game/icons';
 import Link from 'next/link';
 import { BUILD_NUMBER } from '@/lib/constants';
@@ -75,8 +75,9 @@ export default function HelpPage() {
                 <VitalsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Your Vitals
               </AccordionTrigger>
               <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
-                <p className="flex items-start"><HungerIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Hunger:** If this reaches zero, you succumb to artisanal starvation. Keep it topped up by foraging or through scenario choices.</span></p>
-                <p className="flex items-start"><BikeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Bike Health:** Your trusty fixed-gear bike is your only way forward. If its health drops to zero, you're stranded. Perform maintenance to keep it in good shape.</span></p>
+                <p className="flex items-start"><HungerIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Health:** If this reaches zero, you succumb to artisanal starvation. Keep it topped up by foraging or through scenario choices.</span></p>
+                <p className="flex items-start"><BikeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Stamina:** Your trusty fixed-gear bike's endurance. If it drops to zero, you're stranded. Perform maintenance to keep it in good shape.</span></p>
+                <p className="flex items-start"><VibeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Vibes:** Your "mana" or mental energy. Certain choices or actions might require or grant vibes.</span></p>
               </AccordionContent>
             </AccordionItem>
 

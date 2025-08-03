@@ -15,7 +15,7 @@ import { callNexixApi } from '@/ai/nexix-api';
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
     .string()
-    .describe('The current status of the player, including hunger, style, vinyl collection, irony, and authenticity.'),
+    .describe('The current status of the player, including health, style, vinyl collection, irony, and authenticity.'),
   location: z.string().describe('The current location of the player on the trail.'),
   character: z.object({
     name: z.string(),
@@ -30,14 +30,15 @@ const BadgeSchema = z.object({
 });
 
 const ConsequencesSchema = z.object({
-    hunger: z.number().describe('The change in hunger. Can be positive or negative.'),
+    health: z.number().describe('The change in health. Can be positive or negative.'),
     style: z.number().describe('The change in style. Can be positive or negative.'),
     irony: z.number().describe('The change in irony. Can be positive or negative.'),
     authenticity: z.number().describe('The change in authenticity. Can be positive or negative.'),
+    vibes: z.number().describe('The change in vibes. Can be positive or negative.'),
     progress: z.number().describe('The change in progress towards Portland.'),
     coffee: z.number().describe('The change in coffee beans. Can be positive or negative.'),
     vinyls: z.number().describe('The change in vinyl records. Can be positive or negative.'),
-    bikeHealth: z.number().describe('The change in bike health. Can be positive or negative.'),
+    stamina: z.number().describe('The change in bike stamina. Can be positive or negative.'),
 });
 
 const ChoiceSchema = z.object({
@@ -74,11 +75,11 @@ export async function generatePortlandScenario(
 ): Promise<GeneratePortlandScenarioOutput> {
   console.log('[generatePortlandScenario] Started with agent flow.');
   const prompt = `You are the Game Master for "The Portland Trail," a quirky text-based RPG.
-Your job is to create a complete, self-contained scenario for the player, including balanced choices and consequences.
+Your job is to create a complete, self-contained scenario for the player, including balanced choices and consequences. The player has three primary stats: Health (don't let it hit 0), Stamina (for their bike, don't let it hit 0), and Vibes (a mana-like resource for special actions).
 
 **Player Analysis & Consequence Generation:**
 First, analyze the player's current status.
-- If the player is struggling (e.g., low hunger, low bike health, low progress), generate choices with more generous rewards (positive outcomes) and less severe penalties. For example, the "avoid" choice should have minimal negative impact.
+- If the player is struggling (e.g., low health, low stamina, low progress), generate choices with more generous rewards (positive outcomes) and less severe penalties. For example, the "avoid" choice should have minimal negative impact.
 - If the player is doing well, you can create more challenging scenarios with higher risks and more nuanced rewards.
 - The consequences you generate should be logical for the choice. For example, choosing to leave a scenario should always grant some progress.
 
@@ -105,12 +106,12 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     {
       "text": "Text for the 'Embrace' choice",
       "description": "Tooltip for the 'Embrace' choice",
-      "consequences": { "hunger": 0, "style": 5, "irony": 2, "authenticity": -2, "progress": 1, "coffee": 0, "vinyls": 0, "bikeHealth": 0 }
+      "consequences": { "health": 0, "style": 5, "irony": 2, "authenticity": -2, "vibes": 0, "progress": 1, "coffee": 0, "vinyls": 0, "stamina": 0 }
     },
     {
       "text": "Text for the 'Avoid' choice",
       "description": "Tooltip for the 'Avoid' choice",
-      "consequences": { "hunger": -2, "style": -1, "irony": -1, "authenticity": 0, "progress": 4, "coffee": 0, "vinyls": 0, "bikeHealth": -5 }
+      "consequences": { "health": -2, "style": -1, "irony": -1, "authenticity": 0, "vibes": 0, "progress": 4, "coffee": 0, "vinyls": 0, "stamina": -5 }
     }
   ],
   "shouldAwardBadge": boolean,
@@ -154,12 +155,12 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         {
             text: 'Embrace the weirdness',
             description: "What's the worst that could happen?",
-            consequences: { hunger: -2, style: 5, irony: 5, authenticity: -3, progress: 0, coffee: 0, vinyls: 0, bikeHealth: 0 },
+            consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0 },
         },
         {
             text: 'Skedaddle',
             description: 'This is too much. Time to leave.',
-            consequences: { hunger: -1, style: -2, irony: 0, authenticity: 0, progress: 3, coffee: 0, vinyls: 0, bikeHealth: -5 },
+            consequences: { health: -1, style: -2, irony: 0, authenticity: 0, vibes: -5, progress: 3, coffee: 0, vinyls: 0, stamina: -5 },
         }
       ],
       badge: {
