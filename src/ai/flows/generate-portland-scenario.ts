@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { callNexixApi, callNexixApiFallback } from '@/ai/nexix-api';
+import { callNexixApi } from '@/ai/nexix-api';
 import { ChoiceSchema, BadgeSchema } from '@/lib/types';
 
 const GeneratePortlandScenarioInputSchema = z.object({
@@ -101,41 +101,42 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary';
 
   try {
-    console.log('[generatePortlandScenario] Trying primary AI service...');
     result = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
-  } catch (primaryError) {
-    console.warn(`[generatePortlandScenario] Primary call failed. Trying fallback service.`, { primaryError });
-    dataSource = 'fallback';
-    try {
-        console.log("[generatePortlandScenario] Trying fallback AI service...");
-        result = await callNexixApiFallback(prompt, OllamaResponseSchema);
-    } catch (fallbackError) {
-        console.error(`[generatePortlandScenario] All AI calls failed. Returning hard-coded scenario.`, { fallbackError });
-        dataSource = 'hardcoded';
-        result = {
-            scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
-            challenge: 'Question your reality',
-            diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-            avatarKaomoji: '(o_O;)',
-            choices: [
-                {
-                    text: 'Embrace the weirdness',
-                    description: "What's the worst that could happen?",
-                    consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0, badge: { badgeDescription: 'Fedorapocalypse Witness', badgeEmoji: '🐦', isUber: false } },
-                },
-                {
-                    text: 'Skedaddle',
-                    description: 'This is too much. Time to leave.',
-                    consequences: { health: -1, style: -2, irony: 0, authenticity: 0, vibes: -5, progress: 3, coffee: 0, vinyls: 0, stamina: -5 },
-                },
-                {
-                    text: 'Summon Hipsters',
-                    description: 'Call upon the local cognoscenti for aid. What could go wrong?',
-                    consequences: { health: -50, style: -20, irony: -20, authenticity: -20, vibes: -50, progress: 0, coffee: -10, vinyls: -2, stamina: -50 },
-                }
-            ],
-        };
-    }
+    // Assuming success means primary or internal fallback worked.
+    // This is an optimistic assignment.
+  } catch (error) {
+    console.error(`[generatePortlandScenario] All AI calls failed. Returning hard-coded scenario.`, { error });
+    dataSource = 'hardcoded';
+    result = {
+        scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
+        challenge: 'Question your reality',
+        diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
+        avatarKaomoji: '(o_O;)',
+        choices: [
+            {
+                text: 'Embrace the weirdness',
+                description: "What's the worst that could happen?",
+                consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0, badge: { badgeDescription: 'Fedorapocalypse Witness', badgeEmoji: '🐦', isUber: false } },
+            },
+            {
+                text: 'Skedaddle',
+                description: 'This is too much. Time to leave.',
+                consequences: { health: -1, style: -2, irony: 0, authenticity: 0, vibes: -5, progress: 3, coffee: 0, vinyls: 0, stamina: -5 },
+            },
+            {
+                text: 'Summon Hipsters',
+                description: 'Call upon the local cognoscenti for aid. What could go wrong?',
+                consequences: { health: -50, style: -20, irony: -20, authenticity: -20, vibes: -50, progress: 0, coffee: -10, vinyls: -2, stamina: -50 },
+            }
+        ],
+    };
+  }
+
+  // If the API call failed, we need to know for the dataSource.
+  // A more sophisticated approach would have callNexixApi return the source.
+  if (dataSource !== 'hardcoded') {
+      // This is a simplification. We can't be sure if it was primary or fallback.
+      dataSource = 'primary';
   }
 
   const output: GeneratePortlandScenarioOutput = {

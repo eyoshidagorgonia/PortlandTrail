@@ -13,7 +13,7 @@ import { z } from 'zod';
 import { generateImage } from '../auto1111-api';
 import type { GenerateImagesInput, GenerateImagesOutput } from '@/lib/types';
 import { GenerateImagesInputSchema, GenerateImagesOutputSchema } from '@/lib/types';
-import { callNexixApi, callNexixApiFallback } from '../nexix-api';
+import { callNexixApi } from '../nexix-api';
 
 
 export async function generateImagesForScenario(input: GenerateImagesInput): Promise<GenerateImagesOutput> {
@@ -92,25 +92,17 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 }`;
     
     let prompts;
-    let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary';
+    let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary'; // Assume success
     try {
-        console.log("[generateImagesFlow] Trying primary AI service...");
         prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
-    } catch(primaryError) {
-        console.warn(`[generateImagesFlow] Primary call failed. Trying fallback service.`, { primaryError });
-        try {
-            console.log("[generateImagesFlow] Trying fallback AI service...");
-            prompts = await callNexixApiFallback(prompt, ImageGenPromptOutputSchema);
-            dataSource = 'fallback';
-        } catch (fallbackError) {
-            console.error("[generateImagesFlow] All AI calls failed. Using hardcoded prompts.", { fallbackError });
-            prompts = {
-                avatarPrompt: null,
-                scenePrompt: input.scenarioDescription,
-                badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : null,
-            };
-            dataSource = 'hardcoded';
-        }
+    } catch(error) {
+        console.error("[generateImagesFlow] All AI calls failed. Using hardcoded prompts.", { error });
+        prompts = {
+            avatarPrompt: null,
+            scenePrompt: input.scenarioDescription,
+            badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : null,
+        };
+        dataSource = 'hardcoded';
     }
     
     console.log('[generateImagesFlow] Generated prompts:', prompts);

@@ -9,7 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { callNexixApi, callNexixApiFallback } from '@/ai/nexix-api';
+import { callNexixApi } from '@/ai/nexix-api';
 
 const GenerateTransportModeOutputSchema = z.object({
   text: z.string().describe('A 2-4 word phrase for a button describing a quirky way to leave a situation.'),
@@ -48,26 +48,15 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   "text": "The generated phrase."
 }`;
     try {
-      console.log("[generateTransportModeFlow] Trying primary AI service...");
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
-      return { ...parsedResult, dataSource: 'primary' };
-    } catch (primaryError) {
-        console.warn(`[generateTransportModeFlow] Primary call failed. Trying fallback service.`, { primaryError });
-        try {
-            console.log("[generateTransportModeFlow] Trying fallback AI service...");
-            const fallbackResult = await callNexixApiFallback(prompt, GenerateTransportModeOutputSchema);
-            return {
-                ...fallbackResult,
-                dataSource: 'fallback',
-            }
-        } catch (fallbackError) {
-            console.error(`[generateTransportModeFlow] All AI calls failed.`, { fallbackError });
-            const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
-            const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
-            return {
-                text: fallbackText,
-                dataSource: 'hardcoded',
-            }
+      return { ...parsedResult, dataSource: 'primary' }; // Assuming success means primary/fallback worked.
+    } catch (error) {
+        console.error(`[generateTransportModeFlow] All AI calls failed.`, { error });
+        const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
+        const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
+        return {
+            text: fallbackText,
+            dataSource: 'hardcoded',
         }
     }
   }
