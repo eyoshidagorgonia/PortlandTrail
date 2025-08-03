@@ -264,7 +264,7 @@ export default function PortlandTrailPage() {
 
     // Fetch images for the first scenario
     // We pass the *full* new player state, including the potentially new kaomoji
-    fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji }, true);
+    fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
 
   }, [name, job, avatarKaomoji, bio, toast, addLog, updateSystemStatus, introAvatarImage]);
   
@@ -285,16 +285,13 @@ export default function PortlandTrailPage() {
     localStorage.removeItem('fullyOfflineServices');
   }, []);
 
-  const fetchImages = async (currentScenario: Scenario, currentPlayerState: PlayerState, isFirstTurn: boolean = false) => {
+  const fetchImages = async (currentScenario: Scenario, currentPlayerState: PlayerState) => {
     setIsImageLoading(true);
     setSceneImage('');
     setBadgeImage(null);
-    
-    if (!isFirstTurn) {
-        setAvatarImage('');
-    }
 
     const imageInput = {
+      // The avatar is no longer regenerated here, so we only need scene and badge info.
       scenarioDescription: currentScenario.scenario,
       character: {
         name: currentPlayerState.name,
@@ -310,9 +307,7 @@ export default function PortlandTrailPage() {
     if ('error' in imageResult) {
       toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
     } else {
-      if (!isFirstTurn) {
-        setAvatarImage(imageResult.avatarImage);
-      }
+      // Only update scene and badge images. Avatar remains the same.
       setSceneImage(imageResult.sceneImage);
       if (imageResult.badgeImage) {
         setBadgeImage(imageResult.badgeImage);
@@ -570,6 +565,14 @@ export default function PortlandTrailPage() {
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-6">
+            <div className="opacity-0 animate-fade-in animate-delay-200">
+                <TrailMap 
+                    progress={playerState.progress}
+                    waypoints={TRAIL_WAYPOINTS}
+                    currentLocation={playerState.location}
+                    events={playerState.events}
+                />
+            </div>
             <div className="opacity-0 animate-fade-in animate-delay-300">
                 <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
             </div>
@@ -603,5 +606,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    

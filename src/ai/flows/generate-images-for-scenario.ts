@@ -21,7 +21,7 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
 }
 
 const ImageGenPromptOutputSchema = z.object({
-    avatarPrompt: z.string().describe("A detailed text-to-image prompt for the character's avatar portrait."),
+    avatarPrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the character's avatar portrait."),
     scenePrompt: z.string().describe("A detailed text-to-image prompt for the scene depiction."),
     badgePrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the badge icon, if a badge was awarded."),
 });
@@ -67,34 +67,26 @@ Your goal is to create three distinct, detailed prompts based on a game scenario
 - **Art Style:** "High-detail painterly illustration with subtle grain, dark fantasy shadows, soft natural lighting, character-focused composition, Ghibli-inspired linework and brush textures."
 - **Mood/Tone:** "Moody, melancholic atmosphere with magical realism and ironic modern flair."
 
-**1. Avatar Portrait Prompt:**
-- **Task:** Create a prompt for a head-to-chest portrait of the player character.
-- **Style:** "Ghibli-style fantasy character with a modern hipster aesthetic."
-- **Composition:** The character should be the focus. Incorporate their job into their appearance or an item they are holding.
-- **Lighting & Mood:** "Soft magical light, candle-lit fog, neon glow meets firefly shimmer." Use Diablo IV's dark, moody atmosphere with soft, emotional lighting reminiscent of Studio Ghibli.
-- **Details:** The character is a '${input.character.job}'. Include specific hipster accessories like round glasses, wool caps, layered clothing, tattoos, etc. The character's expression should match their current vibe: "${input.character.vibe}".
+**IMPORTANT: Do not generate an avatar prompt. The avatar is persistent and does not change. Set the 'avatarPrompt' field to null.**
 
-**2. Scene Depiction Prompt:**
+**1. Scene Depiction Prompt:**
 - **Task:** Create a prompt for a wide-angle shot of the entire scenario.
 - **Style:** Blend Ghibli's painterly environments with Diablo's dark, gothic architecture and grit.
 - **Content:** Include the key elements from the scenario description, focusing on the environment, mood, and any specific actions.
 - **Lighting:** Use dramatic lighting sources like "floating lanterns," "firelight from windows," or "glowing runes."
 
-**3. Badge Icon Prompt (if applicable):**
+**2. Badge Icon Prompt (if applicable):**
 - **Task:** If a badge is present, create a prompt for a simple, iconic inventory item.
 - **Style:** "Hand-drawn magical object on a faded parchment background, high-res fantasy sketch with ink and watercolor."
 - **Content:** The icon should be a single, clean object representing the badge's description and emoji.
 
 **Input Data:**
-- Character Name: ${input.character.name}
-- Character Job: ${input.character.job}
-- Character Vibe: ${input.character.vibe}
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The JSON object should conform to this structure:
+You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The 'avatarPrompt' key MUST be null. The JSON object should conform to this structure:
 {
-    "avatarPrompt": "The generated prompt for the avatar.",
+    "avatarPrompt": null,
     "scenePrompt": "The generated prompt for the scene.",
     "badgePrompt": "The generated prompt for the badge (or null if no badge)."
 }`;
@@ -107,7 +99,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         console.error("[generateImagesFlow] Failed to generate prompts via API, using fallbacks.", { error });
         // Fallback prompts
         prompts = {
-            avatarPrompt: `A portrait of ${input.character.name} the ${input.character.job}`,
+            avatarPrompt: null,
             scenePrompt: input.scenarioDescription,
             badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : null,
         };
@@ -118,12 +110,8 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
     const imagePromises = [];
 
-    // Avatar Image Promise
-    imagePromises.push(generateImage(
-        `${prompts.avatarPrompt}, Ghibli style, Diablo IV mood, hipster aesthetic, painterly illustration, soft shadows`,
-        'photorealistic, 3d render, photo, realism, ugly, deformed',
-        512, 512
-    ));
+    // Avatar is no longer generated here. Push a resolved promise with an empty string.
+    imagePromises.push(Promise.resolve(''));
 
     // Scene Image Promise
     imagePromises.push(generateImage(
