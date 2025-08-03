@@ -43,7 +43,7 @@ export async function generateImage(
     height,
     sampler_name: 'Euler a',
     override_settings: {
-        "sd_model_checkpoint": "sd-v1-5-inpainting",
+        "sd_model_checkpoint": "sd_xl_base_1.0.safetensors",
     }
   };
 
