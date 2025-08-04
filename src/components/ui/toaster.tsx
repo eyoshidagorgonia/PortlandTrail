@@ -43,9 +43,9 @@ export function Toaster() {
       })}
       <ToastViewport>
         {history.length > 0 && (
-          <Accordion type="single" collapsible className="w-full max-w-[210px]">
+          <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="history" className="border-none">
-              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-2 font-headline text-base hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted">
+              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-1 font-headline text-base hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted">
                 <Brain className="h-5 w-5"/>
               </AccordionTrigger>
               <AccordionContent className="bg-background border border-t-0 p-0 rounded-b-sm">
