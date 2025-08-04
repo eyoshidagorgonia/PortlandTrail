@@ -18,8 +18,8 @@ import StatusDashboard from '@/components/game/status-dashboard';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
-import { RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
-import { PennyFarthingIcon } from '@/components/game/icons';
+import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { PennyFarthingIcon, ConjuringIcon } from '@/components/game/icons';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
@@ -560,7 +560,7 @@ export default function PortlandTrailPage() {
                       disabled={isNameLoading}
                       aria-label="Randomize Name"
                       >
-                      {isNameLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+                      {isNameLoading ? <ConjuringIcon className="h-6 w-6" /> : <RefreshCw />}
                     </Button>
                   </div>
                 </div>

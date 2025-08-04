@@ -119,4 +119,16 @@
 .animate-spin-wheel {
   animation: spin-wheel 1s linear infinite;
 }
+
+@keyframes conjuring {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-conjuring-fast {
+  animation: conjuring 2s linear infinite;
+}
+.animate-conjuring-slow {
+  animation: conjuring 4s linear infinite reverse;
+}
     

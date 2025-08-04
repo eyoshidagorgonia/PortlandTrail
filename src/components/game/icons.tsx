@@ -1,4 +1,5 @@
 import type { LucideProps } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // Gritty, woodcut-style icons for Diablo II feel
 
@@ -162,4 +163,18 @@ export const PennyFarthingIcon = ({ isloading, ...props }: PennyFarthingIconProp
       <path d="M9.5 19 L11.5 8.5 L7 8.5" />
       <path d="M7 8.5L2 8.5" />
     </svg>
+);
+
+export const ConjuringIcon = (props: LucideProps) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <g style={{ transformOrigin: 'center' }} className="animate-conjuring-slow">
+        <path d="M12 2a10 10 0 1 0 10 10" />
+    </g>
+     <g style={{ transformOrigin: 'center' }} className="animate-conjuring-fast">
+        <path d="M12 6a6 6 0 1 0 6 6" />
+    </g>
+    <g style={{ transformOrigin: 'center' }} className="animate-conjuring-slow">
+        <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" strokeDasharray="2 2" />
+    </g>
+  </svg>
 );
