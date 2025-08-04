@@ -366,15 +366,19 @@ export default function PortlandTrailPage() {
       return;
     }
 
-    const { id: toastId } = toast({ title: 'The Trail Continues...', description: 'A new event appears on the horizon.' });
+    const { id: toastId, update } = toast({ title: 'Game Master is thinking...', description: 'Analyzing your precarious situation.' });
 
     const getNextScenario = async () => {
         try {
+            setTimeout(() => {
+                update({ id: toastId, title: 'Game Master is thinking...', description: 'Crafting a quirky, ironic trial...' });
+            }, 750);
+            
             const result = await getScenarioAction(tempState);
             setIsLoading(false);
             if ('error' in result && result.error) {
                 addLog(result.error, tempState.progress);
-                toast({
+                update({
                     id: toastId,
                     variant: "destructive",
                     title: "The Trail Went Cold",
@@ -390,13 +394,13 @@ export default function PortlandTrailPage() {
                 
                 const newPlayerState = {...tempState, avatar: scenarioResult.playerAvatar!};
                 setPlayerState(newPlayerState);
-                toast({ id: toastId, title: 'New Scenario!', description: 'What fresh weirdness is this?' });
+                update({ id: toastId, title: 'New Scenario!', description: 'What fresh weirdness is this?' });
                 fetchImages(scenarioResult, newPlayerState);
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             setIsLoading(false);
-            toast({
+            update({
                 id: toastId,
                 variant: "destructive",
                 title: "Failed to get next scenario",
@@ -641,3 +645,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
