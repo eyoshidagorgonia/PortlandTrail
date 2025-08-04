@@ -123,13 +123,15 @@ export default function PortlandTrailPage() {
 
   const handleGenerateName = useCallback(async () => {
     setIsNameLoading(true);
+    const { id: toastId } = toast({ title: 'Conjuring Name...', description: 'The AI is brewing a quirky moniker.' });
     try {
         const result = await generateHipsterName();
         setName(result.name);
         updateSystemStatus({ name: result.dataSource });
+        toast({ id: toastId, title: 'Name Conjured!', description: 'Your new identity awaits.' });
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
+        toast({ id: toastId, variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
         setName('Pip'); // Hardcoded fallback
     } finally {
         setIsNameLoading(false);
@@ -139,13 +141,15 @@ export default function PortlandTrailPage() {
   const handleGenerateBio = useCallback(async (vibe: string) => {
      if (!name || !job) return;
     setIsBioLoading(true);
+    const { id: toastId } = toast({ title: 'Crafting Bio...', description: 'The AI is writing your life story (a short one).' });
     try {
         const result = await generateCharacterBio({ name, job, vibe });
         setBio(result.bio);
         updateSystemStatus({ bio: result.dataSource });
+        toast({ id: toastId, title: 'Bio Crafted!', description: 'Your essence, distilled into a few sentences.' });
     } catch(error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ variant: 'destructive', title: 'Bio Generation Failed', description: errorMessage });
+        toast({ id: toastId, variant: 'destructive', title: 'Bio Generation Failed', description: errorMessage });
         setBio("They're... complicated."); // Hardcoded fallback
     } finally {
         setIsBioLoading(false);
@@ -155,7 +159,8 @@ export default function PortlandTrailPage() {
   const generateIntroAvatar = useCallback(async () => {
     if (!name || !job) return;
     setIsIntroAvatarLoading(true);
-
+    const { id: toastId } = toast({ title: 'Conjuring Avatar...', description: 'Capturing your artisanal essence in pixels.' });
+    
     const imageInput = {
       scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${name}, who is a ${job}.`,
       character: { name, job, vibe: "Just starting out", avatarKaomoji },
@@ -164,18 +169,18 @@ export default function PortlandTrailPage() {
     try {
         const imageResult = await getImagesAction(imageInput);
         if ('error' in imageResult) {
-            toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+            toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
             setIntroAvatarImage('');
         } else {
             setIntroAvatarImage(imageResult.avatarImage);
             if (imageResult.dataSource) {
                 updateSystemStatus({ image: imageResult.dataSource });
             }
-            toast({ title: 'Avatar Conjured', description: 'Your essence has been captured.' });
+            toast({ id: toastId, title: 'Avatar Conjured', description: 'Your essence has been captured.' });
         }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
+        toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
         setIntroAvatarImage('');
     } finally {
         setIsIntroAvatarLoading(false);
@@ -209,13 +214,18 @@ export default function PortlandTrailPage() {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
+        const { id: toastId } = toast({ title: 'Vibe Shift!', description: 'Recrafting your bio to match the new mood.' });
         generateCharacterBio({name: playerState.name, job: playerState.job, vibe: newVibe}).then(result => {
            setPlayerState(prevState => ({...prevState, bio: result.bio, vibe: newVibe }));
            updateSystemStatus({ bio: result.dataSource });
+           toast({ id: toastId, title: 'Bio Updated', description: 'Your story has changed.' });
+        }).catch(error => {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            toast({ id: toastId, variant: 'destructive', title: 'Bio Update Failed', description: errorMessage });
         });
       }
     }
-  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, updateSystemStatus, handleGenerateBio]);
+  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, updateSystemStatus, toast]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -224,6 +234,7 @@ export default function PortlandTrailPage() {
     }
 
     setIsLoading(true);
+    const { id: toastId } = toast({ title: 'Starting Your Journey...', description: 'The road to Portland unfolds before you.' });
     
     const initialEvents: TrailEvent[] = [{ progress: 0, description: "Your journey begins in San Francisco.", timestamp: new Date() }];
     
@@ -243,6 +254,7 @@ export default function PortlandTrailPage() {
     const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
     if ('error' in result && result.error) {
       toast({
+        id: toastId,
         variant: 'destructive',
         title: 'A Rocky Start',
         description: result.error,
@@ -268,6 +280,7 @@ export default function PortlandTrailPage() {
     
     setGameState('playing');
     setIsLoading(false);
+    toast({ id: toastId, title: 'Journey Begun!', description: 'Your first trial awaits.' });
 
     // Fetch images for the first scenario
     // We pass the *full* new player state, including the potentially new kaomoji
@@ -296,6 +309,7 @@ export default function PortlandTrailPage() {
     setIsImageLoading(true);
     setSceneImage('');
     setBadgeImage(null);
+    const { id: toastId } = toast({ title: 'Conjuring Scene...', description: 'The AI is painting a picture of your surroundings.' });
 
     const imageInput = {
       // The avatar is no longer regenerated here, so we only need scene and badge info.
@@ -312,7 +326,7 @@ export default function PortlandTrailPage() {
     try {
         const imageResult = await getImagesAction(imageInput);
         if ('error' in imageResult) {
-            toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+            toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
         } else {
             // Only update scene and badge images. Avatar remains the same.
             setSceneImage(imageResult.sceneImage);
@@ -322,11 +336,11 @@ export default function PortlandTrailPage() {
             if (imageResult.dataSource) {
                 updateSystemStatus({ image: imageResult.dataSource });
             }
-            toast({ title: 'Visions Conjured', description: 'The scene has been rendered.' });
+            toast({ id: toastId, title: 'Visions Conjured', description: 'The scene has been rendered.' });
         }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
+        toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
     } finally {
         setIsImageLoading(false);
     }
@@ -352,6 +366,8 @@ export default function PortlandTrailPage() {
       return;
     }
 
+    const { id: toastId } = toast({ title: 'The Trail Continues...', description: 'A new event appears on the horizon.' });
+
     const getNextScenario = async () => {
         try {
             const result = await getScenarioAction(tempState);
@@ -359,6 +375,7 @@ export default function PortlandTrailPage() {
             if ('error' in result && result.error) {
                 addLog(result.error, tempState.progress);
                 toast({
+                    id: toastId,
                     variant: "destructive",
                     title: "The Trail Went Cold",
                     description: result.error,
@@ -373,13 +390,14 @@ export default function PortlandTrailPage() {
                 
                 const newPlayerState = {...tempState, avatar: scenarioResult.playerAvatar!};
                 setPlayerState(newPlayerState);
-
+                toast({ id: toastId, title: 'New Scenario!', description: 'What fresh weirdness is this?' });
                 fetchImages(scenarioResult, newPlayerState);
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             setIsLoading(false);
             toast({
+                id: toastId,
                 variant: "destructive",
                 title: "Failed to get next scenario",
                 description: errorMessage,

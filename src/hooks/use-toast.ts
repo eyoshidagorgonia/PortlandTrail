@@ -1,3 +1,4 @@
+
 "use client"
 
 // Inspired by react-hot-toast library
@@ -8,8 +9,8 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_LIMIT = 3;
+const TOAST_REMOVE_DELAY = 5000;
 
 type ToasterToast = ToastProps & {
   id: string
@@ -140,35 +141,51 @@ function dispatch(action: Action) {
   })
 }
 
-type Toast = Omit<ToasterToast, "id">
+type Toast = Omit<ToasterToast, "id"> & { id?: string };
 
-function toast({ ...props }: Toast) {
-  const id = genId()
+function toast(props: Toast) {
+  const id = props.id || genId();
+  const existingToast = memoryState.toasts.find(t => t.id === id);
 
-  const update = (props: ToasterToast) =>
+  if (existingToast) {
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },
-    })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
-
-  dispatch({
-    type: "ADD_TOAST",
-    toast: {
-      ...props,
-      id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss()
+    });
+  } else {
+    dispatch({
+      type: "ADD_TOAST",
+      toast: {
+        ...props,
+        id,
+        open: true,
+        onOpenChange: (open) => {
+          if (!open) dismiss(id);
+        },
       },
-    },
-  })
+    });
+  }
+  
+  // Automatically dismiss after a delay
+  const dismissDelay = props.duration || TOAST_REMOVE_DELAY;
+  setTimeout(() => {
+    dismiss(id);
+  }, dismissDelay);
+
 
   return {
     id: id,
-    dismiss,
-    update,
-  }
+    dismiss: () => dismiss(id),
+    update: (props: ToasterToast) =>
+      dispatch({
+        type: "UPDATE_TOAST",
+        toast: { ...props, id },
+      }),
+  };
+}
+
+function dismiss(toastId?: string) {
+    dispatch({ type: "DISMISS_TOAST", toastId })
 }
 
 function useToast() {
@@ -187,7 +204,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
+    dismiss,
   }
 }
 
