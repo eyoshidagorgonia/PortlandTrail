@@ -54,8 +54,8 @@ export function Toaster() {
               <AccordionContent className="bg-background border border-t-0 p-0 rounded-b-sm">
                 <ScrollArea className="h-72">
                   <div className="p-4 space-y-3">
-                    {history.map((toast) => (
-                      <div key={toast.id} className="text-sm text-foreground/80 border-b border-border/50 pb-2 last:border-b-0">
+                    {history.map((toast, index) => (
+                      <div key={`${toast.id}-${index}`} className="text-sm text-foreground/80 border-b border-border/50 pb-2 last:border-b-0">
                         {toast.title && <p className="font-bold">{toast.title}</p>}
                         {toast.description && <p>{toast.description as React.ReactNode}</p>}
                       </div>
