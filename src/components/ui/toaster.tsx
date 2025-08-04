@@ -45,11 +45,8 @@ export function Toaster() {
         {history.length > 0 && (
           <Accordion type="single" collapsible className="w-full max-w-sm">
             <AccordionItem value="history" className="border-none">
-              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-2 font-headline text-base hover:no-underline hover:bg-muted transition-colors [&[data-state=open]]:rounded-b-none [&[data-state=open]]:p-4 [&[data-state=open]]:text-lg">
-                <div className="flex items-center gap-2">
-                    <Bell className="h-5 w-5"/>
-                    <span>Notification History</span>
-                </div>
+              <AccordionTrigger className="w-auto justify-center rounded-sm bg-background border p-2 font-headline text-base hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted">
+                <Bell className="h-5 w-5"/>
               </AccordionTrigger>
               <AccordionContent className="bg-background border border-t-0 p-0 rounded-b-sm">
                 <ScrollArea className="h-72">
