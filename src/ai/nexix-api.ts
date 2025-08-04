@@ -79,7 +79,9 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
 
   try {
     const data = JSON.parse(jsonString);
-    return schema.parse(data);
+    // Use .passthrough() to allow extra fields in the AI response without failing validation.
+    // This makes the parsing more resilient to minor variations in the AI's output.
+    return schema.passthrough().parse(data);
   } catch (error) {
       console.error(`[callNexixApi] Failed to parse or validate the JSON content.`, { jsonString, error });
       if (error instanceof z.ZodError) {
