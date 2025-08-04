@@ -134,7 +134,6 @@ export default function PortlandTrailPage() {
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast({ id: toastId, variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
-        setName('Pip'); // Hardcoded fallback
     } finally {
         setIsNameLoading(false);
     }
@@ -152,7 +151,6 @@ export default function PortlandTrailPage() {
     } catch(error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast({ id: toastId, variant: 'destructive', title: 'Bio Generation Failed', description: errorMessage });
-        setBio("They're... complicated."); // Hardcoded fallback
     } finally {
         setIsBioLoading(false);
     }
@@ -214,13 +212,13 @@ export default function PortlandTrailPage() {
 
   // Countdown timer effect
   useEffect(() => {
-    if (gameState === 'intro') {
+    if (gameState === 'intro' && isAvatarRendered) {
         if (countdown > 0) {
             const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
             return () => clearTimeout(timer);
         }
     }
-  }, [gameState, countdown]);
+  }, [gameState, countdown, isAvatarRendered]);
 
   // Regenerate bio when vibe changes during gameplay
   useEffect(() => {
@@ -669,4 +667,5 @@ export default function PortlandTrailPage() {
   );
 }
 
+    
     
