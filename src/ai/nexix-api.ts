@@ -79,7 +79,7 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
 ): Promise<z.infer<T>> {
   const url = 'https://modelapi.nexix.ai/api/v1/chat/completions';
   const apiKey = process.env.NEXIX_API_KEY;
-  const fallbackModel = "gemma:2b-instruct-q8_0";
+  const fallbackModel = "llama3.1:8b";
 
   if (!apiKey) {
     throw new Error('NEXIX_API_KEY environment variable is not set.');
