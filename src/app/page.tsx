@@ -136,22 +136,34 @@ export default function PortlandTrailPage() {
 
   const handleGenerateName = useCallback(async () => {
     setIsNameLoading(true);
-    const result = await generateHipsterName();
-    if (result.name) {
+    try {
+        const result = await generateHipsterName();
         setName(result.name);
+        updateSystemStatus({ name: result.dataSource });
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toast({ variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
+        setName('Pip'); // Hardcoded fallback
+    } finally {
+        setIsNameLoading(false);
     }
-    updateSystemStatus({ name: result.dataSource });
-    setIsNameLoading(false);
-  }, [updateSystemStatus]);
+  }, [updateSystemStatus, toast]);
 
   const handleGenerateBio = useCallback(async (vibe: string) => {
      if (!name || !job) return;
     setIsBioLoading(true);
-    const result = await generateCharacterBio({ name, job, vibe });
-    setBio(result.bio);
-    updateSystemStatus({ bio: result.dataSource });
-    setIsBioLoading(false);
-  }, [name, job, updateSystemStatus]);
+    try {
+        const result = await generateCharacterBio({ name, job, vibe });
+        setBio(result.bio);
+        updateSystemStatus({ bio: result.dataSource });
+    } catch(error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toast({ variant: 'destructive', title: 'Bio Generation Failed', description: errorMessage });
+        setBio("They're... complicated."); // Hardcoded fallback
+    } finally {
+        setIsBioLoading(false);
+    }
+  }, [name, job, updateSystemStatus, toast]);
   
   const generateIntroAvatar = useCallback(async () => {
     if (!name || !job) return;
@@ -161,19 +173,26 @@ export default function PortlandTrailPage() {
       scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${name}, who is a ${job}.`,
       character: { name, job, vibe: "Just starting out", avatarKaomoji },
     };
-
-    const imageResult = await getImagesAction(imageInput);
-
-    if ('error' in imageResult) {
-      toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
-      setIntroAvatarImage(''); // Clear image on failure
-    } else {
-      setIntroAvatarImage(imageResult.avatarImage);
-      if (imageResult.dataSource) {
-        updateSystemStatus({ image: imageResult.dataSource });
-      }
+    
+    try {
+        const imageResult = await getImagesAction(imageInput);
+        if ('error' in imageResult) {
+            toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+            setIntroAvatarImage('');
+        } else {
+            setIntroAvatarImage(imageResult.avatarImage);
+            if (imageResult.dataSource) {
+                updateSystemStatus({ image: imageResult.dataSource });
+            }
+            toast({ title: 'Avatar Conjured', description: 'Your essence has been captured.' });
+        }
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toast({ variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
+        setIntroAvatarImage('');
+    } finally {
+        setIsIntroAvatarLoading(false);
     }
-    setIsIntroAvatarLoading(false);
   }, [name, job, avatarKaomoji, toast, updateSystemStatus]);
 
   useEffect(() => {
@@ -303,21 +322,27 @@ export default function PortlandTrailPage() {
       badge: currentScenario.badge ? { description: currentScenario.badge.description, emoji: currentScenario.badge.emoji } : undefined,
     };
 
-    const imageResult = await getImagesAction(imageInput);
-
-    if ('error' in imageResult) {
-      toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
-    } else {
-      // Only update scene and badge images. Avatar remains the same.
-      setSceneImage(imageResult.sceneImage);
-      if (imageResult.badgeImage) {
-        setBadgeImage(imageResult.badgeImage);
-      }
-       if (imageResult.dataSource) {
-        updateSystemStatus({ image: imageResult.dataSource });
-      }
+    try {
+        const imageResult = await getImagesAction(imageInput);
+        if ('error' in imageResult) {
+            toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+        } else {
+            // Only update scene and badge images. Avatar remains the same.
+            setSceneImage(imageResult.sceneImage);
+            if (imageResult.badgeImage) {
+                setBadgeImage(imageResult.badgeImage);
+            }
+            if (imageResult.dataSource) {
+                updateSystemStatus({ image: imageResult.dataSource });
+            }
+            toast({ title: 'Visions Conjured', description: 'The scene has been rendered.' });
+        }
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toast({ variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
+    } finally {
+        setIsImageLoading(false);
     }
-    setIsImageLoading(false);
   };
 
   const advanceTurn = (tempState: PlayerState) => {
@@ -341,28 +366,38 @@ export default function PortlandTrailPage() {
     }
 
     const getNextScenario = async () => {
-      const result = await getScenarioAction(tempState);
-      setIsLoading(false);
-      if ('error' in result && result.error) {
-        addLog(result.error, tempState.progress);
-        toast({
-            variant: "destructive",
-            title: "The Trail Went Cold",
-            description: result.error,
-        });
-      } else {
-        const scenarioResult = result as Scenario;
-        setScenario(scenarioResult);
-        addLog(`A new event unfolds: ${scenarioResult.scenario}`, tempState.progress);
-        if (scenarioResult.dataSources) {
-            updateSystemStatus(scenarioResult.dataSources);
-        }
-        
-        const newPlayerState = {...tempState, avatar: scenarioResult.playerAvatar!};
-        setPlayerState(newPlayerState);
+        try {
+            const result = await getScenarioAction(tempState);
+            setIsLoading(false);
+            if ('error' in result && result.error) {
+                addLog(result.error, tempState.progress);
+                toast({
+                    variant: "destructive",
+                    title: "The Trail Went Cold",
+                    description: result.error,
+                });
+            } else {
+                const scenarioResult = result as Scenario;
+                setScenario(scenarioResult);
+                addLog(`A new event unfolds: ${scenarioResult.scenario}`, tempState.progress);
+                if (scenarioResult.dataSources) {
+                    updateSystemStatus(scenarioResult.dataSources);
+                }
+                
+                const newPlayerState = {...tempState, avatar: scenarioResult.playerAvatar!};
+                setPlayerState(newPlayerState);
 
-        fetchImages(scenarioResult, newPlayerState);
-      }
+                fetchImages(scenarioResult, newPlayerState);
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            setIsLoading(false);
+            toast({
+                variant: "destructive",
+                title: "Failed to get next scenario",
+                description: errorMessage,
+            });
+        }
     };
 
     setTimeout(getNextScenario, 500);
@@ -435,6 +470,7 @@ export default function PortlandTrailPage() {
          };
         tempState.resources.badges = [...tempState.resources.badges, newBadge];
         addLog(`You earned a badge: "${newBadge.description}"!`, tempState.progress);
+        toast({ title: 'Badge Earned!', description: newBadge.description });
     }
     
     tempState.location = currentLocation;

@@ -19,12 +19,18 @@ export function Toaster() {
   const [copiedToastId, setCopiedToastId] = React.useState<string | null>(null);
 
   const handleCopy = (id: string, title?: React.ReactNode, description?: React.ReactNode) => {
-    const titleText = title && typeof title === 'string' ? title : '';
+    const titleText = title ? (typeof title === 'string' ? title : (title as React.ReactElement).props.children) : '';
     const descriptionText = description ? (typeof description === 'string' ? description : (description as React.ReactElement).props.children) : '';
     
-    const textToCopy = `${titleText}\n\n${descriptionText}`.trim();
+    let textToCopy = '';
+    if (titleText) {
+        textToCopy += `${titleText}\n\n`;
+    }
+    if (descriptionText) {
+        textToCopy += descriptionText;
+    }
     
-    navigator.clipboard.writeText(textToCopy).then(() => {
+    navigator.clipboard.writeText(textToCopy.trim()).then(() => {
         setCopiedToastId(id);
         setTimeout(() => setCopiedToastId(null), 2000);
     });
@@ -41,7 +47,7 @@ export function Toaster() {
                 <ToastDescription>{description}</ToastDescription>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start">
                 {action}
                  <Button
                     variant="ghost"
@@ -49,7 +55,7 @@ export function Toaster() {
                     className="h-8 w-8 text-foreground/70 hover:text-foreground"
                     onClick={() => handleCopy(id, title, description)}
                 >
-                    {copiedToastId === id ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}
+                    {copiedToastId === id ? <Check className="h-4 w-4 text-primary" /> : <Clipboard className="h-4 w-4" />}
                 </Button>
                 <ToastClose />
             </div>

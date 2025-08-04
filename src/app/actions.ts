@@ -77,5 +77,3 @@ export async function getImagesAction(input: GenerateImagesInput): Promise<Gener
         return { error: `Failed to generate images: ${errorMessage}` };
     }
 }
-
-    

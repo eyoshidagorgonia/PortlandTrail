@@ -16,8 +16,8 @@ const Auto1111ResponseSchema = z.object({
  * @param negative_prompt - The negative prompt.
  * @param width - The width of the image.
  * @param height - The height of the image.
- * @returns A Base64 encoded PNG image data URI, or a placeholder URL on failure.
- * @throws {Error} If the API key is not set.
+ * @returns A Base64 encoded PNG image data URI.
+ * @throws {Error} If the API key is not set or if the API call fails.
  */
 export async function generateImage(
   prompt: string,
@@ -61,8 +61,7 @@ export async function generateImage(
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[generateImage] API Error: ${response.status}`, { errorText });
-      // Do not throw here, instead return a placeholder.
-      return `https://placehold.co/${width}x${height}.png`;
+      throw new Error(`Image API Error (${response.status}): ${errorText}`);
     }
 
     const result = await response.json();
@@ -70,15 +69,16 @@ export async function generateImage(
 
     if (!parsed.success) {
       console.error('[generateImage] Invalid response structure from API.', { result });
-      return `https://placehold.co/${width}x${height}.png`;
+      throw new Error('Invalid response structure from Image API.');
     }
     
     console.log('[generateImage] Successfully generated image.');
     return `data:image/png;base64,${parsed.data.images[0]}`;
   } catch (error) {
-    // This could be a fetch error (e.g., server not running) or a JSON parsing error.
-    console.error('[generateImage] A call to the image generation API failed.', { error: error instanceof Error ? error.message : String(error) });
-    // Return a placeholder if generation fails for any reason inside the try block.
-    return `https://placehold.co/${width}x${height}.png`;
+    // This could be a fetch error or a thrown error from the checks above.
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('[generateImage] A call to the image generation API failed.', { error: errorMessage });
+    // Re-throw the error to be handled by the calling action.
+    throw new Error(`Image generation failed: ${errorMessage}`);
   }
 }
