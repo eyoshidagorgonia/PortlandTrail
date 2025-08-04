@@ -50,7 +50,7 @@ Character Name: ${name}
 Character Job: ${job}
 Current Vibe: ${vibe}
 
-You MUST respond with a valid JSON object only, with no other text before or after it.`;
+You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain a single key "bio" with the character's biography as the value.`;
 
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);

@@ -17,7 +17,7 @@ const GenerateHipsterNameOutputSchema = z.object({
 export type GenerateHipsterNameOutput = z.infer<typeof GenerateHipsterNameOutputSchema>;
 
 const GenerateHipsterNameAndSourceOutputSchema = GenerateHipsterNameOutputSchema.extend({
-    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 type GenerateHipsterNameAndSourceOutput = z.infer<typeof GenerateHipsterNameAndSourceOutputSchema>;
 
@@ -40,7 +40,7 @@ Examples: River, Kale, Birch, Pip, Wren.
 
 To ensure a unique name, use this random seed in your generation process: ${Math.random()}
 
-You MUST respond with a valid JSON object only, with no other text before or after it.`;
+You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain a single key "name" with the generated name as the value.`;
     
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);

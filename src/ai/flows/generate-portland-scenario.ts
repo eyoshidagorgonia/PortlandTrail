@@ -122,11 +122,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   }
 
   const output: GeneratePortlandScenarioOutput = {
-    scenario: result.scenario,
-    challenge: result.challenge,
-    diablo2Element: result.diablo2Element,
-    avatarKaomoji: result.avatarKaomoji,
-    choices: result.choices,
+    ...result,
     dataSource: dataSource,
   };
 
