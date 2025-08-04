@@ -14,53 +14,12 @@ const NexixApiResponseSchema = z.object({
         content: z.string(),
       }),
     })
-  ),
+  ).min(1),
 });
 
 /**
- * Extracts a JSON object from a string by finding the first '{' and the last '}'.
- * This is more robust than a simple regex for nested JSON.
- *
- * @param str The string to parse.
- * @returns The extracted JSON object as a string, or null if not found.
- */
-function extractJson(str: string): string | null {
-    if (!str || typeof str !== 'string') {
-        return null;
-    }
-
-    const startIndex = str.indexOf('{');
-    if (startIndex === -1) {
-        return null;
-    }
-
-    let braceCount = 1;
-    let endIndex = -1;
-
-    for (let i = startIndex + 1; i < str.length; i++) {
-        if (str[i] === '{') {
-            braceCount++;
-        } else if (str[i] === '}') {
-            braceCount--;
-        }
-
-        if (braceCount === 0) {
-            endIndex = i;
-            break;
-        }
-    }
-
-    if (endIndex === -1) {
-        return null; // Unmatched braces
-    }
-
-    return str.substring(startIndex, endIndex + 1);
-}
-
-
-/**
  * Calls the Nexix.ai OpenAI-compatible chat completions endpoint.
- * It now handles parsing and Zod schema validation internally.
+ * It handles parsing and Zod schema validation internally.
  *
  * @param model - The model to use for the completion.
  * @param prompt - The user prompt to send to the model.
@@ -88,6 +47,7 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
     model: model,
     messages: [{ role: 'user', content: prompt }],
     temperature: temperature,
+    response_format: { type: 'json_object' },
   };
   
   const response = await fetch(url, {
@@ -109,19 +69,13 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
   const result = await response.json();
   const parsedResponse = NexixApiResponseSchema.safeParse(result);
 
-  if (!parsedResponse.success || parsedResponse.data.choices.length === 0 || !parsedResponse.data.choices[0].message.content) {
-    console.error(`[callNexixApi] Invalid response structure from API.`, { result });
-    throw new Error('Invalid response structure from Nexix API. Content is missing.');
+  if (!parsedResponse.success) {
+    console.error(`[callNexixApi] Invalid response structure from API.`, { result, issues: parsedResponse.error.issues });
+    throw new Error('Invalid response structure from Nexix API.');
   }
   
-  const rawContent = parsedResponse.data.choices[0].message.content;
-  console.log(`[callNexixApi] Successfully received response. Now extracting and parsing JSON.`);
-
-  const jsonString = extractJson(rawContent);
-  if (!jsonString) {
-    console.error(`[callNexixApi] Failed to extract valid JSON from the API response content.`, { rawContent });
-    throw new Error('Could not find a valid JSON object in the response.');
-  }
+  const jsonString = parsedResponse.data.choices[0].message.content;
+  console.log(`[callNexixApi] Successfully received response. Now parsing JSON.`);
 
   try {
     const data = JSON.parse(jsonString);
@@ -129,7 +83,7 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
   } catch (error) {
       console.error(`[callNexixApi] Failed to parse or validate the JSON content.`, { jsonString, error });
       if (error instanceof z.ZodError) {
-        throw new Error(`Zod validation failed: ${error.issues.map(i => i.message).join(', ')}`);
+        throw new Error(`Zod validation failed: ${error.issues.map(i => `${i.path.join('.')} - ${i.message}`).join(', ')}`);
       }
       throw new Error('Failed to parse the JSON response from the API.');
   }
