@@ -48,7 +48,12 @@ export async function generatePortlandScenario(
   input: GeneratePortlandScenarioInput
 ): Promise<GeneratePortlandScenarioOutput> {
   console.log('[generatePortlandScenario] Started with agent flow.');
-  const prompt = `You are the Game Master for "The Portland Trail," a quirky text-based RPG.
+  
+  let result;
+  let dataSource: 'primary' | 'hardcoded' = 'primary';
+
+  try {
+        const prompt = `You are the Game Master for "The Portland Trail," a quirky text-based RPG.
 Your job is to create a complete, self-contained scenario for the player, including balanced choices and consequences.
 
 **Player Analysis & Consequence Generation:**
@@ -88,10 +93,6 @@ First, analyze the player's current status.
 
 You MUST respond with a valid JSON object only, with no other text before or after it.`;
 
-  let result;
-  let dataSource: 'primary' | 'hardcoded' = 'primary';
-
-  try {
     result = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
   } catch (error) {
     console.error(`[generatePortlandScenario] AI call failed. Returning hard-coded scenario.`, { error });
@@ -140,3 +141,12 @@ You MUST respond with a valid JSON object only, with no other text before or aft
   
   return output;
 }
+
+ai.defineFlow(
+  {
+    name: 'generatePortlandScenarioFlow',
+    inputSchema: GeneratePortlandScenarioInputSchema,
+    outputSchema: GeneratePortlandScenarioOutputSchema,
+  },
+  generatePortlandScenario
+);

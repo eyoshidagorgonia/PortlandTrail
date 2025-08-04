@@ -23,19 +23,9 @@ type GenerateTransportModeAndSourceOutput = z.infer<typeof GenerateTransportMode
 
 
 export async function generateTransportMode(): Promise<GenerateTransportModeAndSourceOutput> {
-  return generateTransportModeFlow();
-}
-
-
-const generateTransportModeFlow = ai.defineFlow(
-  {
-    name: 'generateTransportModeFlow',
-    inputSchema: z.void(),
-    outputSchema: GenerateTransportModeAndSourceOutputSchema,
-  },
-  async () => {
-    console.log('[generateTransportModeFlow] Started.');
-    const prompt = `You are a creative writer for a hipster video game.
+    console.log('[generateTransportMode] Started.');
+    try {
+        const prompt = `You are a creative writer for a hipster video game.
 Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
 The phrase will be used as button text. It should be an action. You MUST generate a different phrase each time.
 
@@ -44,11 +34,11 @@ Good examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away",
 To ensure a unique phrase, use this random seed in your generation process: ${Math.random()}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain a single key "text" with the generated phrase as the value.`;
-    try {
+
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
       return { ...parsedResult, dataSource: 'primary' };
     } catch (error) {
-        console.error(`[generateTransportModeFlow] AI call failed.`, { error });
+        console.error(`[generateTransportMode] AI call failed.`, { error });
         const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
         const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
         return {
@@ -56,5 +46,14 @@ You MUST respond with a valid JSON object only, with no other text before or aft
             dataSource: 'hardcoded',
         }
     }
-  }
+}
+
+
+ai.defineFlow(
+  {
+    name: 'generateTransportModeFlow',
+    inputSchema: z.void(),
+    outputSchema: GenerateTransportModeAndSourceOutputSchema,
+  },
+  generateTransportMode
 );

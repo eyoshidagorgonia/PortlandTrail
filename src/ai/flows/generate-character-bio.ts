@@ -30,37 +30,35 @@ const GenerateCharacterBioAndSourceOutputSchema = GenerateCharacterBioOutputSche
 type GenerateCharacterBioAndSourceOutput = z.infer<typeof GenerateCharacterBioAndSourceOutputSchema>;
 
 export async function generateCharacterBio(input: GenerateCharacterBioInput): Promise<GenerateCharacterBioAndSourceOutput> {
-  return generateCharacterBioFlow(input);
-}
-
-const generateCharacterBioFlow = ai.defineFlow(
-  {
-    name: 'generateCharacterBioFlow',
-    inputSchema: GenerateCharacterBioInputSchema,
-    outputSchema: GenerateCharacterBioAndSourceOutputSchema,
-  },
-  async ({ name, job, vibe }) => {
-    console.log(`[generateCharacterBioFlow] Started for character: ${name}, Job: ${job}, Vibe: ${vibe}`);
-    const prompt = `You are a character bio writer for a quirky video game.
+    console.log(`[generateCharacterBio] Started for character: ${input.name}, Job: ${input.job}, Vibe: ${input.vibe}`);
+    try {
+        const prompt = `You are a character bio writer for a quirky video game.
 You will be given a character's name, job, and current "vibe".
 Based on this, write a short, 1-2 sentence bio for them in a witty, third-person voice.
 The bio should capture a hipster or artisanal vibe and reflect their current state.
 
-Character Name: ${name}
-Character Job: ${job}
-Current Vibe: ${vibe}
+Character Name: ${input.name}
+Character Job: ${input.job}
+Current Vibe: ${input.vibe}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain a single key "bio" with the character's biography as the value.`;
 
-    try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
       return { ...parsedResult, dataSource: 'primary' };
     } catch (error) {
-        console.error(`[generateCharacterBioFlow] AI call failed. Returning hard-coded bio.`, { error });
+        console.error(`[generateCharacterBio] AI call failed. Returning hard-coded bio.`, { error });
         return {
             bio: "They believe their artisanal pickles can change the world, one jar at a time.",
             dataSource: 'hardcoded',
         }
     }
-  }
+}
+
+ai.defineFlow(
+  {
+    name: 'generateCharacterBioFlow',
+    inputSchema: GenerateCharacterBioInputSchema,
+    outputSchema: GenerateCharacterBioAndSourceOutputSchema,
+  },
+  generateCharacterBio
 );

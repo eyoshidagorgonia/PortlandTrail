@@ -17,30 +17,14 @@ import { callNexixApi } from '../nexix-api';
 
 
 export async function generateImagesForScenario(input: GenerateImagesInput): Promise<GenerateImagesOutput> {
-  return generateImagesFlow(input);
-}
-
-const ImageGenPromptOutputSchema = z.object({
-    avatarPrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the character's avatar portrait."),
-    scenePrompt: z.string().describe("A detailed text-to-image prompt for the scene depiction."),
-    badgePrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the badge icon, if a badge was awarded."),
-});
-
-const generateImagesFlow = ai.defineFlow(
-  {
-    name: 'generateImagesFlow',
-    inputSchema: GenerateImagesInputSchema,
-    outputSchema: GenerateImagesOutputSchema,
-  },
-  async (input) => {
-    console.log('[generateImagesFlow] Started.');
+    console.log('[generateImagesForScenario] Started.');
 
     // If the scenario description already seems to be a specific, detailed prompt, use it directly.
     // This handles the special case from the intro screen.
     const isDirectPrompt = input.scenarioDescription.toLowerCase().includes('portrait of a hipster named');
 
     if (isDirectPrompt) {
-        console.log('[generateImagesFlow] Direct prompt detected. Skipping prompt generation and generating avatar directly.');
+        console.log('[generateImagesForScenario] Direct prompt detected. Skipping prompt generation and generating avatar directly.');
         const avatarImage = await generateImage(
             `${input.scenarioDescription}, Diablo IV x Hipster x Studio Ghibli style, high-detail painterly illustration, dark fantasy shadows, soft natural lighting`,
             'photorealistic, 3d render, photo, realism, ugly, deformed',
@@ -53,14 +37,17 @@ const generateImagesFlow = ai.defineFlow(
             dataSource: 'primary',
         };
     }
-
-    const badgeSection = input.badge 
-        ? `
+    
+    let prompts;
+    let dataSource: 'primary' | 'hardcoded' = 'primary'; // Assume success
+    try {
+        const badgeSection = input.badge 
+            ? `
 - Badge Description: ${input.badge.description}
 - Badge Emoji: ${input.badge.emoji}` 
-        : '';
+            : '';
 
-    const prompt = `You are an expert prompt engineer for a text-to-image model.
+        const prompt = `You are an expert prompt engineer for a text-to-image model.
 Your goal is to create three distinct, detailed prompts based on a game scenario, following the "Diablo IV x Hipster x Studio Ghibli" style guide.
 
 **Core Style Formula:**
@@ -85,13 +72,10 @@ Your goal is to create three distinct, detailed prompts based on a game scenario
 ${badgeSection}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The 'avatarPrompt' key MUST be null.`;
-    
-    let prompts;
-    let dataSource: 'primary' | 'hardcoded' = 'primary'; // Assume success
-    try {
+
         prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     } catch(error) {
-        console.error("[generateImagesFlow] AI call failed. Using hardcoded prompts.", { error });
+        console.error("[generateImagesForScenario] AI call failed. Using hardcoded prompts.", { error });
         prompts = {
             avatarPrompt: null,
             scenePrompt: input.scenarioDescription,
@@ -100,7 +84,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
         dataSource = 'hardcoded';
     }
     
-    console.log('[generateImagesFlow] Generated prompts:', prompts);
+    console.log('[generateImagesForScenario] Generated prompts:', prompts);
 
     const imagePromises = [];
 
@@ -127,7 +111,7 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
     const [avatarImage, sceneImage, badgeImage] = await Promise.all(imagePromises);
 
-    console.log('[generateImagesFlow] All images generated.');
+    console.log('[generateImagesForScenario] All images generated.');
 
     return {
       avatarImage,
@@ -135,5 +119,19 @@ You MUST respond with a valid JSON object only, with no other text before or aft
       badgeImage,
       dataSource,
     };
-  }
+}
+
+const ImageGenPromptOutputSchema = z.object({
+    avatarPrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the character's avatar portrait."),
+    scenePrompt: z.string().describe("A detailed text-to-image prompt for the scene depiction."),
+    badgePrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the badge icon, if a badge was awarded."),
+});
+
+ai.defineFlow(
+  {
+    name: 'generateImagesFlow',
+    inputSchema: GenerateImagesInputSchema,
+    outputSchema: GenerateImagesOutputSchema,
+  },
+  generateImagesForScenario
 );

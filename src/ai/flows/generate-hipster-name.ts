@@ -23,33 +23,23 @@ type GenerateHipsterNameAndSourceOutput = z.infer<typeof GenerateHipsterNameAndS
 
 
 export async function generateHipsterName(): Promise<GenerateHipsterNameAndSourceOutput> {
-  return generateHipsterNameFlow();
-}
-
-const generateHipsterNameFlow = ai.defineFlow(
-  {
-    name: 'generateHipsterNameFlow',
-    inputSchema: z.void(),
-    outputSchema: GenerateHipsterNameAndSourceOutputSchema,
-  },
-  async () => {
-    console.log('[generateHipsterNameFlow] Started.');
-    const prompt = `You are a creative writer for a hipster video game.
+    console.log('[generateHipsterName] Started.');
+    try {
+        const prompt = `You are a creative writer for a hipster video game.
 Your only job is to generate a single, quirky, gender-neutral hipster name. You MUST generate a different name each time.
 Examples: River, Kale, Birch, Pip, Wren.
 
 To ensure a unique name, use this random seed in your generation process: ${Math.random()}
 
 You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain a single key "name" with the generated name as the value.`;
-    
-    try {
+      
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);
       return {
         ...parsedResult,
         dataSource: 'primary',
       };
     } catch (error) {
-        console.error(`[generateHipsterNameFlow] AI call failed. Returning hard-coded name.`, { error });
+        console.error(`[generateHipsterName] AI call failed. Returning hard-coded name.`, { error });
         const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
         const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
         return {
@@ -57,5 +47,13 @@ You MUST respond with a valid JSON object only, with no other text before or aft
             dataSource: 'hardcoded',
         }
     }
-  }
+}
+
+ai.defineFlow(
+  {
+    name: 'generateHipsterNameFlow',
+    inputSchema: z.void(),
+    outputSchema: GenerateHipsterNameAndSourceOutputSchema,
+  },
+  generateHipsterName
 );
