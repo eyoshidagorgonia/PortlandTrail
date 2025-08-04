@@ -86,16 +86,7 @@ First, analyze the player's current status.
 **Location:** ${input.location}
 **Character:** Name: ${input.character.name}, Job: ${input.character.job}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object must have a 'scenario', 'challenge', 'diablo2Element', 'avatarKaomoji', and a 'choices' array containing exactly THREE choice objects. Each choice object MUST conform to the schema:
-{
-  "text": "The text for the choice button.",
-  "description": "A tooltip description for the choice.",
-  "consequences": {
-    "health": number, "style": number, "irony": number, "authenticity": number, "vibes": number,
-    "progress": number, "coffee": number, "vinyls": number, "stamina": number,
-    "badge": { "badgeDescription": string, "badgeEmoji": string, "isUber": boolean } // Optional: only include if a badge is awarded for this specific choice.
-  }
-}`;
+You MUST respond with a valid JSON object only, with no other text before or after it.`;
 
   let result;
   let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary';

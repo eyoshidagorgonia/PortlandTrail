@@ -84,12 +84,7 @@ Your goal is to create three distinct, detailed prompts based on a game scenario
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The 'avatarPrompt' key MUST be null. The JSON object should conform to this structure:
-{
-    "avatarPrompt": null,
-    "scenePrompt": "The generated prompt for the scene.",
-    "badgePrompt": "The generated prompt for the badge (or null if no badge)."
-}`;
+You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The 'avatarPrompt' key MUST be null.`;
     
     let prompts;
     let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary'; // Assume success

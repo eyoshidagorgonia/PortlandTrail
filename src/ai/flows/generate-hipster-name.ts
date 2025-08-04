@@ -40,10 +40,7 @@ Examples: River, Kale, Birch, Pip, Wren.
 
 To ensure a unique name, use this random seed in your generation process: ${Math.random()}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
-{
-  "name": "The generated name."
-}`;
+You MUST respond with a valid JSON object only, with no other text before or after it.`;
     
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);

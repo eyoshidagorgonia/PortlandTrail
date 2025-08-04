@@ -43,10 +43,7 @@ Good examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away",
 
 To ensure a unique phrase, use this random seed in your generation process: ${Math.random()}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
-{
-  "text": "The generated phrase."
-}`;
+You MUST respond with a valid JSON object only, with no other text before or after it.`;
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
       return { ...parsedResult, dataSource: 'primary' }; // Assuming success means primary/fallback worked.
