@@ -89,3 +89,4 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
       throw new Error(`Failed to parse the JSON response from the API: ${ (error as Error).message }`);
   }
 }
+

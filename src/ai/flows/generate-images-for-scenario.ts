@@ -47,7 +47,7 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
 - Badge Emoji: ${input.badge.emoji}` 
             : '';
 
-        const prompt = `You are an expert prompt engineer for a text-to-image model. Create three distinct, detailed prompts based on a game scenario, following a "Diablo IV x Hipster x Studio Ghibli" style.
+        const prompt = `You are an expert prompt engineer for a text-to-image model. Create two distinct, detailed prompts based on a game scenario, following a "Diablo IV x Hipster x Studio Ghibli" style.
 
 **IMPORTANT: Do not generate an avatar prompt. The avatar is persistent. Set the 'avatarPrompt' field to null.**
 
@@ -55,7 +55,7 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain 'scenePrompt' (string) and 'badgePrompt' (string or null). 'avatarPrompt' MUST be null.`;
+You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain 'scenePrompt' (string) and 'badgePrompt' (string or null).`;
 
         prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     } catch(error) {
