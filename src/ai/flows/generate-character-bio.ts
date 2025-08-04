@@ -50,15 +50,18 @@ Character Name: ${name}
 Character Job: ${job}
 Current Vibe: ${vibe}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. The JSON object should conform to this structure:
-{
-  "bio": "The generated bio."
-}`;
+You MUST respond with a valid JSON object only, with no other text before or after it.`;
 
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
       return { ...parsedResult, dataSource: 'primary' }; // Assuming success means primary/fallback worked.
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toast({
+            variant: "destructive",
+            title: `Bio Generation Failed`,
+            description: errorMessage,
+        });
         console.error(`[generateCharacterBioFlow] All AI calls failed. Returning hard-coded bio.`, { error });
         return {
             bio: "They believe their artisanal pickles can change the world, one jar at a time.",
