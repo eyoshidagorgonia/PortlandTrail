@@ -18,24 +18,6 @@ const NexixApiResponseSchema = z.object({
 });
 
 /**
- * Extracts a JSON object from a string.
- * @param str The string to extract JSON from.
- * @returns The extracted JSON object as a string.
- * @throws {Error} If a JSON object cannot be found.
- */
-function extractJson(str: string): string {
-    const startIndex = str.indexOf('{');
-    const endIndex = str.lastIndexOf('}');
-    
-    if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-        throw new Error('No valid JSON object found in the response string.');
-    }
-    
-    return str.substring(startIndex, endIndex + 1);
-}
-
-
-/**
  * Calls the Nexix.ai OpenAI-compatible chat completions endpoint.
  * It handles parsing and Zod schema validation internally.
  *
@@ -65,7 +47,6 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
     model: model,
     messages: [{ role: 'user', content: prompt }],
     temperature: temperature,
-    // response_format is removed to allow for more flexible responses
   };
   
   const response = await fetch(url, {
@@ -92,23 +73,19 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
     throw new Error('Invalid response structure from Nexix API.');
   }
   
-  // The response content might be a JSON string, or a string containing a JSON object.
-  // We extract it reliably.
   const content = parsedResponse.data.choices[0].message.content;
-  console.log(`[callNexixApi] Successfully received response. Now parsing JSON from content.`);
+  console.log(`[callNexixApi] Successfully received response content. Now parsing...`);
   
   try {
-    const jsonString = extractJson(content);
-    const data = JSON.parse(jsonString);
+    const data = JSON.parse(content);
 
     // Use .passthrough() to allow extra fields in the AI response without failing validation.
-    // This makes the parsing more resilient to minor variations in the AI's output.
     return schema.passthrough().parse(data);
   } catch (error) {
-      console.error(`[callNexixApi] Failed to extract, parse, or validate the JSON content.`, { content, error });
+      console.error(`[callNexixApi] Failed to parse or validate the JSON content.`, { content, error });
       if (error instanceof z.ZodError) {
         throw new Error(`Zod validation failed: ${error.issues.map(i => `${i.path.join('.')} - ${i.message}`).join(', ')}`);
       }
-      throw new Error(`Failed to process the JSON response from the API: ${ (error as Error).message }`);
+      throw new Error(`Failed to parse the JSON response from the API: ${ (error as Error).message }`);
   }
 }

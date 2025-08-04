@@ -25,15 +25,10 @@ type GenerateTransportModeAndSourceOutput = z.infer<typeof GenerateTransportMode
 export async function generateTransportMode(): Promise<GenerateTransportModeAndSourceOutput> {
     console.log('[generateTransportMode] Started.');
     try {
-        const prompt = `You are a creative writer for a hipster video game.
-Your only job is to generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
-The phrase will be used as button text. It should be an action. You MUST generate a different phrase each time.
-
-Good examples: "Skateboard away", "Ride off on a fixie", "Casually stroll away", "Jog ironically", "Unicycle to safety", "Drift away on a longboard", "Fade into the mist", "Catch a passing bird", "Summon a vintage scooter".
-
+        const prompt = `Generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
 To ensure a unique phrase, use this random seed in your generation process: ${Math.random()}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain a single key "text" with the generated phrase as the value.`;
+You MUST respond with a valid JSON object only, with no other text before or after it. Your response must contain a single key "text".`;
 
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
       return { ...parsedResult, dataSource: 'primary' };

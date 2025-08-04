@@ -47,31 +47,15 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
 - Badge Emoji: ${input.badge.emoji}` 
             : '';
 
-        const prompt = `You are an expert prompt engineer for a text-to-image model.
-Your goal is to create three distinct, detailed prompts based on a game scenario, following the "Diablo IV x Hipster x Studio Ghibli" style guide.
+        const prompt = `You are an expert prompt engineer for a text-to-image model. Create three distinct, detailed prompts based on a game scenario, following a "Diablo IV x Hipster x Studio Ghibli" style.
 
-**Core Style Formula:**
-- **Art Style:** "High-detail painterly illustration with subtle grain, dark fantasy shadows, soft natural lighting, character-focused composition, Ghibli-inspired linework and brush textures."
-- **Mood/Tone:** "Moody, melancholic atmosphere with magical realism and ironic modern flair."
-
-**IMPORTANT: Do not generate an avatar prompt. The avatar is persistent and does not change. Set the 'avatarPrompt' field to null.**
-
-**1. Scene Depiction Prompt:**
-- **Task:** Create a prompt for a wide-angle shot of the entire scenario.
-- **Style:** Blend Ghibli's painterly environments with Diablo's dark, gothic architecture and grit.
-- **Content:** Include the key elements from the scenario description, focusing on the environment, mood, and any specific actions.
-- **Lighting:** Use dramatic lighting sources like "floating lanterns," "firelight from windows," or "glowing runes."
-
-**2. Badge Icon Prompt (if applicable):**
-- **Task:** If a badge is present, create a prompt for a simple, iconic inventory item.
-- **Style:** "Hand-drawn magical object on a faded parchment background, high-res fantasy sketch with ink and watercolor."
-- **Content:** The icon should be a single, clean object representing the badge's description and emoji.
+**IMPORTANT: Do not generate an avatar prompt. The avatar is persistent. Set the 'avatarPrompt' field to null.**
 
 **Input Data:**
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The 'avatarPrompt' key MUST be null.`;
+You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain 'scenePrompt' (string) and 'badgePrompt' (string or null). 'avatarPrompt' MUST be null.`;
 
         prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     } catch(error) {
