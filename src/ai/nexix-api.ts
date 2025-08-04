@@ -77,6 +77,7 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
   console.log(`[callNexixApi] Successfully received response content. Now parsing...`);
   
   try {
+    // The response content is a string that is itself a JSON object. Parse it.
     const data = JSON.parse(content);
 
     // Use .passthrough() to allow extra fields in the AI response without failing validation.
@@ -89,4 +90,3 @@ export async function callNexixApi<T extends z.ZodType<any, any, any>>(
       throw new Error(`Failed to parse the JSON response from the API: ${ (error as Error).message }`);
   }
 }
-

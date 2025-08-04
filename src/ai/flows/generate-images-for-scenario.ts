@@ -55,7 +55,7 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
 - Scenario: ${input.scenarioDescription}
 ${badgeSection}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. Your response should contain 'scenePrompt' (string) and 'badgePrompt' (string or null).`;
+You MUST respond with only a valid JSON object, with no other text before or after it. Your response should contain 'scenePrompt' (string) and 'badgePrompt' (string or null).`;
 
         prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     } catch(error) {

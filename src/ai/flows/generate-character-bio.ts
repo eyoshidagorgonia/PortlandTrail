@@ -39,7 +39,7 @@ Character Details:
 - Job: ${input.job}
 - Vibe: ${input.vibe}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. Your response must contain a single key "bio".`;
+You MUST respond with only a valid JSON object, with no other text before or after it. The JSON object must contain a single key "bio".`;
 
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
       return { ...parsedResult, dataSource: 'primary' };

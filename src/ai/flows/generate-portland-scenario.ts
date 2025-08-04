@@ -66,7 +66,7 @@ export async function generatePortlandScenario(
 4.  **Badges**: Decide if a choice warrants a standard or "Uber" badge and include the 'badge' object in its consequences if so.
 5.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player.
 
-You MUST respond with a valid JSON object only, with no other text before or after it.`;
+You MUST respond with only a valid JSON object, with no other text before or after it.`;
 
     result = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
     return { ...result, dataSource: 'primary' };

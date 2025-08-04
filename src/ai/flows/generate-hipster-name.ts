@@ -28,7 +28,7 @@ export async function generateHipsterName(): Promise<GenerateHipsterNameAndSourc
         const prompt = `Generate a single, quirky, gender-neutral hipster name.
 To ensure a unique name, use this random seed in your generation process: ${Math.random()}
 
-You MUST respond with a valid JSON object only, with no other text before or after it. Your response must contain a single key "name".`;
+You MUST respond with only a valid JSON object, with no other text before or after it. The JSON object must contain a single key "name".`;
       
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);
       return {
