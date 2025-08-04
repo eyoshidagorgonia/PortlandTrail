@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import { callNexixApi } from '@/ai/nexix-api';
-import { ChoiceSchema, BadgeSchema } from '@/lib/types';
+import { ChoiceSchema } from '@/lib/types';
 
 const GeneratePortlandScenarioInputSchema = z.object({
   playerStatus: z
@@ -31,7 +31,7 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   diablo2Element: z.string().optional().describe('The subtle Diablo II reference.'),
   avatarKaomoji: z.string().describe('A Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～` )┌) representing the player character.'),
   choices: z.array(ChoiceSchema).describe("An array of 2-3 choices for the player."),
-  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+  dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
 
@@ -89,14 +89,12 @@ First, analyze the player's current status.
 You MUST respond with a valid JSON object only, with no other text before or after it.`;
 
   let result;
-  let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary';
+  let dataSource: 'primary' | 'hardcoded' = 'primary';
 
   try {
     result = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
-    // Assuming success means primary or internal fallback worked.
-    // This is an optimistic assignment.
   } catch (error) {
-    console.error(`[generatePortlandScenario] All AI calls failed. Returning hard-coded scenario.`, { error });
+    console.error(`[generatePortlandScenario] AI call failed. Returning hard-coded scenario.`, { error });
     dataSource = 'hardcoded';
     result = {
         scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
@@ -121,13 +119,6 @@ You MUST respond with a valid JSON object only, with no other text before or aft
             }
         ],
     };
-  }
-
-  // If the API call failed, we need to know for the dataSource.
-  // A more sophisticated approach would have callNexixApi return the source.
-  if (dataSource !== 'hardcoded') {
-      // This is a simplification. We can't be sure if it was primary or fallback.
-      dataSource = 'primary';
   }
 
   const output: GeneratePortlandScenarioOutput = {

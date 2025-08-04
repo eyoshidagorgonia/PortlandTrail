@@ -87,11 +87,11 @@ ${badgeSection}
 You MUST respond with a valid JSON object only, with no other text before or after it. If no badge is being generated, the 'badgePrompt' key should be null or omitted. The 'avatarPrompt' key MUST be null.`;
     
     let prompts;
-    let dataSource: 'primary' | 'fallback' | 'hardcoded' = 'primary'; // Assume success
+    let dataSource: 'primary' | 'hardcoded' = 'primary'; // Assume success
     try {
         prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     } catch(error) {
-        console.error("[generateImagesFlow] All AI calls failed. Using hardcoded prompts.", { error });
+        console.error("[generateImagesFlow] AI call failed. Using hardcoded prompts.", { error });
         prompts = {
             avatarPrompt: null,
             scenePrompt: input.scenarioDescription,

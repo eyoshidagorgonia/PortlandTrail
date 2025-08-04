@@ -11,7 +11,6 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import { callNexixApi } from '@/ai/nexix-api';
-import { useToast } from '@/hooks/use-toast';
 
 const GenerateCharacterBioInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
@@ -26,7 +25,7 @@ const GenerateCharacterBioOutputSchema = z.object({
 export type GenerateCharacterBioOutput = z.infer<typeof GenerateCharacterBioOutputSchema>;
 
 const GenerateCharacterBioAndSourceOutputSchema = GenerateCharacterBioOutputSchema.extend({
-    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 type GenerateCharacterBioAndSourceOutput = z.infer<typeof GenerateCharacterBioAndSourceOutputSchema>;
 
@@ -55,10 +54,9 @@ You MUST respond with a valid JSON object only, with no other text before or aft
 
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
-      return { ...parsedResult, dataSource: 'primary' }; // Assuming success means primary/fallback worked.
+      return { ...parsedResult, dataSource: 'primary' };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error(`[generateCharacterBioFlow] All AI calls failed. Returning hard-coded bio.`, { error });
+        console.error(`[generateCharacterBioFlow] AI call failed. Returning hard-coded bio.`, { error });
         return {
             bio: "They believe their artisanal pickles can change the world, one jar at a time.",
             dataSource: 'hardcoded',
@@ -66,4 +64,3 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     }
   }
 );
-

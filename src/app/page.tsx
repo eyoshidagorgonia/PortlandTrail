@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -18,13 +18,12 @@ import StatusDashboard from '@/components/game/status-dashboard';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
-import { Coffee, Route, RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Loader2, AlertTriangle } from 'lucide-react';
 import { PennyFarthingIcon } from '@/components/game/icons';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
 import TrailMap from '@/components/game/trail-map';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
@@ -61,8 +60,7 @@ export default function PortlandTrailPage() {
 
   const { toast } = useToast();
 
-  const updateSystemStatus = useCallback((sources: Record<string, 'primary' | 'fallback' | 'hardcoded'>) => {
-    let showDegradedToast = false;
+  const updateSystemStatus = useCallback((sources: Record<string, 'primary' | 'hardcoded'>) => {
     let showOfflineToast = false;
 
     setSystemStatus(prevStatus => {
@@ -81,11 +79,6 @@ export default function PortlandTrailPage() {
 
             if (source === 'primary') {
                 newStatus.healthyServices.add(serviceName);
-            } else if (source === 'fallback') {
-                newStatus.primaryDegradedServices.add(serviceName);
-                if (!prevStatus.primaryDegradedServices.has(serviceName) && !prevStatus.fullyOfflineServices.has(serviceName)) {
-                    showDegradedToast = true;
-                }
             } else if (source === 'hardcoded') {
                 newStatus.fullyOfflineServices.add(serviceName);
                  if (!prevStatus.fullyOfflineServices.has(serviceName)) {
@@ -107,12 +100,6 @@ export default function PortlandTrailPage() {
             variant: 'destructive',
             title: 'An AI System is Offline',
             description: "Using hardcoded data. The experience will be less dynamic.",
-        });
-    } else if (showDegradedToast) {
-        toast({
-            variant: 'destructive',
-            title: 'An AI System is Degraded',
-            description: "Using fallback AI. You may notice differences.",
         });
     }
   }, [toast]);

@@ -17,7 +17,7 @@ const GenerateTransportModeOutputSchema = z.object({
 export type GenerateTransportModeOutput = z.infer<typeof GenerateTransportModeOutputSchema>;
 
 const GenerateTransportModeAndSourceOutputSchema = GenerateTransportModeOutputSchema.extend({
-    dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 type GenerateTransportModeAndSourceOutput = z.infer<typeof GenerateTransportModeAndSourceOutputSchema>;
 
@@ -46,9 +46,9 @@ To ensure a unique phrase, use this random seed in your generation process: ${Ma
 You MUST respond with a valid JSON object only, with no other text before or after it.`;
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
-      return { ...parsedResult, dataSource: 'primary' }; // Assuming success means primary/fallback worked.
+      return { ...parsedResult, dataSource: 'primary' };
     } catch (error) {
-        console.error(`[generateTransportModeFlow] All AI calls failed.`, { error });
+        console.error(`[generateTransportModeFlow] AI call failed.`, { error });
         const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
         const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
         return {

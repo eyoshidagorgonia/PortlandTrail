@@ -90,7 +90,7 @@ export type ScenarioTextData = Omit<GeneratePortlandScenarioOutput, 'dataSource'
 export type Scenario = (ScenarioTextData & {
   choices: Choice[];
   playerAvatar: string; // The kaomoji for the player
-  dataSources?: Record<string, 'primary' | 'fallback' | 'hardcoded'>;
+  dataSources?: Record<string, 'primary' | 'hardcoded'>;
   badge?: {
       description: string;
       emoji: string;
@@ -123,6 +123,6 @@ export const GenerateImagesOutputSchema = z.object({
   avatarImage: z.string().describe("A data URI of the generated player avatar image."),
   sceneImage: z.string().describe("A data URI of the generated scene image."),
   badgeImage: z.string().optional().describe("A data URI of the generated badge image, if applicable."),
-  dataSource: z.enum(['primary', 'fallback', 'hardcoded']).describe('The source of the generated data.'),
+  dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateImagesOutput = z.infer<typeof GenerateImagesOutputSchema>;

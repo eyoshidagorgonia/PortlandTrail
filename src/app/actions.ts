@@ -3,7 +3,7 @@
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
 import { generateImagesForScenario } from '@/ai/flows/generate-images-for-scenario';
-import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, Badge } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput } from '@/lib/types';
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
@@ -19,7 +19,7 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     const scenarioDetails = await generatePortlandScenario(scenarioInput);
     console.log(`[getScenarioAction] Flow response received. Scenario Source: ${scenarioDetails.dataSource}`);
     
-    let dataSources: Record<string, 'primary' | 'fallback' | 'hardcoded'> = {
+    let dataSources: Record<string, 'primary' | 'hardcoded'> = {
         scenario: scenarioDetails.dataSource,
     };
 

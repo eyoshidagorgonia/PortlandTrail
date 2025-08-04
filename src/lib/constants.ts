@@ -66,5 +66,3 @@ export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
     image: "Image Generation",
     badge: "Badge Generation"
 }
-
-    

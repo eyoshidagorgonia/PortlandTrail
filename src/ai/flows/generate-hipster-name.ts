@@ -44,15 +44,12 @@ You MUST respond with a valid JSON object only, with no other text before or aft
     
     try {
       const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);
-      // Since callNexixApi now has internal fallback, we can't be certain it was the primary.
-      // For now, we will optimistically assume 'primary' or 'fallback' based on success.
-      // A more complex solution could return the data source from callNexixApi.
       return {
         ...parsedResult,
-        dataSource: 'primary', // This is now an optimistic assumption.
+        dataSource: 'primary',
       };
     } catch (error) {
-        console.error(`[generateHipsterNameFlow] All AI calls failed. Returning hard-coded name.`, { error });
+        console.error(`[generateHipsterNameFlow] AI call failed. Returning hard-coded name.`, { error });
         const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
         const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
         return {
