@@ -17,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Bell } from "lucide-react"
+import { Brain } from "lucide-react"
 import { ScrollArea } from "./scroll-area"
 
 export function Toaster() {
@@ -43,10 +43,10 @@ export function Toaster() {
       })}
       <ToastViewport>
         {history.length > 0 && (
-          <Accordion type="single" collapsible className="w-full max-w-sm">
+          <Accordion type="single" collapsible className="w-full max-w-[210px]">
             <AccordionItem value="history" className="border-none">
-              <AccordionTrigger className="w-auto justify-center rounded-sm bg-background border p-2 font-headline text-base hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted">
-                <Bell className="h-5 w-5"/>
+              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-2 font-headline text-base hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted">
+                <Brain className="h-5 w-5"/>
               </AccordionTrigger>
               <AccordionContent className="bg-background border border-t-0 p-0 rounded-b-sm">
                 <ScrollArea className="h-72">
