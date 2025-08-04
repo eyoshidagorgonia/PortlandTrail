@@ -18,6 +18,7 @@ import StatusDashboard from '@/components/game/status-dashboard';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
+import OutcomeModal from '@/components/game/outcome-modal';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { PennyFarthingIcon, ConjuringIcon } from '@/components/game/icons';
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +60,10 @@ export default function PortlandTrailPage() {
   const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
   const [isAvatarRendered, setIsAvatarRendered] = useState(false);
   const [countdown, setCountdown] = useState(3);
+  
+  // Outcome modal state
+  const [lastChoice, setLastChoice] = useState<Choice | null>(null);
+  const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -360,6 +365,7 @@ export default function PortlandTrailPage() {
   };
 
   const advanceTurn = (tempState: PlayerState) => {
+    setIsLoading(true);
     if (tempState.stats.health <= 0) {
       setGameState('gameover');
       addLog('You have succumbed to poor health. Your journey ends.', tempState.progress);
@@ -424,6 +430,12 @@ export default function PortlandTrailPage() {
 
     setTimeout(getNextScenario, 500);
   };
+  
+  const handleModalClose = () => {
+        setIsOutcomeModalOpen(false);
+        advanceTurn(playerState); // playerState is already updated
+        setLastChoice(null);
+  }
 
   const handleAction = (action: PlayerAction) => {
     if (isLoading || isImageLoading) return;
@@ -437,7 +449,6 @@ export default function PortlandTrailPage() {
         return;
     }
 
-    setIsLoading(true);
     let tempState = { ...playerState };
     const consequences = action.consequences;
 
@@ -461,13 +472,18 @@ export default function PortlandTrailPage() {
 
     setPlayerState(tempState);
     addLog(`You chose to: ${action.text}.`, tempState.progress);
+    
+    // For actions, we show a simplified outcome via toast and advance immediately.
+    toast({
+      title: 'Action Taken',
+      description: action.description,
+    });
     advanceTurn(tempState);
   };
 
   const handleChoice = async (choice: Choice) => {
     if (isLoading || isImageLoading) return;
 
-    setIsLoading(true);
     let tempState = { ...playerState };
 
     const consequences = choice.consequences;
@@ -507,7 +523,10 @@ export default function PortlandTrailPage() {
 
     setPlayerState(tempState);
     addLog(`You chose to "${choice.text}".`, tempState.progress);
-    advanceTurn(tempState);
+    
+    // Instead of advancing turn, show the outcome modal
+    setLastChoice(choice);
+    setIsOutcomeModalOpen(true);
   };
   
   const StatusIcons = () => {
@@ -572,13 +591,13 @@ export default function PortlandTrailPage() {
                 <div className="space-y-2">
                   <Label htmlFor="name" className='font-headline text-xl'>HIPSTER NAME</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isNameLoading || isLoading} className="text-lg" />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading} className="text-lg" />
                     <Button 
                       type="button"
                       size="icon" 
                       variant="secondary" 
                       onClick={() => handleGenerateName()}
-                      disabled={isNameLoading || isLoading}
+                      disabled={isLoading || isNameLoading}
                       aria-label="Randomize Name"
                       >
                       {isNameLoading ? <ConjuringIcon className="h-6 w-6" /> : <RefreshCw />}
@@ -624,6 +643,13 @@ export default function PortlandTrailPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8 relative">
+       {lastChoice && (
+            <OutcomeModal 
+                isOpen={isOutcomeModalOpen}
+                onClose={handleModalClose}
+                choice={lastChoice}
+            />
+        )}
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
@@ -666,3 +692,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    

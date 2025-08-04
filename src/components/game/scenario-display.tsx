@@ -43,6 +43,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     <Card className="h-full flex flex-col bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-6 pb-2">
         <CardTitle className="font-headline text-3xl font-bold tracking-wide">{scenario.scenario}</CardTitle>
+        <CardDescription className="font-body text-xl pt-2 text-foreground/80">{scenario.challenge}</CardDescription>
       </CardHeader>
       <CardContent className="p-6 pt-2 flex-grow">
         <div className="mb-4 overflow-hidden rounded-sm border-2 border-border/50 bg-muted/30">
@@ -60,7 +61,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
             />
           )}
         </div>
-        <p className="text-xl text-foreground/90 leading-relaxed whitespace-pre-wrap font-body">{scenario.challenge}</p>
+        
         {scenario.diablo2Element && (
            <p className="mt-4 text-lg text-accent/80 border-l-4 border-accent/50 pl-4 italic font-body">
             {scenario.diablo2Element}
@@ -92,3 +93,5 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     </Card>
   );
 }
+
+    
