@@ -31,8 +31,8 @@ type GenerateCharacterBioAndSourceOutput = z.infer<typeof GenerateCharacterBioAn
 
 export async function generateCharacterBio(input: GenerateCharacterBioInput): Promise<GenerateCharacterBioAndSourceOutput> {
     console.log(`[generateCharacterBio] Started for character: ${input.name}, Job: ${input.job}, Vibe: ${input.vibe}`);
-    try {
-        const prompt = `Generate a short, 1-2 sentence, quirky bio for a video game character. The bio should be in the third person, with a hipster or artisanal vibe.
+    
+    const prompt = `Generate a short, 1-2 sentence, quirky bio for a video game character. The bio should be in the third person, with a hipster or artisanal vibe.
 
 Character Details:
 - Name: ${input.name}
@@ -41,15 +41,8 @@ Character Details:
 
 You MUST respond with only a valid JSON object, with no other text before or after it. The JSON object must contain a single key "bio".`;
 
-      const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
-      return { ...parsedResult, dataSource: 'primary' };
-    } catch (error) {
-        console.error(`[generateCharacterBio] AI call failed. Returning hard-coded bio.`, { error });
-        return {
-            bio: "They believe their artisanal pickles can change the world, one jar at a time.",
-            dataSource: 'hardcoded',
-        }
-    }
+    const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateCharacterBioOutputSchema);
+    return { ...parsedResult, dataSource: 'primary' };
 }
 
 ai.defineFlow(

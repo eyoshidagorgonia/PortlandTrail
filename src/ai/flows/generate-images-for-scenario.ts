@@ -38,16 +38,13 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
         };
     }
     
-    let prompts;
-    let dataSource: 'primary' | 'hardcoded' = 'primary'; // Assume success
-    try {
-        const badgeSection = input.badge 
-            ? `
+    const badgeSection = input.badge 
+        ? `
 - Badge Description: ${input.badge.description}
 - Badge Emoji: ${input.badge.emoji}` 
-            : '';
+        : '';
 
-        const prompt = `You are an expert prompt engineer for a text-to-image model. Create two distinct, detailed prompts based on a game scenario, following a "Diablo IV x Hipster x Studio Ghibli" style.
+    const prompt = `You are an expert prompt engineer for a text-to-image model. Create two distinct, detailed prompts based on a game scenario, following a "Diablo IV x Hipster x Studio Ghibli" style.
 
 **IMPORTANT: Do not generate an avatar prompt. The avatar is persistent. Set the 'avatarPrompt' field to null.**
 
@@ -57,16 +54,7 @@ ${badgeSection}
 
 You MUST respond with only a valid JSON object, with no other text before or after it. Your response should contain 'scenePrompt' (string) and 'badgePrompt' (string or null).`;
 
-        prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
-    } catch(error) {
-        console.error("[generateImagesForScenario] AI call failed. Using hardcoded prompts.", { error });
-        prompts = {
-            avatarPrompt: null,
-            scenePrompt: input.scenarioDescription,
-            badgePrompt: input.badge ? `A merit badge representing ${input.badge.description}` : null,
-        };
-        dataSource = 'hardcoded';
-    }
+    const prompts = await callNexixApi('gemma3:12b', prompt, ImageGenPromptOutputSchema);
     
     console.log('[generateImagesForScenario] Generated prompts:', prompts);
 
@@ -101,7 +89,7 @@ You MUST respond with only a valid JSON object, with no other text before or aft
       avatarImage,
       sceneImage,
       badgeImage,
-      dataSource,
+      dataSource: 'primary',
     };
 }
 

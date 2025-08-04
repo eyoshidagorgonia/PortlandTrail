@@ -24,26 +24,17 @@ type GenerateHipsterNameAndSourceOutput = z.infer<typeof GenerateHipsterNameAndS
 
 export async function generateHipsterName(): Promise<GenerateHipsterNameAndSourceOutput> {
     console.log('[generateHipsterName] Started.');
-    try {
-        const prompt = `Generate a single, quirky, gender-neutral hipster name.
+    
+    const prompt = `Generate a single, quirky, gender-neutral hipster name.
 To ensure a unique name, use this random seed in your generation process: ${Math.random()}
 
 You MUST respond with only a valid JSON object, with no other text before or after it. The JSON object must contain a single key "name".`;
-      
-      const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);
-      return {
+  
+    const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateHipsterNameOutputSchema, 1.5);
+    return {
         ...parsedResult,
         dataSource: 'primary',
-      };
-    } catch (error) {
-        console.error(`[generateHipsterName] AI call failed. Returning hard-coded name.`, { error });
-        const fallbackNames = ["Pip", "Wren", "Lark", "Moss", "Cove"];
-        const randomName = fallbackNames[Math.floor(Math.random() * fallbackNames.length)];
-        return {
-            name: randomName,
-            dataSource: 'hardcoded',
-        }
-    }
+    };
 }
 
 ai.defineFlow(

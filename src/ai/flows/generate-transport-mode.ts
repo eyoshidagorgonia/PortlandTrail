@@ -24,23 +24,13 @@ type GenerateTransportModeAndSourceOutput = z.infer<typeof GenerateTransportMode
 
 export async function generateTransportMode(): Promise<GenerateTransportModeAndSourceOutput> {
     console.log('[generateTransportMode] Started.');
-    try {
-        const prompt = `Generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
+    const prompt = `Generate a short, 2-4 word action phrase describing a quirky way a hipster would leave a situation.
 To ensure a unique phrase, use this random seed in your generation process: ${Math.random()}
 
 You MUST respond with only a valid JSON object, with no other text before or after it. The JSON object must contain a single key "text".`;
 
-      const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
-      return { ...parsedResult, dataSource: 'primary' };
-    } catch (error) {
-        console.error(`[generateTransportMode] AI call failed.`, { error });
-        const fallbackOptions = ["Skedaddle", "Vamoose", "Just leave", "Walk away"];
-        const fallbackText = fallbackOptions[Math.floor(Math.random() * fallbackOptions.length)];
-        return {
-            text: fallbackText,
-            dataSource: 'hardcoded',
-        }
-    }
+    const parsedResult = await callNexixApi('gemma3:12b', prompt, GenerateTransportModeOutputSchema);
+    return { ...parsedResult, dataSource: 'primary' };
 }
 
 

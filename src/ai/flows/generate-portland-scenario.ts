@@ -49,11 +49,7 @@ export async function generatePortlandScenario(
 ): Promise<GeneratePortlandScenarioOutput> {
   console.log('[generatePortlandScenario] Started with agent flow.');
   
-  let result;
-  let dataSource: 'primary' | 'hardcoded' = 'primary';
-
-  try {
-        const prompt = `You are the Game Master for "The Portland Trail," a quirky text-based RPG. Create a complete scenario.
+  const prompt = `You are the Game Master for "The Portland Trail," a quirky text-based RPG. Create a complete scenario.
 
 **Player Status:** ${input.playerStatus}
 **Location:** ${input.location}
@@ -68,36 +64,8 @@ export async function generatePortlandScenario(
 
 You MUST respond with only a valid JSON object, with no other text before or after it.`;
 
-    result = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
+    const result = await callNexixApi('gemma3:12b', prompt, OllamaResponseSchema);
     return { ...result, dataSource: 'primary' };
-  } catch (error) {
-    console.error(`[generatePortlandScenario] AI call failed. Returning hard-coded scenario.`, { error });
-    dataSource = 'hardcoded';
-    result = {
-        scenario: "You encounter a glitch in the hipster matrix. A flock of identical pigeons, all wearing tiny fedoras, stares at you menacingly before dispersing.",
-        challenge: 'Question your reality',
-        diablo2Element: "You feel as though you've just witnessed a 'Diablo Clone' event, but for birds.",
-        avatarKaomoji: '(o_O;)',
-        choices: [
-            {
-                text: 'Embrace the weirdness',
-                description: "What's the worst that could happen?",
-                consequences: { health: -2, style: 5, irony: 5, authenticity: -3, vibes: 10, progress: 0, coffee: 0, vinyls: 0, stamina: 0, badge: { badgeDescription: 'Fedorapocalypse Witness', badgeEmoji: '🐦', isUber: false } },
-            },
-            {
-                text: 'Skedaddle',
-                description: 'This is too much. Time to leave.',
-                consequences: { health: -1, style: -2, irony: 0, authenticity: 0, vibes: -5, progress: 3, coffee: 0, vinyls: 0, stamina: -5 },
-            },
-            {
-                text: 'Summon Hipsters',
-                description: 'Call upon the local cognoscenti for aid. What could go wrong?',
-                consequences: { health: -50, style: -20, irony: -20, authenticity: -20, vibes: -50, progress: 0, coffee: -10, vinyls: -2, stamina: -50 },
-            }
-        ],
-    };
-    return { ...result, dataSource: 'hardcoded' };
-  }
 }
 
 ai.defineFlow(
