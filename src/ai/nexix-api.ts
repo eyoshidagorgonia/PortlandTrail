@@ -18,8 +18,8 @@ const NexixApiResponseSchema = z.object({
 });
 
 /**
- * Extracts a JSON object from a string, even if it's embedded in other text.
- * For example, it can extract the JSON from "```json\n{...}\n```".
+ * Extracts a JSON object from a string by finding the first '{' and the last '}'.
+ * This is more robust than a simple regex for nested JSON.
  *
  * @param str The string to parse.
  * @returns The extracted JSON object as a string, or null if not found.
@@ -28,8 +28,33 @@ function extractJson(str: string): string | null {
     if (!str || typeof str !== 'string') {
         return null;
     }
-    const match = str.match(/\{[\s\S]*\}/);
-    return match ? match[0] : null;
+
+    const startIndex = str.indexOf('{');
+    if (startIndex === -1) {
+        return null;
+    }
+
+    let braceCount = 1;
+    let endIndex = -1;
+
+    for (let i = startIndex + 1; i < str.length; i++) {
+        if (str[i] === '{') {
+            braceCount++;
+        } else if (str[i] === '}') {
+            braceCount--;
+        }
+
+        if (braceCount === 0) {
+            endIndex = i;
+            break;
+        }
+    }
+
+    if (endIndex === -1) {
+        return null; // Unmatched braces
+    }
+
+    return str.substring(startIndex, endIndex + 1);
 }
 
 
