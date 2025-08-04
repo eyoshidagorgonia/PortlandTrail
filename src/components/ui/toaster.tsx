@@ -11,9 +11,17 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Bell } from "lucide-react"
+import { ScrollArea } from "./scroll-area"
 
 export function Toaster() {
-  const { toasts } = useToast()
+  const { toasts, history } = useToast()
 
   return (
     <ToastProvider>
@@ -33,7 +41,32 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport>
+        {history.length > 0 && (
+          <Accordion type="single" collapsible className="w-full max-w-sm">
+            <AccordionItem value="history" className="border-none">
+              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-4 font-headline text-lg hover:no-underline hover:bg-muted transition-colors [&[data-state=open]]:rounded-b-none">
+                <div className="flex items-center gap-2">
+                    <Bell className="h-5 w-5"/>
+                    <span>Notification History</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="bg-background border border-t-0 p-0 rounded-b-sm">
+                <ScrollArea className="h-72">
+                  <div className="p-4 space-y-3">
+                    {history.map((toast) => (
+                      <div key={toast.id} className="text-sm text-foreground/80 border-b border-border/50 pb-2 last:border-b-0">
+                        {toast.title && <p className="font-bold">{toast.title}</p>}
+                        {toast.description && <p>{toast.description as React.ReactNode}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
+      </ToastViewport>
     </ToastProvider>
   )
 }

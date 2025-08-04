@@ -11,6 +11,7 @@ import type {
 
 const TOAST_LIMIT = 3;
 const TOAST_REMOVE_DELAY = 5000;
+const HISTORY_LIMIT = 20;
 
 type ToasterToast = ToastProps & {
   id: string
@@ -55,6 +56,7 @@ type Action =
 
 interface State {
   toasts: ToasterToast[]
+  history: ToasterToast[]
 }
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
@@ -81,12 +83,16 @@ export const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+        history: [action.toast, ...state.history].slice(0, HISTORY_LIMIT),
       }
 
     case "UPDATE_TOAST":
       return {
         ...state,
         toasts: state.toasts.map((t) =>
+          t.id === action.toast.id ? { ...t, ...action.toast } : t
+        ),
+        history: state.history.map((t) =>
           t.id === action.toast.id ? { ...t, ...action.toast } : t
         ),
       }
@@ -132,7 +138,7 @@ export const reducer = (state: State, action: Action): State => {
 
 const listeners: Array<(state: State) => void> = []
 
-let memoryState: State = { toasts: [] }
+let memoryState: State = { toasts: [], history: [] }
 
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action)
