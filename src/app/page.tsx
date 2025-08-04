@@ -57,6 +57,8 @@ export default function PortlandTrailPage() {
   // Intro-specific image state
   const [introAvatarImage, setIntroAvatarImage] = useState<string>('');
   const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
+  const [isAvatarRendered, setIsAvatarRendered] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   const { toast } = useToast();
 
@@ -159,6 +161,7 @@ export default function PortlandTrailPage() {
   const generateIntroAvatar = useCallback(async () => {
     if (!name || !job) return;
     setIsIntroAvatarLoading(true);
+    setIsAvatarRendered(false);
     const { id: toastId } = toast({ title: 'Conjuring Avatar...', description: 'Capturing your artisanal essence in pixels.' });
     
     const imageInput = {
@@ -208,6 +211,16 @@ export default function PortlandTrailPage() {
         generateIntroAvatar();
     }
   }, [name, job, gameState, generateIntroAvatar]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (gameState === 'intro') {
+        if (countdown > 0) {
+            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }
+  }, [gameState, countdown]);
 
   // Regenerate bio when vibe changes during gameplay
   useEffect(() => {
@@ -300,6 +313,8 @@ export default function PortlandTrailPage() {
     setAvatarImage('');
     setIntroAvatarImage('');
     setBadgeImage(null);
+    setCountdown(3);
+    setIsAvatarRendered(false);
     localStorage.removeItem('healthyServices');
     localStorage.removeItem('primaryDegradedServices');
     localStorage.removeItem('fullyOfflineServices');
@@ -524,6 +539,8 @@ export default function PortlandTrailPage() {
 
   if (gameState === 'intro') {
     const isAnythingLoading = isLoading || isNameLoading || isBioLoading || isIntroAvatarLoading;
+    const isButtonDisabled = isAnythingLoading || !job || !name || !bio || countdown > 0 || !isAvatarRendered;
+
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
         <Card className="max-w-2xl w-full text-center shadow-2xl relative bg-card/80 backdrop-blur-sm border-2 border-border/20">
@@ -541,7 +558,13 @@ export default function PortlandTrailPage() {
                   {isIntroAvatarLoading || !introAvatarImage ? (
                     <Skeleton className="h-full w-full rounded-full" />
                   ) : (
-                    <AvatarImage src={introAvatarImage} alt={name} className="rounded-full" data-ai-hint="avatar portrait" />
+                    <AvatarImage 
+                        src={introAvatarImage} 
+                        alt={name} 
+                        className="rounded-full" 
+                        data-ai-hint="avatar portrait" 
+                        onLoad={() => setIsAvatarRendered(true)}
+                    />
                   )}
                    <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>
                 </Avatar>
@@ -580,9 +603,9 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isAnythingLoading || !job || !name || !bio} className="font-headline text-2xl mt-4">
+            <Button size="lg" onClick={startGame} disabled={isButtonDisabled} className="font-headline text-2xl mt-4">
                 <PennyFarthingIcon className="mr-2 h-5 w-5" isloading={String(isAnythingLoading)} />
-                Begin Your Descent
+                {countdown > 0 ? `Conjuring... ${countdown}` : 'Begin Your Descent'}
             </Button>
             <Link href="/help" passHref>
                 <Button variant="link" className="text-muted-foreground mt-2">Whisper to the Vibe Sage</Button>
