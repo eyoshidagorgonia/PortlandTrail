@@ -572,13 +572,13 @@ export default function PortlandTrailPage() {
                 <div className="space-y-2">
                   <Label htmlFor="name" className='font-headline text-xl'>HIPSTER NAME</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isNameLoading} className="text-lg" />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isNameLoading || isLoading} className="text-lg" />
                     <Button 
                       type="button"
                       size="icon" 
                       variant="secondary" 
                       onClick={() => handleGenerateName()}
-                      disabled={isNameLoading}
+                      disabled={isNameLoading || isLoading}
                       aria-label="Randomize Name"
                       >
                       {isNameLoading ? <ConjuringIcon className="h-6 w-6" /> : <RefreshCw />}
@@ -587,7 +587,7 @@ export default function PortlandTrailPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="job" className='font-headline text-xl'>WHAT YOU DO IN BETWEEN GIGS</Label>
-                  <Select value={job} onValueChange={setJob}>
+                  <Select value={job} onValueChange={setJob} disabled={isLoading}>
                     <SelectTrigger id="job" className="text-lg">
                       <SelectValue placeholder="Select a dark profession" />
                     </SelectTrigger>
@@ -666,6 +666,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
-    
