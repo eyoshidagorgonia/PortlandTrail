@@ -45,8 +45,9 @@ export function Toaster() {
         {history.length > 0 && (
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="history" className="border-none">
-              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-1 font-headline text-base hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted">
-                <Brain className="h-5 w-5"/>
+              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-1 font-headline text-xs hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted flex items-center gap-2">
+                <Brain className="h-4 w-4"/>
+                <span className="font-body">Vibe Sage</span>
               </AccordionTrigger>
               <AccordionContent className="bg-background border border-t-0 p-0 rounded-b-sm">
                 <ScrollArea className="h-72">
