@@ -42,8 +42,8 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
   return (
     <Card className="h-full flex flex-col bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-6 pb-2">
-        <CardTitle className="font-headline text-3xl font-bold tracking-wide">{scenario.scenario}</CardTitle>
-        <CardDescription className="font-body text-xl pt-2 text-foreground/80">{scenario.challenge}</CardDescription>
+        <CardDescription className="font-body text-xl pt-2 text-foreground/80">{scenario.scenario}</CardDescription>
+        <CardTitle className="font-headline text-3xl font-bold tracking-wide">{scenario.challenge}</CardTitle>
       </CardHeader>
       <CardContent className="p-6 pt-2 flex-grow">
         <div className="mb-4 overflow-hidden rounded-sm border-2 border-border/50 bg-muted/30">
@@ -74,7 +74,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <Button 
-                  variant={index === 0 ? 'default' : 'secondary'} 
+                  variant='secondary'
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
                   className="font-headline text-xl"
