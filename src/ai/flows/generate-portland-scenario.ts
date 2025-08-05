@@ -30,7 +30,7 @@ const GeneratePortlandScenarioOutputSchema = z.object({
   challenge: z.string().describe('A challenge the player must overcome in the scenario.'),
   diablo2Element: z.string().optional().describe('The subtle Diablo II reference.'),
   avatarKaomoji: z.string().describe('A Japanese-style Kaomoji (e.g., (⌐■_■) or ┐(‘～` )┌) representing the player character.'),
-  choices: z.array(ChoiceSchema).describe("An array of 2-3 choices for the player."),
+  choices: z.array(ChoiceSchema).describe("An array of 6 choices for the player."),
   dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GeneratePortlandScenarioOutput = z.infer<typeof GeneratePortlandScenarioOutputSchema>;
@@ -58,7 +58,7 @@ export async function generatePortlandScenario(
 **Instructions:**
 1.  **Analyze Player Status**: Create balanced choices. If the player is struggling, make rewards generous.
 2.  **Generate Scenario**: Create a quirky scenario specific to the player's location, with a subtle Diablo II reference.
-3.  **Create Choices**: Generate 2-3 choices. Each choice MUST have two fields for its text:
+3.  **Create Choices**: Generate 6 distinct choices. Each choice MUST have two fields for its text:
     - "text": A short, 2-4 word summary for the button.
     - "description": A longer, 1-2 sentence description for a tooltip.
 4.  **Consequences MUST be Numbers**: All consequence values (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina) MUST be numbers, not strings. For example, use "health": 10, not "health": "10".

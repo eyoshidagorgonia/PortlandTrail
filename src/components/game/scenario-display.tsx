@@ -31,9 +31,13 @@ const LoadingState = () => (
         <Skeleton className="h-5 w-full" />
         <Skeleton className="h-5 w-5/6" />
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-4 p-4 pt-4 border-t border-border/50">
-        <Skeleton className="h-12 w-40" />
-        <Skeleton className="h-12 w-40" />
+      <CardFooter className="grid grid-cols-3 gap-4 p-4 pt-4 border-t border-border/50">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </CardFooter>
     </Card>
   );
@@ -47,7 +51,6 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     <Card className="h-full flex flex-col bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-6 pb-2">
         <div className="space-y-1">
-            {/* Swapped scenario.scenario and scenario.challenge to fix AI formatting bug */}
             <p className="font-headline text-3xl font-bold tracking-wide">{scenario.scenario}</p>
             <p className="font-body text-xl text-muted-foreground">{scenario.challenge}</p>
         </div>
@@ -78,7 +81,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-4 p-6 pt-4 border-t-2 border-border/50">
+      <CardFooter className="grid grid-cols-3 gap-4 p-6 pt-4 border-t-2 border-border/50">
         <TooltipProvider>
           {scenario.choices.map((choice, index) => (
             <Tooltip key={index}>
@@ -87,7 +90,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant='secondary'
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
-                  className="font-headline text-xl"
+                  className="font-headline text-xl w-full"
                   size="lg"
                 >
                   {choice.text}
