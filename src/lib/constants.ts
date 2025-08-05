@@ -20,7 +20,7 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
   name: 'Art',
   job: HIPSTER_JOBS[0],
   avatar: '(o_O)', // Default Kaomoji
-  bio: '',
+  mood: '',
   stats: {
     health: 80,
     style: 50,
@@ -60,7 +60,7 @@ export const getIronicHealthStatus = (health: number): { text: string; variant: 
 
 export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
     name: "Name Generation",
-    bio: "Character Bio",
+    mood: "Character Mood",
     scenario: "Scenario/Art Generation",
     transport: "Transport Mode",
     image: "Image Generation",

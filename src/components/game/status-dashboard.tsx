@@ -102,7 +102,7 @@ const ThematicSeparator = () => (
 );
 
 export default function StatusDashboard({ playerState, avatarImage, isImageLoading }: StatusDashboardProps) {
-  const { stats, resources, name, job, bio, progress, location, events } = playerState;
+  const { stats, resources, name, job, mood, progress, location, events } = playerState;
 
   const ironicStatus = getIronicHealthStatus(stats.health);
 
@@ -125,9 +125,9 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                     <TooltipTrigger>
                         <CardTitle className="font-headline text-4xl font-bold cursor-help">{name}</CardTitle>
                     </TooltipTrigger>
-                    {bio && (
+                    {mood && (
                         <TooltipContent>
-                            <p className="max-w-xs">{bio}</p>
+                            <p className="max-w-xs">{mood}</p>
                         </TooltipContent>
                     )}
                 </Tooltip>

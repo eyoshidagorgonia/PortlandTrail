@@ -13,7 +13,7 @@ import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getI
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent } from '@/lib/types';
 import { getScenarioAction, getImagesAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
-import { generateCharacterBio } from '@/ai/flows/generate-character-bio';
+import { generateCharacterMood } from '@/ai/flows/generate-character-mood';
 import StatusDashboard from '@/components/game/status-dashboard';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
@@ -43,9 +43,9 @@ export default function PortlandTrailPage() {
   const [name, setName] = useState('');
   const [job, setJob] = useState('');
   const [avatarKaomoji, setAvatarKaomoji] = useState('(-_-)');
-  const [bio, setBio] = useState('');
+  const [mood, setMood] = useState('');
   const [isNameLoading, setIsNameLoading] = useState(true);
-  const [isBioLoading, setIsBioLoading] = useState(true);
+  const [isMoodLoading, setIsMoodLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(INITIAL_SYSTEM_STATUS);
 
@@ -144,22 +144,28 @@ export default function PortlandTrailPage() {
     }
   }, [updateSystemStatus, toast]);
 
-  const handleGenerateBio = useCallback(async (vibe: string) => {
-     if (!name || !job) return;
-    setIsBioLoading(true);
-    const { id: toastId } = toast({ title: 'Crafting Bio...', description: 'The AI is writing your life story (a short one).' });
+  const handleGenerateMood = useCallback(async (state: PlayerState) => {
+     if (!state.name || !state.job) return;
+    setIsMoodLoading(true);
+    const { id: toastId } = toast({ title: 'Reading the Aura...', description: 'The Vibe Sage is assessing your current mood.' });
     try {
-        const result = await generateCharacterBio({ name, job, vibe });
-        setBio(result.bio);
-        updateSystemStatus({ bio: result.dataSource });
-        toast({ id: toastId, title: 'Bio Crafted!', description: 'Your essence, distilled into a few sentences.' });
+        const result = await generateCharacterMood({ 
+            name: state.name, 
+            job: state.job, 
+            stats: state.stats,
+            resources: state.resources,
+            progress: state.progress,
+        });
+        setPlayerState(prev => ({...prev, mood: result.mood, vibe: currentVibe }));
+        updateSystemStatus({ mood: result.dataSource });
+        toast({ id: toastId, title: 'Aura Read!', description: 'Your mood has been updated.' });
     } catch(error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ id: toastId, variant: 'destructive', title: 'Bio Generation Failed', description: errorMessage });
+        toast({ id: toastId, variant: 'destructive', title: 'Aura Reading Failed', description: errorMessage });
     } finally {
-        setIsBioLoading(false);
+        setIsMoodLoading(false);
     }
-  }, [name, job, updateSystemStatus, toast]);
+  }, [updateSystemStatus, toast, currentVibe]);
   
   const generateIntroAvatar = useCallback(async () => {
     if (!name || !job) return;
@@ -204,9 +210,9 @@ export default function PortlandTrailPage() {
 
   useEffect(() => {
     if (gameState === 'intro' && name && job) {
-      handleGenerateBio("Just starting out");
+      handleGenerateMood({...INITIAL_PLAYER_STATE, name, job });
     }
-  }, [gameState, name, job, handleGenerateBio]);
+  }, [gameState, name, job, handleGenerateMood]);
   
   // This useEffect now handles initial load AND job changes for the avatar.
   useEffect(() => {
@@ -225,23 +231,15 @@ export default function PortlandTrailPage() {
     }
   }, [gameState, countdown, isAvatarRendered]);
 
-  // Regenerate bio when vibe changes during gameplay
+  // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
-        const { id: toastId } = toast({ title: 'Vibe Shift!', description: 'Recrafting your bio to match the new mood.' });
-        generateCharacterBio({name: playerState.name, job: playerState.job, vibe: newVibe}).then(result => {
-           setPlayerState(prevState => ({...prevState, bio: result.bio, vibe: newVibe }));
-           updateSystemStatus({ bio: result.dataSource });
-           toast({ id: toastId, title: 'Bio Updated', description: 'Your story has changed.' });
-        }).catch(error => {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            toast({ id: toastId, variant: 'destructive', title: 'Bio Update Failed', description: errorMessage });
-        });
+        handleGenerateMood(playerState);
       }
     }
-  }, [currentVibe, gameState, playerState.name, playerState.job, playerState.vibe, updateSystemStatus, toast]);
+  }, [currentVibe, gameState, playerState, handleGenerateMood]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -259,7 +257,7 @@ export default function PortlandTrailPage() {
       name: name,
       job: job,
       avatar: avatarKaomoji,
-      bio: bio,
+      mood: mood,
       vibe: "Just starting out",
       events: initialEvents,
     };
@@ -302,13 +300,13 @@ export default function PortlandTrailPage() {
     // We pass the *full* new player state, including the potentially new kaomoji
     fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
 
-  }, [name, job, avatarKaomoji, bio, toast, addLog, updateSystemStatus, introAvatarImage]);
+  }, [name, job, avatarKaomoji, mood, toast, addLog, updateSystemStatus, introAvatarImage]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
     setPlayerState(INITIAL_PLAYER_STATE);
     setName('');
-    setBio('');
+    setMood('');
     setJob('');
     setHasInitialized(false);
     setSystemStatus(INITIAL_SYSTEM_STATUS);
@@ -555,8 +553,8 @@ export default function PortlandTrailPage() {
   }
 
   if (gameState === 'intro') {
-    const isAnythingLoading = isLoading || isNameLoading || isBioLoading || isIntroAvatarLoading;
-    const isButtonDisabled = isAnythingLoading || !job || !name || !bio || countdown > 0 || !isAvatarRendered;
+    const isAnythingLoading = isLoading || isNameLoading || isMoodLoading || isIntroAvatarLoading;
+    const isButtonDisabled = isAnythingLoading || !job || !name || !mood || countdown > 0 || !isAvatarRendered;
 
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">

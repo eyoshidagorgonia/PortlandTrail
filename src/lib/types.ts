@@ -39,7 +39,7 @@ export interface PlayerState {
   name: string;
   job: string;
   avatar: string; // This will now hold a Kaomoji string
-  bio: string;
+  mood: string;
   stats: PlayerStats;
   resources: PlayerResources;
   location: string;
