@@ -237,6 +237,7 @@ export default function PortlandTrailPage() {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
+        setPlayerState(prev => ({...prev, vibe: newVibe}));
         handleGenerateMood(playerState);
       }
     }
@@ -554,13 +555,16 @@ export default function PortlandTrailPage() {
   }
 
   if (gameState === 'intro') {
-    const isAnythingLoading = isLoading || isNameLoading || isMoodLoading || isIntroAvatarLoading;
-    const isButtonDisabled = isAnythingLoading || !job || !name || (isAvatarRendered && countdown > 0);
+    const isAnythingLoading = isNameLoading || isMoodLoading || isIntroAvatarLoading;
+    const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || (isAvatarRendered && countdown > 0);
     const isCountdownActive = isAvatarRendered && countdown > 0;
     const isReady = isAvatarRendered && countdown === 0;
 
     const getButtonContent = () => {
-        if (!isAvatarRendered || isAnythingLoading) {
+        if (isLoading) {
+            return <span className="animate-pulse-text-destructive">Hitting The Trail... of Doom</span>
+        }
+        if (isAnythingLoading) {
             return (
                 <>
                     <ConjuringIcon className="mr-2 h-5 w-5" />
