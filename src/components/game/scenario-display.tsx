@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Scenario, Choice } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ConjuringIcon } from './icons';
 
 interface ScenarioDisplayProps {
   scenario: Scenario | null;
@@ -22,7 +23,10 @@ const LoadingState = () => (
         <Skeleton className="h-8 w-3/4" />
       </CardHeader>
       <CardContent className="p-4 pt-2 space-y-3">
-        <Skeleton className="w-full aspect-video" />
+        <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground">
+            <ConjuringIcon className="h-10 w-10" />
+            <p className="font-body">The Vibe Sage is painting the scene...</p>
+        </div>
         <Skeleton className="h-5 w-full" />
         <Skeleton className="h-5 w-full" />
         <Skeleton className="h-5 w-5/6" />
@@ -42,14 +46,16 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
   return (
     <Card className="h-full flex flex-col bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-6 pb-2">
-        {/* Using simple p tags with explicit styling for consistency */}
         <p className="font-body text-xl text-foreground/80">{scenario.scenario}</p>
         <p className="font-headline text-3xl font-bold tracking-wide pt-2">{scenario.challenge}</p>
       </CardHeader>
       <CardContent className="p-6 pt-2 flex-grow">
         <div className="mb-4 overflow-hidden rounded-sm border-2 border-border/50 bg-muted/30">
           {isImageLoading || !sceneImage ? (
-            <Skeleton className="w-full aspect-[4/3]" />
+             <div className="w-full aspect-[4/3] bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground">
+                <ConjuringIcon className="h-10 w-10" />
+                <p className="font-body">The Vibe Sage is painting the scene...</p>
+            </div>
           ) : (
             <Image
               src={sceneImage}
@@ -94,5 +100,3 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     </Card>
   );
 }
-
-    

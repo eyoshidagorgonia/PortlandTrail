@@ -327,7 +327,7 @@ export default function PortlandTrailPage() {
     setIsImageLoading(true);
     setSceneImage('');
     setBadgeImage(null);
-    const { id: toastId } = toast({ title: 'Conjuring Scene...', description: 'The AI is painting a picture of your surroundings.' });
+    const { id: toastId } = toast({ title: 'Conjuring Scene...', description: 'The Vibe Sage is painting a picture of your surroundings.' });
 
     const imageInput = {
       // The avatar is no longer regenerated here, so we only need scene and badge info.
@@ -600,7 +600,9 @@ export default function PortlandTrailPage() {
               <div className="relative shrink-0">
                 <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
                   {isIntroAvatarLoading || !introAvatarImage ? (
-                    <Skeleton className="h-full w-full rounded-full" />
+                    <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground">
+                        <ConjuringIcon className="h-10 w-10" />
+                    </div>
                   ) : (
                     <AvatarImage 
                         src={introAvatarImage} 

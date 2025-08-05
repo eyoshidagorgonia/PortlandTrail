@@ -11,6 +11,7 @@ import {
   AuthenticityIcon,
   VinylIcon,
   CoffeeIcon,
+  ConjuringIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -112,7 +113,9 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
       <CardHeader className="text-center items-center pb-4">
         <Avatar className="h-32 w-32 border-2 border-border/50 text-4xl font-headline rounded-full">
             {isImageLoading || !avatarImage ? (
-                <Skeleton className="h-full w-full rounded-full" />
+                <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground">
+                    <ConjuringIcon className="h-10 w-10" />
+                </div>
             ) : (
                 <AvatarImage src={avatarImage} alt={name} className="rounded-full" data-ai-hint="avatar portrait" />
             )}
@@ -252,5 +255,3 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
     </Card>
   );
 }
-
-    
