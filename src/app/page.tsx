@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent } from '@/lib/types';
 import { getScenarioAction, getImagesAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
@@ -65,6 +65,8 @@ export default function PortlandTrailPage() {
   // Outcome modal state
   const [lastChoice, setLastChoice] = useState<Choice | null>(null);
   const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
+
+  const [randomTagline, setRandomTagline] = useState('');
 
   const { toast } = useToast();
 
@@ -201,6 +203,7 @@ export default function PortlandTrailPage() {
   }, [name, job, avatarKaomoji, toast, updateSystemStatus]);
 
   useEffect(() => {
+    setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
       handleGenerateName();
       const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
@@ -593,7 +596,7 @@ export default function PortlandTrailPage() {
             <div className="space-y-2">
               <h1 className="text-6xl font-headline font-bold text-primary">The Portland Trail</h1>
               <p className="text-muted-foreground font-body text-xl">
-                An epic saga of bespoke suffering and curated gloom.
+                {randomTagline}
               </p>
             </div>
 

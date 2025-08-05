@@ -3,6 +3,20 @@ import type { PlayerState } from './types';
 
 export const BUILD_NUMBER = 1.042;
 
+export const IRONIC_TAGLINES = [
+    "An epic saga of bespoke suffering and curated gloom.",
+    "A pilgrimage fueled by single-origin dread and artisanal angst.",
+    "The path to enlightenment is paved with avocado toast and existential despair.",
+    "Forge your legend in the fires of irony, armed with a vintage flannel.",
+    "A grimdark quest for the perfect pour-over and a reason to feel something.",
+    "Suffer beautifully on this handcrafted journey into the heart of coolness.",
+    "Where small-batch terrors and locally-sourced nightmares await.",
+    "They said the dream of the 90s was alive in Portland. They didn't mention the curse.",
+    "A tale whispered only in speakeasies and written on reclaimed parchment.",
+    "Your destiny is as murky as an unfiltered, hazy IPA.",
+    "A curated descent into the maelstrom of meticulous self-expression.",
+];
+
 export const HIPSTER_JOBS = [
   "Artisanal Pickle Maker",
   "Kombucha Brewer",
