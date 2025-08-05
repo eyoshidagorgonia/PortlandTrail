@@ -593,7 +593,7 @@ export default function PortlandTrailPage() {
             <div className="space-y-2">
               <h1 className="text-6xl font-headline font-bold text-primary">The Portland Trail</h1>
               <p className="text-muted-foreground font-body text-xl">
-                A cursed journey of survival and irony.
+                An epic saga of bespoke suffering and curated gloom.
               </p>
             </div>
 
@@ -730,5 +730,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
