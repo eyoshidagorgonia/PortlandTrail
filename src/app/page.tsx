@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrailMap from '@/components/game/trail-map';
+import { cn } from '@/lib/utils';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
     healthyServices: new Set(),
@@ -554,7 +555,31 @@ export default function PortlandTrailPage() {
 
   if (gameState === 'intro') {
     const isAnythingLoading = isLoading || isNameLoading || isMoodLoading || isIntroAvatarLoading;
-    const isButtonDisabled = isAnythingLoading || !job || !name || !mood || countdown > 0 || !isAvatarRendered;
+    const isButtonDisabled = isAnythingLoading || !job || !name || !mood || (isAvatarRendered && countdown > 0);
+    const isCountdownActive = isAvatarRendered && countdown > 0;
+    const isReady = isAvatarRendered && countdown === 0;
+
+    const getButtonContent = () => {
+        if (!isAvatarRendered || isAnythingLoading) {
+            return (
+                <>
+                    <ConjuringIcon className="mr-2 h-5 w-5" />
+                    <span>Conjuring...</span>
+                </>
+            );
+        }
+        if (isCountdownActive) {
+            return (
+                <span className="animate-pulse-text">Conjuring... {countdown}</span>
+            );
+        }
+        return (
+             <>
+                <PennyFarthingIcon className="mr-2 h-5 w-5" />
+                <span>Begin Your Descent</span>
+             </>
+        );
+    };
 
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
@@ -618,14 +643,18 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button size="lg" onClick={startGame} disabled={isButtonDisabled} className="font-headline text-2xl mt-4">
-                {isAnythingLoading ? (
-                    <ConjuringIcon className="mr-2 h-5 w-5" />
-                ) : (
-                    <PennyFarthingIcon className="mr-2 h-5 w-5" />
+            <Button 
+                size="lg" 
+                onClick={startGame} 
+                disabled={isButtonDisabled} 
+                className={cn(
+                    "font-headline text-2xl mt-4",
+                    isReady && "animate-glow-primary"
                 )}
-                {countdown > 0 ? `Conjuring... ${countdown}` : 'Begin Your Descent'}
+            >
+                {getButtonContent()}
             </Button>
+
             <Link href="/help" passHref>
                 <Button variant="link" className="text-muted-foreground mt-2">Whisper to the Vibe Sage</Button>
             </Link>
