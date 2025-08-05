@@ -621,7 +621,11 @@ export default function PortlandTrailPage() {
             </div>
 
             <Button size="lg" onClick={startGame} disabled={isButtonDisabled} className="font-headline text-2xl mt-4">
-                <PennyFarthingIcon className="mr-2 h-5 w-5" isloading={String(isAnythingLoading)} />
+                {isAnythingLoading ? (
+                    <ConjuringIcon className="mr-2 h-5 w-5" />
+                ) : (
+                    <PennyFarthingIcon className="mr-2 h-5 w-5" />
+                )}
                 {countdown > 0 ? `Conjuring... ${countdown}` : 'Begin Your Descent'}
             </Button>
             <Link href="/help" passHref>
