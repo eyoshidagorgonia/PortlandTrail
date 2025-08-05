@@ -47,8 +47,8 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
     <Card className="h-full flex flex-col bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-6 pb-2">
         <div className="space-y-1">
-            <p className="font-body text-xl text-muted-foreground">{scenario.scenario}</p>
             <p className="font-headline text-3xl font-bold tracking-wide">{scenario.challenge}</p>
+            <p className="font-body text-xl text-muted-foreground">{scenario.scenario}</p>
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-2 flex-grow">
