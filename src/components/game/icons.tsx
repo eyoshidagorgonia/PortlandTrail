@@ -151,17 +151,16 @@ export const LeftArrowIcon = (props: LucideProps) => (
   </svg>
 );
 
-interface PennyFarthingIconProps extends LucideProps {
-  isloading?: string;
-}
-export const PennyFarthingIcon = ({ isloading, ...props }: PennyFarthingIconProps) => (
+export const PennyFarthingIcon = (props: LucideProps) => (
     <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9.5" cy="11.5" r="7.5" className={isloading === 'true' ? 'animate-spin-wheel' : ''} style={{ transformOrigin: '9.5px 11.5px' }}/>
-      <circle cx="20" cy="17" r="2" className={isloading === 'true' ? 'animate-spin-wheel' : ''} style={{ transformOrigin: '20px 17px' }}/>
-      <path d="M9.5 4V2.5" />
-      <path d="M14 8.5 L18.5 16" />
-      <path d="M9.5 19 L11.5 8.5 L7 8.5" />
-      <path d="M7 8.5L2 8.5" />
+      <g className="animate-spin-wheel" style={{ transformOrigin: 'center' }}>
+        <circle cx="9.5" cy="11.5" r="7.5" style={{ transformOrigin: '9.5px 11.5px' }}/>
+        <circle cx="20" cy="17" r="2" style={{ transformOrigin: '20px 17px' }}/>
+        <path d="M9.5 4V2.5" />
+        <path d="M14 8.5 L18.5 16" />
+        <path d="M9.5 19 L11.5 8.5 L7 8.5" />
+        <path d="M7 8.5L2 8.5" />
+      </g>
     </svg>
 );
 

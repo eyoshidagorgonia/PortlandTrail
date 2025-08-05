@@ -117,7 +117,7 @@
 }
 
 .animate-spin-wheel {
-  animation: spin-wheel 1s linear infinite;
+  animation: spin-wheel 2s linear infinite;
 }
 
 @keyframes conjuring {

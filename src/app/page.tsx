@@ -210,10 +210,10 @@ export default function PortlandTrailPage() {
   }, [gameState, hasInitialized, handleGenerateName]);
 
   useEffect(() => {
-    if (gameState === 'intro' && name && job) {
+    if (gameState === 'intro' && name && job && !mood) {
       handleGenerateMood({...INITIAL_PLAYER_STATE, name, job });
     }
-  }, [gameState, name, job, handleGenerateMood]);
+  }, [gameState, name, job, mood, handleGenerateMood]);
   
   // This useEffect now handles initial load AND job changes for the avatar.
   useEffect(() => {
@@ -237,8 +237,9 @@ export default function PortlandTrailPage() {
     if(gameState === 'playing') {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
-        setPlayerState(prev => ({...prev, vibe: newVibe}));
-        handleGenerateMood(playerState);
+        const newState = {...playerState, vibe: newVibe};
+        setPlayerState(newState);
+        handleGenerateMood(newState);
       }
     }
   }, [currentVibe, gameState, playerState, handleGenerateMood]);
