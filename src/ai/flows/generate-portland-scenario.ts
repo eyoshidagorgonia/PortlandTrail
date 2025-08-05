@@ -58,9 +58,10 @@ export async function generatePortlandScenario(
 **Instructions:**
 1.  **Analyze Player Status**: Create balanced choices. If the player is struggling, make rewards generous.
 2.  **Generate Scenario**: Create a quirky scenario specific to the player's location, with a subtle Diablo II reference.
-3.  **Create Choices**: Generate 2-3 choices with full consequences (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina). Each choice needs a "text" and a "description" field.
-4.  **Badges**: If a choice warrants a special reward, you MUST include a 'badge' object in its 'consequences'. The badge object MUST have three keys: 'badgeDescription' (string), 'badgeEmoji' (string), and 'isUber' (boolean).
-5.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player.
+3.  **Create Choices**: Generate 2-3 choices with full consequences. Each choice needs a "text" and a "description" field.
+4.  **Consequences MUST be Numbers**: All consequence values (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina) MUST be numbers, not strings. For example, use "health": 10, not "health": "10".
+5.  **Badges**: If a choice warrants a special reward, you MUST include a 'badge' object in its 'consequences'. The badge object MUST have three keys: 'badgeDescription' (string), 'badgeEmoji' (string), and 'isUber' (boolean).
+6.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player.
 
 You MUST respond with only a valid JSON object, with no other text before or after it. All fields are required unless specified as optional. The JSON object must match this structure exactly:
 {
