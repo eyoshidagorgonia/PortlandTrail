@@ -555,7 +555,7 @@ export default function PortlandTrailPage() {
 
   if (gameState === 'intro') {
     const isAnythingLoading = isLoading || isNameLoading || isMoodLoading || isIntroAvatarLoading;
-    const isButtonDisabled = isAnythingLoading || !job || !name || !mood || (isAvatarRendered && countdown > 0);
+    const isButtonDisabled = isAnythingLoading || !job || !name || (isAvatarRendered && countdown > 0);
     const isCountdownActive = isAvatarRendered && countdown > 0;
     const isReady = isAvatarRendered && countdown === 0;
 
