@@ -15,6 +15,7 @@ import { callNexixApi } from '@/ai/nexix-api';
 const GenerateCharacterMoodInputSchema = z.object({
   name: z.string().describe('The name of the character.'),
   job: z.string().describe('The job of the character.'),
+  origin: z.string().describe('The origin city of the character.'),
   stats: z.object({
     health: z.number(),
     style: z.number(),
@@ -49,6 +50,7 @@ export async function generateCharacterMood(input: GenerateCharacterMoodInput): 
 Character Details:
 - Name: ${input.name}
 - Job: ${input.job}
+- Origin: ${input.origin}
 - Health: ${input.stats.health}/100
 - Bike Stamina: ${input.resources.stamina}/100
 - Vibes: ${input.stats.vibes}/100

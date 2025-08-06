@@ -68,6 +68,7 @@ export interface PlayerResources {
 export interface PlayerState {
   name: string;
   job: string;
+  origin: string;
   avatar: string; // This will now hold a Kaomoji string
   mood: string;
   stats: PlayerStats;

@@ -30,6 +30,13 @@ export const HIPSTER_JOBS = [
   "Etsy Artisan",
 ];
 
+export const STARTING_CITIES = [
+    "San Francisco",
+    "Los Angeles",
+    "Austin",
+    "Brooklyn",
+];
+
 const initialStats = {
     health: 80,
     style: 50,
@@ -41,6 +48,7 @@ const initialStats = {
 export const INITIAL_PLAYER_STATE: PlayerState = {
   name: 'Art',
   job: HIPSTER_JOBS[0],
+  origin: STARTING_CITIES[0],
   avatar: '(o_O)', // Default Kaomoji
   mood: '',
   stats: { ...initialStats },

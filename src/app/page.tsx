@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, STARTING_CITIES, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, Equipment, EquipmentSlot } from '@/lib/types';
 import { getScenarioAction, getImagesAction, getLootAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
@@ -44,6 +44,7 @@ export default function PortlandTrailPage() {
   
   const [name, setName] = useState('');
   const [job, setJob] = useState('');
+  const [origin, setOrigin] = useState('');
   const [avatarKaomoji, setAvatarKaomoji] = useState('(-_-)');
   const [mood, setMood] = useState('');
   const [isNameLoading, setIsNameLoading] = useState(true);
@@ -150,13 +151,14 @@ export default function PortlandTrailPage() {
   }, [updateSystemStatus, toast]);
 
   const handleGenerateMood = useCallback(async (state: PlayerState) => {
-     if (!state.name || !state.job) return;
+     if (!state.name || !state.job || !state.origin) return;
     setIsMoodLoading(true);
     const { id: toastId } = toast({ title: 'Reading the Aura...', description: 'The Vibe Sage is assessing your current mood.' });
     try {
         const result = await generateCharacterMood({ 
             name: state.name, 
-            job: state.job, 
+            job: state.job,
+            origin: state.origin, 
             stats: state.stats,
             resources: state.resources,
             progress: state.progress,
@@ -210,15 +212,17 @@ export default function PortlandTrailPage() {
       handleGenerateName();
       const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
       setJob(randomJob);
+      const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
+      setOrigin(randomOrigin);
       setHasInitialized(true);
     }
   }, [gameState, hasInitialized, handleGenerateName]);
 
   useEffect(() => {
-    if (gameState === 'intro' && name && job && !mood) {
-      handleGenerateMood({...INITIAL_PLAYER_STATE, name, job });
+    if (gameState === 'intro' && name && job && origin && !mood) {
+      handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
     }
-  }, [gameState, name, job, mood, handleGenerateMood]);
+  }, [gameState, name, job, origin, mood, handleGenerateMood]);
   
   // This useEffect now handles initial load AND job changes for the avatar.
   useEffect(() => {
@@ -264,6 +268,7 @@ export default function PortlandTrailPage() {
       ...INITIAL_PLAYER_STATE,
       name: name,
       job: job,
+      origin: origin,
       avatar: avatarKaomoji,
       mood: mood,
       vibe: "Just starting out",
@@ -290,7 +295,7 @@ export default function PortlandTrailPage() {
     setPlayerState(prev => ({...prev, avatar: scenarioResult.playerAvatar || avatarKaomoji }));
     setAvatarKaomoji(scenarioResult.playerAvatar || avatarKaomoji);
     
-    const initialLogMessage = `Your journey as ${name} the ${job} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
+    const initialLogMessage = `Your journey as ${name} the ${job} from ${origin} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
     setEventLog(initialEvents);
     addLog(initialLogMessage, 0);
     
@@ -308,7 +313,7 @@ export default function PortlandTrailPage() {
     // We pass the *full* new player state, including the potentially new kaomoji
     fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
 
-  }, [name, job, avatarKaomoji, mood, toast, addLog, updateSystemStatus, introAvatarImage]);
+  }, [name, job, origin, avatarKaomoji, mood, toast, addLog, updateSystemStatus, introAvatarImage]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
@@ -316,6 +321,7 @@ export default function PortlandTrailPage() {
     setName('');
     setMood('');
     setJob('');
+    setOrigin('');
     setHasInitialized(false);
     setSystemStatus(INITIAL_SYSTEM_STATUS);
     setSceneImage('');
@@ -637,7 +643,7 @@ export default function PortlandTrailPage() {
 
   if (gameState === 'intro') {
     const isAnythingLoading = isNameLoading || isMoodLoading || isIntroAvatarLoading;
-    const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || (isAvatarRendered && countdown > 0);
+    const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || !origin || (isAvatarRendered && countdown > 0);
     const isCountdownActive = isAvatarRendered && countdown > 0;
     const isReady = isAvatarRendered && countdown === 0;
 
@@ -714,18 +720,33 @@ export default function PortlandTrailPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="job" className='font-headline text-xl'>WHAT YOU DO IN BETWEEN GIGS</Label>
-                  <Select value={job} onValueChange={setJob} disabled={isLoading}>
-                    <SelectTrigger id="job" className="text-lg">
-                      <SelectValue placeholder="Select a dark profession" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {HIPSTER_JOBS.map((j) => (
-                        <SelectItem key={j} value={j} className="text-base">{j}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="job" className='font-headline text-xl'>PROFESSION</Label>
+                        <Select value={job} onValueChange={setJob} disabled={isLoading}>
+                            <SelectTrigger id="job" className="text-lg">
+                            <SelectValue placeholder="Select a profession" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {HIPSTER_JOBS.map((j) => (
+                                <SelectItem key={j} value={j} className="text-base">{j}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="origin" className='font-headline text-xl'>ORIGIN</Label>
+                        <Select value={origin} onValueChange={setOrigin} disabled={isLoading}>
+                            <SelectTrigger id="origin" className="text-lg">
+                            <SelectValue placeholder="Select an origin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {STARTING_CITIES.map((c) => (
+                                <SelectItem key={c} value={c} className="text-base">{c}</SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
               </div>
             </div>

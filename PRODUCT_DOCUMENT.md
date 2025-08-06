@@ -30,7 +30,7 @@
 ### 4.1. Character Creation & Identity
 
 -   **FRD-001: AI Name Generation:** The game will suggest a thematically appropriate, quirky, gender-neutral name for the player. The player must have the option to accept the suggestion or manually enter their own.
--   **FRD-002: Profession Selection:** The player will select a starting profession from a predefined list of ironic hipster jobs. This choice serves as an initial flavor input for AI generation.
+-   **FRD-002: Profession & Origin Selection:** The player will select a starting profession from a predefined list of ironic hipster jobs and a starting city. These choices serve as initial flavor and inputs for AI generation.
 -   **FRD-003: AI Avatar Generation:** Based on the player's name and job, the system will generate a unique, painterly character portrait. This portrait will persist throughout the game as the player's primary visual identity.
 
 ### 4.2. Core Gameplay Loop
