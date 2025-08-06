@@ -17,11 +17,21 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Brain } from "lucide-react"
+import { Brain, Copy, Check } from "lucide-react"
 import { ScrollArea } from "./scroll-area"
+import { Button } from "./button"
+import { cn } from "@/lib/utils"
 
 export function Toaster() {
   const { toasts, history } = useToast()
+  const [copiedId, setCopiedId] = React.useState<string | null>(null);
+
+  const handleCopy = (toast: any) => {
+    const textToCopy = `${toast.title}\n${toast.description}`;
+    navigator.clipboard.writeText(textToCopy);
+    setCopiedId(toast.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   return (
     <ToastProvider>
@@ -43,7 +53,7 @@ export function Toaster() {
       })}
       <ToastViewport>
         {history.length > 0 && (
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full" defaultValue="history">
             <AccordionItem value="history" className="border-none">
               <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-1 font-headline text-xs hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted flex items-center gap-2">
                 <Brain className="h-4 w-4"/>
@@ -53,9 +63,24 @@ export function Toaster() {
                 <ScrollArea className="h-72">
                   <div className="p-4 space-y-3">
                     {history.map((toast, index) => (
-                      <div key={`${toast.id}-${index}`} className="text-sm text-foreground/80 border-b border-border/50 pb-2 last:border-b-0">
+                      <div key={`${toast.id}-${index}`} className="group relative text-sm text-foreground/80 border-b border-border/50 pb-2 last:border-b-0">
                         {toast.title && <p className="font-bold">{toast.title}</p>}
                         {toast.description && <p>{toast.description as React.ReactNode}</p>}
+                         <Button
+                            size="icon"
+                            variant="ghost"
+                            className={cn(
+                                "absolute top-0 right-0 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity",
+                                copiedId === toast.id && "opacity-100"
+                            )}
+                            onClick={() => handleCopy(toast)}
+                        >
+                            {copiedId === toast.id ? (
+                                <Check className="h-4 w-4 text-green-500" />
+                            ) : (
+                                <Copy className="h-4 w-4" />
+                            )}
+                        </Button>
                       </div>
                     ))}
                   </div>
