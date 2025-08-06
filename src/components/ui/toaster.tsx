@@ -25,10 +25,10 @@ import { cn } from "@/lib/utils"
 export function Toaster() {
   const { toasts, history } = useToast()
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
-  const [historyOpen, setHistoryOpen] = React.useState(true);
+  const [historyOpen, setHistoryOpen] = React.useState(false);
 
   const handleCopy = (toast: any) => {
-    const textToCopy = `${toast.title}\n${toast.description}`;
+    const textToCopy = `${toast.title ? `${toast.title}\n` : ''}${toast.description || ''}`;
     navigator.clipboard.writeText(textToCopy);
     setCopiedId(toast.id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -59,10 +59,10 @@ export function Toaster() {
             collapsible 
             className="w-full" 
             value={historyOpen ? "history" : ""}
+            onValueChange={(value) => setHistoryOpen(!!value)}
           >
             <AccordionItem value="history" className="border-none">
               <AccordionTrigger 
-                onClick={() => setHistoryOpen(prev => !prev)}
                 className="w-full justify-center rounded-sm bg-background border p-1 font-headline text-xs hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted flex items-center gap-2"
                 >
                 <Brain className="h-4 w-4"/>

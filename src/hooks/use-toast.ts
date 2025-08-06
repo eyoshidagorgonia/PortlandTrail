@@ -100,8 +100,6 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -151,13 +149,19 @@ type Toast = Omit<ToasterToast, "id"> & { id?: string };
 
 function toast(props: Toast) {
   const id = props.id || genId();
-  const existingToast = memoryState.toasts.find(t => t.id === id);
 
-  if (existingToast) {
+  const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     });
+    
+  const dismiss = () => dismissToast(id);
+
+  const existingToast = memoryState.toasts.find(t => t.id === id);
+
+  if (existingToast) {
+    update({ ...props, id, open: true });
   } else {
     dispatch({
       type: "ADD_TOAST",
@@ -166,31 +170,22 @@ function toast(props: Toast) {
         id,
         open: true,
         onOpenChange: (open) => {
-          if (!open) dismiss(id);
+          if (!open) dismiss();
         },
       },
     });
   }
   
-  // Automatically dismiss after a delay
   const dismissDelay = props.duration || TOAST_REMOVE_DELAY;
   setTimeout(() => {
-    dismiss(id);
+    dismiss();
   }, dismissDelay);
 
 
-  return {
-    id: id,
-    dismiss: () => dismiss(id),
-    update: (props: ToasterToast) =>
-      dispatch({
-        type: "UPDATE_TOAST",
-        toast: { ...props, id },
-      }),
-  };
+  return { id, dismiss, update };
 }
 
-function dismiss(toastId?: string) {
+function dismissToast(toastId?: string) {
     dispatch({ type: "DISMISS_TOAST", toastId })
 }
 
@@ -210,7 +205,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss,
+    dismiss: dismissToast,
   }
 }
 
