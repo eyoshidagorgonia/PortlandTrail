@@ -94,7 +94,6 @@ You MUST respond with only a valid JSON object, with no other text before or aft
 }
 
 const ImageGenPromptOutputSchema = z.object({
-    avatarPrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the character's avatar portrait."),
     scenePrompt: z.string().describe("A detailed text-to-image prompt for the scene depiction."),
     badgePrompt: z.string().nullable().optional().describe("A detailed text-to-image prompt for the badge icon, if a badge was awarded."),
 });
