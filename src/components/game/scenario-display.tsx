@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Scenario, Choice } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ConjuringIcon } from './icons';
+import { cn } from '@/lib/utils';
 
 interface ScenarioDisplayProps {
   scenario: Scenario | null;
@@ -90,7 +91,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant='secondary'
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
-                  className="font-headline text-xl w-full"
+                  className={cn("font-headline text-xl w-full whitespace-normal h-auto")}
                   size="lg"
                 >
                   {choice.text}
