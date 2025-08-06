@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils"
 export function Toaster() {
   const { toasts, history } = useToast()
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = React.useState(true);
 
   const handleCopy = (toast: any) => {
     const textToCopy = `${toast.title}\n${toast.description}`;
@@ -53,9 +54,17 @@ export function Toaster() {
       })}
       <ToastViewport>
         {history.length > 0 && (
-          <Accordion type="single" collapsible className="w-full" defaultValue="history">
+          <Accordion 
+            type="single" 
+            collapsible 
+            className="w-full" 
+            value={historyOpen ? "history" : ""}
+          >
             <AccordionItem value="history" className="border-none">
-              <AccordionTrigger className="w-full justify-center rounded-sm bg-background border p-1 font-headline text-xs hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted flex items-center gap-2">
+              <AccordionTrigger 
+                onClick={() => setHistoryOpen(prev => !prev)}
+                className="w-full justify-center rounded-sm bg-background border p-1 font-headline text-xs hover:no-underline hover:bg-muted transition-colors data-[state=open]:bg-muted flex items-center gap-2"
+                >
                 <Brain className="h-4 w-4"/>
                 <span className="font-body">Vibe Sage</span>
               </AccordionTrigger>
