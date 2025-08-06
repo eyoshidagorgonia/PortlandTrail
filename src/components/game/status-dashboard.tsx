@@ -27,13 +27,13 @@ import {
   AlertDialogTrigger,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
-import { Skeleton } from '../ui/skeleton';
 import { Orb } from '@/components/ui/orb';
 import { Progress } from '../ui/progress';
 import TrailMap from './trail-map';
 import { TRAIL_WAYPOINTS } from '@/lib/constants';
 import { ThematicSeparator } from './thematic-separator';
-import { InventorySheet } from './inventory-sheet';
+import EquipmentDisplay from './equipment-display';
+import InventoryGrid from './inventory-grid';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -187,13 +187,9 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         
         <ThematicSeparator />
         
-        <div className="px-2">
-            <InventorySheet 
-                equipment={resources.equipment}
-                inventory={resources.inventory}
-                onEquip={onEquip}
-                onUnequip={onUnequip}
-            />
+        <div className="px-2 space-y-4">
+            <EquipmentDisplay equipment={resources.equipment} onUnequip={onUnequip} />
+            <InventoryGrid inventory={resources.inventory} onEquip={onEquip} />
         </div>
 
         {resources.badges.length > 0 && (
