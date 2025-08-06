@@ -118,7 +118,7 @@ export function InventorySheet({ equipment, inventory, onEquip, onUnequip }: Inv
                 <ThematicSeparator />
 
                 <h3 className="font-headline text-3xl text-center">Inventory</h3>
-                <ScrollArea className="flex-grow border rounded-sm p-2 bg-muted/20">
+                <ScrollArea className="h-[40vh] border rounded-sm p-2 bg-muted/20">
                     <div className="space-y-2">
                     {inventory.length === 0 && <p className="text-center text-muted-foreground italic p-4">Your bag is tragically empty.</p>}
                     {inventory.map(item => (
