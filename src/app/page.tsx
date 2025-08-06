@@ -400,7 +400,7 @@ export default function PortlandTrailPage() {
             }, 750);
             
             const result = await getScenarioAction(tempState);
-            setIsLoading(false);
+
             if ('error' in result && result.error) {
                 addLog(result.error, tempState.progress);
                 update({
@@ -424,13 +424,14 @@ export default function PortlandTrailPage() {
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            setIsLoading(false);
             update({
                 id: toastId,
                 variant: "destructive",
                 title: "Failed to get next scenario",
                 description: errorMessage,
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -816,3 +817,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
