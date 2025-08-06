@@ -28,12 +28,42 @@ export interface TrailEvent {
   timestamp: Date;
 }
 
+// Loot & Equipment System
+export const EquipmentSlotEnum = z.enum(["Headwear", "Outerwear", "Accessory", "Footwear", "Eyewear"]);
+export type EquipmentSlot = z.infer<typeof EquipmentSlotEnum>;
+
+export const GearQualityEnum = z.enum(["Thrifted", "Artisanal", "One-of-One"]);
+export type GearQuality = z.infer<typeof GearQualityEnum>;
+
+export const StatModifierSchema = z.object({
+    health: z.number().optional(),
+    style: z.number().optional(),
+    irony: z.number().optional(),
+    authenticity: z.number().optional(),
+    vibes: z.number().optional(),
+});
+export type StatModifier = z.infer<typeof StatModifierSchema>;
+
+export const LootItemSchema = z.object({
+    name: z.string().describe("A quirky, thematic name for the item."),
+    type: EquipmentSlotEnum.describe("The equipment slot this item belongs to."),
+    quality: GearQualityEnum.describe("The quality tier of the item."),
+    flavorText: z.string().describe("A short, ironic description of the item."),
+    modifiers: StatModifierSchema.describe("The stat changes this item provides. Can be positive or negative."),
+});
+export type LootItem = z.infer<typeof LootItemSchema>;
+
+export type Equipment = Partial<Record<EquipmentSlot, LootItem>>;
+
 export interface PlayerResources {
   vinyls: number;
   coffee: number;
   stamina: number;
   badges: Badge[];
+  inventory: LootItem[];
+  equipment: Equipment;
 }
+
 
 export interface PlayerState {
   name: string;
@@ -41,6 +71,7 @@ export interface PlayerState {
   avatar: string; // This will now hold a Kaomoji string
   mood: string;
   stats: PlayerStats;
+  baseStats: PlayerStats; // Base stats before equipment modifiers
   resources: PlayerResources;
   location: string;
   progress: number;
@@ -61,7 +92,10 @@ export const ChoiceSchema = z.object({
         coffee: z.number().describe('The change in coffee beans. Can be positive or negative.'),
         vinyls: z.number().describe('The change in vinyl records. Can be positive or negative.'),
         stamina: z.number().describe('The change in bike stamina. Can be positive or negative.'),
-        badge: BadgeSchema.optional(), // Badge info is now part of consequences
+        badge: BadgeSchema.optional(),
+        reward: z.object({
+            loot: z.boolean().describe("Set to true if this choice should reward the player with loot."),
+        }).optional(),
     }),
 });
 export type Choice = z.infer<typeof ChoiceSchema>;
@@ -126,3 +160,15 @@ export const GenerateImagesOutputSchema = z.object({
   dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateImagesOutput = z.infer<typeof GenerateImagesOutputSchema>;
+
+// Types for Loot Generation
+export const GenerateLootInputSchema = z.object({
+    playerStatus: z.string().describe("A summary of the player's current status."),
+    scenario: z.string().describe("The description of the scenario that led to this loot drop."),
+});
+export type GenerateLootInput = z.infer<typeof GenerateLootInputSchema>;
+
+export const GenerateLootOutputSchema = z.object({
+    loot: z.array(LootItemSchema).describe("An array of 1 to 3 generated loot items."),
+});
+export type GenerateLootOutput = z.infer<typeof GenerateLootOutputSchema>;

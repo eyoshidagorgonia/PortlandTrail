@@ -30,23 +30,28 @@ export const HIPSTER_JOBS = [
   "Etsy Artisan",
 ];
 
-export const INITIAL_PLAYER_STATE: PlayerState = {
-  name: 'Art',
-  job: HIPSTER_JOBS[0],
-  avatar: '(o_O)', // Default Kaomoji
-  mood: '',
-  stats: {
+const initialStats = {
     health: 80,
     style: 50,
     irony: 20,
     authenticity: 60,
     vibes: 75,
-  },
+};
+
+export const INITIAL_PLAYER_STATE: PlayerState = {
+  name: 'Art',
+  job: HIPSTER_JOBS[0],
+  avatar: '(o_O)', // Default Kaomoji
+  mood: '',
+  stats: { ...initialStats },
+  baseStats: { ...initialStats },
   resources: {
     vinyls: 1,
     coffee: 10,
     stamina: 100,
     badges: [],
+    inventory: [],
+    equipment: {},
   },
   location: 'San Francisco',
   progress: 0,
@@ -78,5 +83,6 @@ export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
     scenario: "Scenario/Art Generation",
     transport: "Transport Mode",
     image: "Image Generation",
-    badge: "Badge Generation"
+    badge: "Badge Generation",
+    loot: "Loot Generation",
 }

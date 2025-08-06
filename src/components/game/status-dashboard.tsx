@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { PlayerState } from '@/lib/types';
+import type { PlayerState, LootItem, EquipmentSlot } from '@/lib/types';
 import {
   StyleIcon,
   IronyIcon,
@@ -32,6 +32,8 @@ import { Orb } from '@/components/ui/orb';
 import { Progress } from '../ui/progress';
 import TrailMap from './trail-map';
 import { TRAIL_WAYPOINTS } from '@/lib/constants';
+import { ThematicSeparator } from './thematic-separator';
+import { InventorySheet } from './inventory-sheet';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -92,17 +94,12 @@ interface StatusDashboardProps {
     playerState: PlayerState;
     avatarImage: string | null;
     isImageLoading: boolean;
+    onEquip: (item: LootItem) => void;
+    onUnequip: (slot: EquipmentSlot) => void;
 }
 
-const ThematicSeparator = () => (
-    <div className="flex items-center justify-center my-2" aria-hidden="true">
-        <div className="h-px flex-grow bg-border/20"></div>
-        <div className="w-4 h-4 mx-2 rotate-45 border-2 border-border/50 border-t-accent border-r-accent"></div>
-        <div className="h-px flex-grow bg-border/20"></div>
-    </div>
-);
 
-export default function StatusDashboard({ playerState, avatarImage, isImageLoading }: StatusDashboardProps) {
+export default function StatusDashboard({ playerState, avatarImage, isImageLoading, onEquip, onUnequip }: StatusDashboardProps) {
   const { stats, resources, name, job, mood, progress, location, events } = playerState;
 
   const ironicStatus = getIronicHealthStatus(stats.health);
@@ -186,6 +183,17 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
          <div className="grid grid-cols-2 gap-4 px-2">
             <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="Rare records increase your standing." />
             <ResourceItem icon={CoffeeIcon} label="Coffee Beans" value={resources.coffee} tooltip="Fair-trade, single-origin coffee beans. The currency of the trail."/>
+        </div>
+        
+        <ThematicSeparator />
+        
+        <div className="px-2">
+            <InventorySheet 
+                equipment={resources.equipment}
+                inventory={resources.inventory}
+                onEquip={onEquip}
+                onUnequip={onUnequip}
+            />
         </div>
 
         {resources.badges.length > 0 && (

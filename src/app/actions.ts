@@ -3,7 +3,8 @@
 
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
 import { generateImagesForScenario } from '@/ai/flows/generate-images-for-scenario';
-import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput } from '@/lib/types';
+import { generateLoot } from '@/ai/flows/generate-loot';
+import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, LootItem } from '@/lib/types';
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
@@ -25,8 +26,6 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
 
     let choices: Choice[] = scenarioDetails.choices;
     
-    // The AI flow now attaches badge info directly to the consequence object of a choice.
-    // We check if any choice has a badge to determine if we need to set the badge data source.
     const choiceWithBadge = choices.find(c => c.consequences.badge);
 
     if (choiceWithBadge) {
@@ -44,7 +43,6 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
       dataSources,
     };
     
-    // Also include top-level badge info for the image generation step if a badge was part of the winning choice
     if (choiceWithBadge) {
         const badgeInfo = choiceWithBadge.consequences.badge!;
         finalScenario.badge = {
@@ -75,5 +73,24 @@ export async function getImagesAction(input: GenerateImagesInput): Promise<Gener
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[getImagesAction] Critical failure: ${errorMessage}`);
         return { error: `Failed to generate images: ${errorMessage}` };
+    }
+}
+
+
+export async function getLootAction(playerState: PlayerState, scenarioText: string): Promise<{ loot?: LootItem[], dataSource?: 'primary' | 'hardcoded', error?: string }> {
+    console.log('[getLootAction] Action started. Fetching loot.');
+    try {
+        const lootInput = {
+            playerStatus: `Health: ${playerState.stats.health}, Style: ${playerState.stats.style}, Irony: ${playerState.stats.irony}, Authenticity: ${playerState.stats.authenticity}`,
+            scenario: scenarioText,
+        };
+
+        const result = await generateLoot(lootInput);
+        console.log(`[getLootAction] Successfully generated loot. Source: ${result.dataSource}`);
+        return { loot: result.loot, dataSource: result.dataSource };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[getLootAction] Critical failure: ${errorMessage}`);
+        return { error: `Failed to generate loot: ${errorMessage}` };
     }
 }

@@ -10,8 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent } from '@/lib/types';
-import { getScenarioAction, getImagesAction } from '@/app/actions';
+import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, Equipment, EquipmentSlot } from '@/lib/types';
+import { getScenarioAction, getImagesAction, getLootAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterMood } from '@/ai/flows/generate-character-mood';
 import StatusDashboard from '@/components/game/status-dashboard';
@@ -27,6 +27,7 @@ import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import TrailMap from '@/components/game/trail-map';
 import { cn } from '@/lib/utils';
+import { calculateStats } from '@/lib/utils';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
     healthyServices: new Set(),
@@ -65,6 +66,7 @@ export default function PortlandTrailPage() {
   // Outcome modal state
   const [lastChoice, setLastChoice] = useState<Choice | null>(null);
   const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
+  const [lastLoot, setLastLoot] = useState<LootItem[]>([]);
 
   const [randomTagline, setRandomTagline] = useState('');
 
@@ -439,6 +441,7 @@ export default function PortlandTrailPage() {
         setIsOutcomeModalOpen(false);
         advanceTurn(playerState); // playerState is already updated
         setLastChoice(null);
+        setLastLoot([]);
   }
 
   const handleAction = (action: PlayerAction) => {
@@ -456,15 +459,22 @@ export default function PortlandTrailPage() {
     let tempState = { ...playerState };
     const consequences = action.consequences;
 
-    tempState.stats.health = Math.min(100, Math.max(0, tempState.stats.health + consequences.health));
-    tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
-    tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
-    tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
-    tempState.stats.vibes = Math.min(100, Math.max(0, tempState.stats.vibes + consequences.vibes));
+    // Apply consequences to base stats
+    tempState.baseStats.health = Math.max(0, tempState.baseStats.health + consequences.health);
+    tempState.baseStats.style = Math.max(0, tempState.baseStats.style + consequences.style);
+    tempState.baseStats.irony = Math.max(0, tempState.baseStats.irony + consequences.irony);
+    tempState.baseStats.authenticity = Math.max(0, tempState.baseStats.authenticity + consequences.authenticity);
+    tempState.baseStats.vibes = Math.max(0, tempState.baseStats.vibes + consequences.vibes);
+    
+    // Apply consequences to resources
     tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
     tempState.resources.vinyls = Math.max(0, tempState.resources.vinyls + consequences.vinyls);
     tempState.progress = Math.min(100, Math.max(0, tempState.progress + consequences.progress));
     tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
+    
+    // Recalculate final stats
+    tempState.stats = calculateStats(tempState.baseStats, tempState.resources.equipment);
+    
     tempState.location = currentLocation;
 
     const newEvent: TrailEvent = {
@@ -489,25 +499,30 @@ export default function PortlandTrailPage() {
     if (isLoading || isImageLoading) return;
 
     let tempState = { ...playerState };
-
     const consequences = choice.consequences;
-    tempState.stats.health = Math.max(0, tempState.stats.health + consequences.health);
-    tempState.stats.style = Math.max(0, tempState.stats.style + consequences.style);
-    tempState.stats.irony = Math.max(0, tempState.stats.irony + consequences.irony);
-    tempState.stats.authenticity = Math.max(0, tempState.stats.authenticity + consequences.authenticity);
-    tempState.stats.vibes = Math.min(100, Math.max(0, tempState.stats.vibes + consequences.vibes));
-    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
+
+    // Apply consequences to base stats
+    tempState.baseStats.health += consequences.health;
+    tempState.baseStats.style += consequences.style;
+    tempState.baseStats.irony += consequences.irony;
+    tempState.baseStats.authenticity += consequences.authenticity;
+    tempState.baseStats.vibes += consequences.vibes;
+
+    // Apply consequences to resources
+    tempState.resources.coffee += consequences.coffee;
     tempState.resources.vinyls += consequences.vinyls;
     tempState.progress = Math.min(100, tempState.progress + consequences.progress);
     tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
     
+    // Recalculate final stats
+    tempState.stats = calculateStats(tempState.baseStats, tempState.resources.equipment);
+
     const potentialBadge = (consequences as any).badge;
     if (potentialBadge) {
         const newBadge: Badge = { 
             description: potentialBadge.badgeDescription,
             emoji: potentialBadge.badgeEmoji,
             isUber: potentialBadge.isUber || false,
-            // The badge image is now associated here.
             image: badgeImage || undefined,
          };
         tempState.resources.badges = [...tempState.resources.badges, newBadge];
@@ -515,9 +530,25 @@ export default function PortlandTrailPage() {
         toast({ title: 'Badge Earned!', description: newBadge.description });
     }
     
+    let earnedLoot: LootItem[] = [];
+    if (consequences.reward?.loot && scenario) {
+        const { id: toastId } = toast({ title: 'Finding Treasure...', description: 'Searching for something ironically cool.' });
+        const lootResult = await getLootAction(tempState, scenario.scenario);
+        if (lootResult.loot) {
+            earnedLoot = lootResult.loot;
+            tempState.resources.inventory.push(...earnedLoot);
+            addLog(`You found a cache of items!`, tempState.progress);
+            toast({ id: toastId, title: 'Loot Found!', description: 'Check your inventory for new gear.' });
+            if (lootResult.dataSource) {
+                updateSystemStatus({ loot: lootResult.dataSource });
+            }
+        } else if (lootResult.error) {
+            toast({ id: toastId, variant: 'destructive', title: 'Loot Generation Failed', description: lootResult.error });
+        }
+    }
+    
     tempState.location = currentLocation;
 
-    // Add a trail event for the choice made
     const newEvent: TrailEvent = {
         progress: tempState.progress,
         description: `You chose to "${choice.text}".`,
@@ -528,9 +559,54 @@ export default function PortlandTrailPage() {
     setPlayerState(tempState);
     addLog(`You chose to "${choice.text}".`, tempState.progress);
     
-    // Instead of advancing turn, show the outcome modal
     setLastChoice(choice);
+    setLastLoot(earnedLoot);
     setIsOutcomeModalOpen(true);
+  };
+
+  const handleEquipItem = (item: LootItem) => {
+    setPlayerState(prevState => {
+        const newState = { ...prevState };
+        const { type } = item;
+
+        // Unequip the current item in that slot and move it to inventory
+        const currentItem = newState.resources.equipment[type];
+        if (currentItem) {
+            newState.resources.inventory.push(currentItem);
+        }
+
+        // Equip the new item and remove it from inventory
+        newState.resources.equipment[type] = item;
+        newState.resources.inventory = newState.resources.inventory.filter(invItem => invItem.name !== item.name);
+        
+        // Recalculate stats
+        newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
+        addLog(`You equipped: ${item.name}.`, newState.progress);
+        toast({ title: "Item Equipped", description: `${item.name} is now active.` });
+
+        return newState;
+    });
+  };
+
+  const handleUnequipItem = (slot: EquipmentSlot) => {
+    setPlayerState(prevState => {
+        const newState = { ...prevState };
+        const itemToUnequip = newState.resources.equipment[slot];
+
+        if (itemToUnequip) {
+            // Move item back to inventory
+            newState.resources.inventory.push(itemToUnequip);
+            // Clear the equipment slot
+            delete newState.resources.equipment[slot];
+            
+            // Recalculate stats
+            newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
+            addLog(`You unequipped: ${itemToUnequip.name}.`, newState.progress);
+            toast({ title: "Item Unequipped", description: `${itemToUnequip.name} returned to inventory.` });
+        }
+        
+        return newState;
+    });
   };
   
   const StatusIcons = () => {
@@ -689,13 +765,20 @@ export default function PortlandTrailPage() {
                 isOpen={isOutcomeModalOpen}
                 onClose={handleModalClose}
                 choice={lastChoice}
+                loot={lastLoot}
             />
         )}
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
           <div className="lg:col-span-1 flex flex-col gap-6 opacity-0 animate-fade-in animate-delay-100">
-            <StatusDashboard playerState={playerState} avatarImage={avatarImage} isImageLoading={isImageLoading} />
+            <StatusDashboard 
+              playerState={playerState} 
+              avatarImage={avatarImage} 
+              isImageLoading={isImageLoading} 
+              onEquip={handleEquipItem}
+              onUnequip={handleUnequipItem}
+            />
             <ActionsCard onAction={handleAction} isLoading={isLoading || isImageLoading} />
           </div>
 
@@ -733,5 +816,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    

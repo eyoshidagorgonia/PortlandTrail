@@ -3,7 +3,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Choice } from '@/lib/types';
+import { Choice, LootItem } from '@/lib/types';
 import { ThematicSeparator } from './thematic-separator';
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
 
@@ -11,6 +11,7 @@ interface OutcomeModalProps {
   isOpen: boolean;
   onClose: () => void;
   choice: Choice;
+  loot: LootItem[];
 }
 
 const ConsequenceItem = ({ label, value }: { label: string; value: number }) => {
@@ -31,7 +32,16 @@ const ConsequenceItem = ({ label, value }: { label: string; value: number }) => 
   );
 };
 
-export default function OutcomeModal({ isOpen, onClose, choice }: OutcomeModalProps) {
+const getQualityColor = (quality: string) => {
+    switch (quality) {
+        case 'One-of-One': return 'text-accent';
+        case 'Artisanal': return 'text-blue-400';
+        case 'Thrifted':
+        default: return 'text-green-400';
+    }
+}
+
+export default function OutcomeModal({ isOpen, onClose, choice, loot }: OutcomeModalProps) {
     if (!choice) return null;
 
     const { consequences, text, description } = choice;
@@ -73,6 +83,21 @@ export default function OutcomeModal({ isOpen, onClose, choice }: OutcomeModalPr
                     </>
                 )}
 
+                {loot.length > 0 && (
+                     <>
+                        <ThematicSeparator />
+                        <div className="text-center py-4 space-y-3">
+                            <h4 className="font-headline text-xl text-center text-primary mb-2">Loot Found!</h4>
+                            {loot.map(item => (
+                                <div key={item.name} className='text-left font-body p-2 bg-muted/30 rounded-sm border border-border/30'>
+                                    <p className={`font-bold ${getQualityColor(item.quality)}`}>{item.name} [{item.quality}]</p>
+                                    <p className="text-sm italic text-muted-foreground">{item.flavorText}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+
 
                 <DialogFooter>
                     <Button onClick={onClose} className="w-full font-headline text-xl" size="lg">Continue</Button>
@@ -81,5 +106,3 @@ export default function OutcomeModal({ isOpen, onClose, choice }: OutcomeModalPr
         </Dialog>
     );
 }
-
-    

@@ -62,8 +62,9 @@ export async function generatePortlandScenario(
     - "text": A short, 2-4 word summary for the button.
     - "description": A longer, 1-2 sentence description for a tooltip.
 4.  **Consequences MUST be Numbers**: All consequence values (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina) MUST be numbers, not strings. For example, use "health": 10, not "health": "10".
-5.  **Badges**: If a choice warrants a special reward, you MUST include a 'badge' object in its 'consequences'. The badge object MUST have three keys: 'badgeDescription' (string), 'badgeEmoji' (string), and 'isUber' (boolean).
-6.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player.
+5.  **Rewards**: To reward a player for a choice, you MAY include a 'reward' object in its 'consequences'. The reward object can contain 'loot: true' if the choice should result in a treasure drop.
+6.  **Badges**: If a choice warrants a special reward, you MUST include a 'badge' object in its 'consequences'. The badge object MUST have three keys: 'badgeDescription' (string), 'badgeEmoji' (string), and 'isUber' (boolean).
+7.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player.
 
 You MUST respond with only a valid JSON object, with no other text before or after it. All fields are required unless specified as optional. The JSON object must match this structure exactly:
 {
@@ -85,7 +86,8 @@ You MUST respond with only a valid JSON object, with no other text before or aft
         "coffee": "number",
         "vinyls": "number",
         "stamina": "number",
-        "badge": { "badgeDescription": "string", "badgeEmoji": "string", "isUber": "boolean" } (optional)
+        "badge": { "badgeDescription": "string", "badgeEmoji": "string", "isUber": "boolean" } (optional),
+        "reward": { "loot": "boolean" } (optional)
       }
     }
   ]
