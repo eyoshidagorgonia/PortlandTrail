@@ -4,7 +4,6 @@
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import type { Scenario, Choice } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ConjuringIcon } from './icons';
@@ -21,24 +20,24 @@ interface ScenarioDisplayProps {
 const LoadingState = () => (
     <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="p-4 pb-2">
-        <Skeleton className="h-8 w-3/4" />
+        <div className="h-8 w-3/4 bg-muted/50 rounded animate-pulse" />
       </CardHeader>
       <CardContent className="p-4 pt-2 space-y-3">
         <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
             <ConjuringIcon className="h-10 w-10" />
             <p className="font-body">The Vibe Sage is painting the scene...</p>
         </div>
-        <Skeleton className="h-5 w-full" />
-        <Skeleton className="h-5 w-full" />
-        <Skeleton className="h-5 w-5/6" />
+        <div className="h-5 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-5 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-5 w-5/6 bg-muted/50 rounded animate-pulse" />
       </CardContent>
       <CardFooter className="grid grid-cols-3 gap-4 p-4 pt-4 border-t border-border/50">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
+        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
       </CardFooter>
     </Card>
   );

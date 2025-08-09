@@ -23,7 +23,6 @@ import { PennyFarthingIcon, ConjuringIcon, VibeSageIcon } from '@/components/gam
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
-import { Skeleton } from '@/components/ui/skeleton';
 import TrailMap from '@/components/game/trail-map';
 import { cn } from '@/lib/utils';
 import { calculateStats } from '@/lib/utils';
@@ -496,20 +495,13 @@ export default function PortlandTrailPage() {
 
     setPlayerState(tempState);
     addLog(`You decided to: ${action.text}.`, tempState.progress);
+    toast({
+      title: 'Action Taken',
+      description: action.text,
+    });
     
     advanceTurn(tempState);
   };
-  
-  // Toast for action taken
-  useEffect(() => {
-    if (eventLog[0]?.description.startsWith('You decided to:')) {
-        toast({
-          title: 'Action Taken',
-          description: eventLog[0].description,
-        });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventLog]);
 
   const handleChoice = async (choice: Choice) => {
     if (isLoading || isImageLoading) return;
@@ -544,7 +536,10 @@ export default function PortlandTrailPage() {
         } else {
             earnedLoot = lootResult.loot;
             tempState.resources.inventory.push(...earnedLoot);
-            addLog(`You found some stuff.`, tempState.progress);
+            if (earnedLoot.length > 0) {
+              addLog(`You found some stuff.`, tempState.progress);
+              toast({ title: 'Loot Acquired!', description: 'Check your tote bag for questionably useful items.' });
+            }
             if (lootResult.dataSource) {
                 updateSystemStatus({ loot: lootResult.dataSource });
             }
@@ -597,6 +592,7 @@ export default function PortlandTrailPage() {
         tempState.resources.badges.push(finalBadge);
         setLastBadge(finalBadge); // Update badge with image for modal
         addLog(`You "earned" a badge: "${finalBadge.description}"`, tempState.progress);
+        toast({ title: 'Badge of Dishonor Earned!', description: finalBadge.description });
         setIsImageLoading(false); // Stop image loading spinner
     }
 
@@ -609,23 +605,6 @@ export default function PortlandTrailPage() {
     setIsOutcomeModalOpen(true);
     setIsLoading(false); // Done with this choice, modal is open
   };
-
-  // Toast for loot found
-  useEffect(() => {
-    if (lastLoot.length > 0) {
-      toast({ title: 'Loot Acquired!', description: 'Check your tote bag for questionably useful items.' });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastLoot]);
-
-  // Toast for badge earned
-  useEffect(() => {
-    if (lastBadge) {
-      toast({ title: 'Badge of Dishonor Earned!', description: lastBadge.description });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastBadge]);
-
 
   const handleEquipItem = (item: LootItem) => {
     setPlayerState(prevState => {
@@ -644,7 +623,8 @@ export default function PortlandTrailPage() {
         
         // Recalculate stats
         newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
-        addLog(`You equipped: ${item.name}.`, newState.progress);
+        const logMessage = `You equipped: ${item.name}.`;
+        addLog(logMessage, newState.progress);
         toast({ title: "Item Equipped", description: `${item.name} is now part of your "look."` });
 
         return newState;
@@ -664,7 +644,8 @@ export default function PortlandTrailPage() {
             
             // Recalculate stats
             newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
-            addLog(`You unequipped: ${itemToUnequip.name}.`, newState.progress);
+            const logMessage = `You unequipped: ${itemToUnequip.name}.`;
+            addLog(logMessage, newState.progress);
             toast({ title: "Item Unequipped", description: `${itemToUnequip.name} returned to your tote bag.` });
         }
         
