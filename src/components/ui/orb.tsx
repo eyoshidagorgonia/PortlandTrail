@@ -19,9 +19,9 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
   const orbContent = (
     <div className="flex flex-col items-center gap-2">
         <div 
-            className="relative w-24 h-24 rounded-full border-4 border-border/60 bg-black/50 shadow-inner overflow-hidden"
+            className="relative w-24 h-24 rounded-full border-4 border-border/60 bg-background/80 shadow-inner overflow-hidden"
             style={{
-                boxShadow: 'inset 0 0 10px #000, 0 0 15px -5px hsl(var(--border))',
+                boxShadow: 'inset 0 0 10px rgba(0,0,0,0.7), 0 0 15px -5px hsl(var(--border))',
             }}
         >
             {/* Background Texture */}
@@ -37,15 +37,26 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
                     height: `${percentage}%`, 
                     background: `radial-gradient(ellipse at bottom, ${color} 0%, transparent 80%)`,
                     boxShadow: `0 0 30px 10px ${color}`,
-                    opacity: 0.8,
+                    opacity: 0.9,
                 }}
             />
             
+            {/* Color-matched gradient overlay */}
+             <div 
+                className="absolute inset-0"
+                style={{
+                    background: `linear-gradient(to bottom, ${color} -20%, transparent 40%)`,
+                    opacity: 0.15,
+                    mixBlendMode: 'multiply'
+                }}
+            />
+
+
             {/* Inner glow/glare effect, more subtle */}
             <div 
                 className="absolute inset-0 rounded-full"
                 style={{
-                    background: 'radial-gradient(circle at 50% 40%, hsla(0,0%,100%,0.2), transparent 50%)',
+                    background: 'radial-gradient(circle at 50% 40%, hsla(0,0%,100%,0.1), transparent 50%)',
                 }}
             />
 
