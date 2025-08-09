@@ -178,3 +178,20 @@ export const ConjuringIcon = (props: LucideProps) => (
     </g>
   </svg>
 );
+
+export const VibeSageIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        {/* Brain */}
+        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v0A2.5 2.5 0 0 1 9.5 7h-3A2.5 2.5 0 0 1 4 4.5v0A2.5 2.5 0 0 1 6.5 2h3Z"/>
+        <path d="M14.5 2A2.5 2.5 0 0 1 17 4.5v0A2.5 2.5 0 0 1 14.5 7h-3a2.5 2.5 0 0 1-2.5-2.5v0A2.5 2.5 0 0 1 11.5 2h3Z"/>
+        <path d="M12 11.5a2.5 2.5 0 0 1 2.5-2.5h1A2.5 2.5 0 0 1 18 11.5v0a2.5 2.5 0 0 1-2.5 2.5h-1A2.5 2.5 0 0 1 12 11.5Z"/>
+        <path d="M6 11.5a2.5 2.5 0 0 1 2.5-2.5h1A2.5 2.5 0 0 1 12 11.5v0a2.5 2.5 0 0 1-2.5 2.5h-1A2.5 2.5 0 0 1 6 11.5Z"/>
+        {/* Head and whisper lines */}
+        <path d="M1 18 C 2 14, 5 13, 8 16" />
+        <path d="M8 16 C 8 15, 6 13, 3 13" />
+        <path d="M3 14 C 4 13, 5 13, 6 14" />
+        <path d="M11 16c1-1 2-1.5 3-1.5" />
+        <path d="M11 18c1-1 2-1.5 3-1.5" />
+        <path d="M11 20c1-1 2-1.5 3-1.5" />
+    </svg>
+);

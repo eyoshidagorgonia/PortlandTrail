@@ -20,7 +20,7 @@ import GameOverScreen from '@/components/game/game-over-screen';
 import ActionsCard from '@/components/game/actions-card';
 import OutcomeModal from '@/components/game/outcome-modal';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
-import { PennyFarthingIcon, ConjuringIcon } from '@/components/game/icons';
+import { PennyFarthingIcon, ConjuringIcon, VibeSageIcon } from '@/components/game/icons';
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
@@ -767,7 +767,10 @@ export default function PortlandTrailPage() {
                 </Button>
 
                 <Link href="/help" passHref>
-                    <Button variant="link" className="text-muted-foreground mt-4">Whisper to the Vibe Sage</Button>
+                    <Button variant="link" className="text-muted-foreground mt-4">
+                        <VibeSageIcon className="mr-2 h-5 w-5" />
+                        Whisper to the Vibe Sage
+                    </Button>
                 </Link>
             </div>
           </CardContent>
@@ -848,3 +851,4 @@ export default function PortlandTrailPage() {
     
 
     
+
