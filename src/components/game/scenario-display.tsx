@@ -59,7 +59,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
       <CardContent className="p-6 pt-2 flex-grow">
         <div className="mb-4 overflow-hidden rounded-sm border-2 border-border/50 bg-muted/30">
           {isImageLoading || !sceneImage ? (
-             <div className="w-full aspect-[4/3] bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground">
+             <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground">
                 <ConjuringIcon className="h-10 w-10" />
                 <p className="font-body">The Vibe Sage is painting the scene...</p>
             </div>
@@ -67,8 +67,8 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
             <Image
               src={sceneImage}
               alt={scenario.challenge}
-              width={768}
-              height={512}
+              width={600}
+              height={400}
               className="w-full h-auto object-cover"
               unoptimized // Required for local data URIs from Auto1111
               data-ai-hint="scene depiction"

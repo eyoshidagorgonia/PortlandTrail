@@ -67,7 +67,7 @@ You MUST respond with only a valid JSON object, with no other text before or aft
     imagePromises.push(generateImage(
         `${prompts.scenePrompt}, Studio Ghibli brushwork, Diablo IV darkness, painterly illustration`,
         'photorealistic, 3d render, photo, realism, ugly, deformed',
-        768, 512
+        600, 400
     ));
     
     // Badge Image Promise (conditional)
