@@ -71,8 +71,7 @@ const EquipmentSlotDisplay = ({ slot, item, onManageItem }: { slot: EquipmentSlo
                         <div 
                             className={cn(
                                 "h-20 w-20 flex items-center justify-center rounded-sm border-2 bg-muted/20 hover:bg-muted/40 transition-colors",
-                                item ? getQualityColor(item.quality) : 'border-border/50',
-                                item && "cursor-pointer"
+                                item ? [getQualityColor(item.quality), 'cursor-pointer'] : 'border-border/50'
                             )}
                             onClick={() => item && onManageItem(item)}
                         >
@@ -127,5 +126,3 @@ export default function EquipmentDisplay({ equipment, onManageItem }: { equipmen
         </div>
     );
 }
-
-    
