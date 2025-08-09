@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { getItemIcon } from './icons';
 import { ThematicSeparator } from './thematic-separator';
 import { AlertCircle, Zap } from 'lucide-react';
+import { Checkbox } from '../ui/checkbox';
 
 interface UpcycleStationProps {
   inventory: LootItem[];
@@ -30,12 +31,13 @@ const ItemCard = ({ item, isSelected, onSelect }: { item: LootItem, isSelected: 
     return (
         <div 
             className={cn(
-                "p-2 rounded-sm border-2 flex items-center gap-2 cursor-pointer transition-all",
-                isSelected ? 'border-primary shadow-lg shadow-primary/20' : 'border-border/20 bg-black/20 hover:border-border/50',
+                "p-2 rounded-sm border-2 flex items-center gap-3 cursor-pointer transition-all",
+                isSelected ? 'border-primary shadow-lg shadow-primary/20 bg-primary/10' : 'border-border/20 bg-black/20 hover:border-border/50',
                 getQualityColor(item.quality)
             )}
             onClick={() => onSelect(item)}
         >
+            <Checkbox checked={isSelected} className="border-current" />
             <Icon className="h-6 w-6 shrink-0" />
             <span className="text-sm truncate font-body">{item.name}</span>
         </div>
