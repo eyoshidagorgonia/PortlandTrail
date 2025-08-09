@@ -33,7 +33,7 @@ const generateLootFlow = ai.defineFlow(
 **Triggering Event:** ${input.scenario}
 
 **Instructions:**
-1.  **Generate 1 to 3 Items**: Create a variety of items. The quality of items should be mostly "Thrifted", with "Artisanal" being uncommon, and "One-of-One" being very rare. Difficulty to attain better items should increase.
+1.  **Generate a Random Number of Items (1 to 3)**: Randomly decide to generate either 1, 2, or 3 items. Do not always generate the same number of items. Create a variety of items. The quality of items should be mostly "Thrifted", with "Artisanal" being uncommon, and "One-of-One" being very rare.
 2.  **Item Properties**: Each item MUST have: \`name\`, \`type\` (one of: "Headwear", "Outerwear", "Accessory", "Footwear", "Eyewear"), \`quality\` (one of: "Thrifted", "Artisanal", "One-of-One"), \`flavorText\`, and \`modifiers\` (a JSON object of stat changes).
 3.  **Generate an Optional Badge**: You have a small chance to ALSO include a special badge in the chest. If you do, the badge object MUST have three keys: 'badgeDescription' (string), 'badgeEmoji' (string), and 'isUber' (boolean). If you do not generate a badge, the 'badge' field in the output must be null.
 4.  **JSON Format**: You MUST respond with only a valid JSON object, with no other text before or after it. The JSON object must contain a "loot" key (an array of item objects) and a "badge" key (either a badge object or null).
