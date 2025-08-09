@@ -707,7 +707,7 @@ export default function PortlandTrailPage() {
 
               <div className="space-y-4 flex-1 w-full">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className='font-headline text-xl'>HIPSTER NAME</Label>
+                  <Label htmlFor="name" className='font-headline text-xl'>YOUR MONIKER</Label>
                   <div className="flex items-center gap-2">
                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading} className="text-lg" />
                     <Button 
@@ -724,7 +724,7 @@ export default function PortlandTrailPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="job" className='font-headline text-xl'>PROFESSION</Label>
+                        <Label htmlFor="job" className='font-headline text-xl'>VOCATION</Label>
                         <Select value={job} onValueChange={setJob} disabled={isLoading}>
                             <SelectTrigger id="job" className="text-lg">
                             <SelectValue placeholder="Select a profession" />
@@ -737,7 +737,7 @@ export default function PortlandTrailPage() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="origin" className='font-headline text-xl'>ORIGIN</Label>
+                        <Label htmlFor="origin" className='font-headline text-xl'>PROVENANCE</Label>
                         <Select value={origin} onValueChange={setOrigin} disabled={isLoading}>
                             <SelectTrigger id="origin" className="text-lg">
                             <SelectValue placeholder="Select an origin" />
@@ -851,4 +851,5 @@ export default function PortlandTrailPage() {
     
 
     
+
 

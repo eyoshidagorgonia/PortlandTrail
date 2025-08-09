@@ -158,7 +158,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
                 <Tooltip>
                     <TooltipTrigger className="w-full">
                         <div className="flex items-center justify-between text-muted-foreground mb-1">
-                            <label className="font-headline text-lg tracking-wider">Fixie Bike</label>
+                            <label className="font-headline text-lg tracking-wider">BIKE STAMINA</label>
                             <span className="font-mono font-bold text-foreground">{resources.stamina}%</span>
                         </div>
                         <Progress value={resources.stamina} className="h-3" />
