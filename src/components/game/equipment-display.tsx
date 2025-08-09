@@ -45,6 +45,7 @@ const ItemTooltipContent = ({ item }: { item: LootItem }) => (
                 <StatModifierDisplay key={stat} label={stat} value={value || 0} />
             ))}
         </div>
+        <p className="text-xs text-destructive pt-2">Click to unequip</p>
     </div>
 );
 
@@ -66,7 +67,8 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
                         <div 
                             className={cn(
                                 "h-20 w-20 flex items-center justify-center rounded-sm border-2 bg-muted/20 hover:bg-muted/40 transition-colors",
-                                item ? getQualityColor(item.quality) : 'border-border/50'
+                                item ? getQualityColor(item.quality) : 'border-border/50',
+                                item && "cursor-pointer"
                             )}
                             onClick={() => item && onUnequip(item.type)}
                         >

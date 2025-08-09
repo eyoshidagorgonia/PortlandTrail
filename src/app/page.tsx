@@ -721,8 +721,8 @@ export default function PortlandTrailPage() {
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0 h-40 w-40">
                 {isInitializing || isIntroAvatarLoading ? (
-                  <div className="h-full w-full rounded-full border-4 border-secondary/50 bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
-                    <ConjuringIcon className="h-10 w-10" />
+                  <div className="h-full w-full rounded-full border-4 border-secondary/50 bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse">
+                    <ConjuringIcon className="h-10 w-10 text-primary" />
                   </div>
                 ) : (
                   <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
