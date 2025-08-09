@@ -675,7 +675,7 @@ export default function PortlandTrailPage() {
     };
 
     return (
-      <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center">
+      <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
         <Card className="max-w-2xl w-full text-center shadow-2xl relative bg-card/80 backdrop-blur-sm border-2 border-border/20">
           <CardContent className="p-8 space-y-6">
             <div className="space-y-2">
@@ -701,7 +701,7 @@ export default function PortlandTrailPage() {
                         onLoad={() => setIsAvatarRendered(true)}
                     />
                   )}
-                  {!isIntroAvatarLoading && <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>}
+                   {!isIntroAvatarLoading && <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>}
                 </Avatar>
               </div>
 
@@ -776,6 +776,7 @@ export default function PortlandTrailPage() {
                 <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
             </div>
         </Card>
+        <HistoryDisplay />
       </main>
     );
   }
