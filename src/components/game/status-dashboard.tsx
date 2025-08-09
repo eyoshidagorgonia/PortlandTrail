@@ -39,7 +39,7 @@ import EquipmentDisplay from './equipment-display';
 import InventoryGrid from './inventory-grid';
 import { Button } from '../ui/button';
 import Image from 'next/image';
-import EquipmentInteractionModal from './equipment-interaction-modal'; // New Import
+import EquipmentInteractionModal from './equipment-interaction-modal';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -366,5 +366,3 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
     </>
   );
 }
-
-    
