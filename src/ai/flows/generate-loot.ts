@@ -11,23 +11,20 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { callNexixApi } from '@/ai/nexix-api';
-import { GenerateLootInputSchema, LootItemSchema, BadgeSchema } from '@/lib/types';
-import type { GenerateLootInput } from '@/lib/types';
-
-// This is the full structure of the "Loot Cache"
-const LootCacheSchema = z.object({
-  loot: z.array(LootItemSchema).min(1).max(3).describe("An array of 1 to 3 generated loot items."),
-  badge: BadgeSchema.nullable().optional().describe("A badge that might be included in the cache as a special reward."),
-});
-
-// The output of the flow will be this cache structure + the data source
-export const GenerateLootOutputSchema = LootCacheSchema.extend({
-    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
-});
-export type GenerateLootOutput = z.infer<typeof GenerateLootOutputSchema>;
-
+import { GenerateLootInputSchema, LootCacheSchema, GenerateLootOutputSchema } from '@/lib/types';
+import type { GenerateLootInput, GenerateLootOutput } from '@/lib/types';
 
 export async function generateLoot(input: GenerateLootInput): Promise<GenerateLootOutput> {
+    return generateLootFlow(input);
+}
+
+const generateLootFlow = ai.defineFlow(
+  {
+    name: 'generateLootFlow',
+    inputSchema: GenerateLootInputSchema,
+    outputSchema: GenerateLootOutputSchema,
+  },
+  async (input: GenerateLootInput) => {
     console.log(`[generateLoot] Started for scenario: ${input.scenario}`);
     
     const prompt = `You are the Loot Master for "The Portland Trail," a quirky, dark, and ironic text-based RPG. Your job is to generate the contents of a loot chest that the player just opened.
@@ -61,13 +58,5 @@ export async function generateLoot(input: GenerateLootInput): Promise<GenerateLo
 
     const parsedResult = await callNexixApi('gemma3:12b', prompt, LootCacheSchema);
     return { ...parsedResult, dataSource: 'primary' };
-}
-
-ai.defineFlow(
-  {
-    name: 'generateLootFlow',
-    inputSchema: GenerateLootInputSchema,
-    outputSchema: GenerateLootOutputSchema,
-  },
-  generateLoot
+  }
 );
