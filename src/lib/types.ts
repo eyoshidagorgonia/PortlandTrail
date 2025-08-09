@@ -144,6 +144,7 @@ export const GenerateImagesInputSchema = z.object({
   character: z.object({
     name: z.string(),
     job: z.string(),
+    origin: z.string(),
     vibe: z.string(),
     avatarKaomoji: z.string(),
   }),

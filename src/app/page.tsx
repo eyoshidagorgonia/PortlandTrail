@@ -176,14 +176,14 @@ export default function PortlandTrailPage() {
   }, [updateSystemStatus, toast, currentVibe]);
   
   const generateIntroAvatar = useCallback(async () => {
-    if (!name || !job) return;
+    if (!name || !job || !origin) return;
     setIsIntroAvatarLoading(true);
     setIsAvatarRendered(false);
     const { id: toastId } = toast({ title: 'Conjuring Avatar...', description: 'Capturing your artisanal essence in pixels.' });
     
     const imageInput = {
-      scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${name}, who is a ${job}.`,
-      character: { name, job, vibe: "Just starting out", avatarKaomoji },
+      scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${name}, who is a ${job} from ${origin}.`,
+      character: { name, job, origin, vibe: "Just starting out", avatarKaomoji },
     };
     
     try {
@@ -205,7 +205,7 @@ export default function PortlandTrailPage() {
     } finally {
         setIsIntroAvatarLoading(false);
     }
-  }, [name, job, avatarKaomoji, toast, updateSystemStatus]);
+  }, [name, job, origin, avatarKaomoji, toast, updateSystemStatus]);
 
   useEffect(() => {
     setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
@@ -225,12 +225,12 @@ export default function PortlandTrailPage() {
     }
   }, [gameState, name, job, origin, mood, handleGenerateMood]);
   
-  // This useEffect now handles initial load AND job changes for the avatar.
+  // This useEffect now handles initial load AND job/origin changes for the avatar.
   useEffect(() => {
-    if (gameState === 'intro' && name && job) {
+    if (gameState === 'intro' && name && job && origin) {
         generateIntroAvatar();
     }
-  }, [name, job, gameState, generateIntroAvatar]);
+  }, [name, job, origin, gameState, generateIntroAvatar]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -348,6 +348,7 @@ export default function PortlandTrailPage() {
       character: {
         name: currentPlayerState.name,
         job: currentPlayerState.job,
+        origin: currentPlayerState.origin,
         vibe: currentPlayerState.vibe,
         avatarKaomoji: currentPlayerState.avatar,
       },
@@ -842,7 +843,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
-
-    
