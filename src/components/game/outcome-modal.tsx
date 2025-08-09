@@ -5,7 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Choice, LootItem, Badge } from '@/lib/types';
 import { ThematicSeparator } from './thematic-separator';
-import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
+import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ScrollArea } from '../ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 interface OutcomeModalProps {
   isOpen: boolean;
@@ -25,7 +27,7 @@ const ConsequenceItem = ({ label, value }: { label: string; value: number }) => 
   return (
     <div className="flex justify-between items-center text-lg text-muted-foreground font-body">
       <span>{label}</span>
-      <div className={`flex items-center gap-1 font-mono font-bold ${color}`}>
+      <div className={cn("flex items-center gap-1 font-mono font-bold", color)}>
         <Icon className="h-4 w-4" />
         <span>{sign}{value}</span>
       </div>
@@ -46,56 +48,58 @@ export default function OutcomeModal({ isOpen, onClose, choice, loot, badge }: O
     if (!choice) return null;
 
     const { consequences, text, description } = choice;
+    const hasRewards = loot.length > 0 || badge;
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-md">
-                <DialogHeader>
+            <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
+                <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="font-headline text-3xl text-center">{text}</DialogTitle>
                     <DialogDescription className="text-center text-base pt-2 font-body">
                         {description}
                     </DialogDescription>
                 </DialogHeader>
                 
-                <ThematicSeparator />
+                <ScrollArea className="flex-grow overflow-y-auto pr-4 -mr-4 my-2">
+                    <ThematicSeparator />
 
-                <div className="space-y-2 py-4">
-                    <h4 className="font-headline text-xl text-center text-primary mb-4">Consequences</h4>
-                    <ConsequenceItem label="Health" value={consequences.health ?? 0} />
-                    <ConsequenceItem label="Style" value={consequences.style ?? 0} />
-                    <ConsequenceItem label="Irony" value={consequences.irony ?? 0} />
-                    <ConsequenceItem label="Authenticity" value={consequences.authenticity ?? 0} />
-                    <ConsequenceItem label="Vibes" value={consequences.vibes ?? 0} />
-                    <ConsequenceItem label="Bike Stamina" value={consequences.stamina ?? 0} />
-                    <ConsequenceItem label="Coffee Beans" value={consequences.coffee ?? 0} />
-                    <ConsequenceItem label="Vinyls" value={consequences.vinyls ?? 0} />
-                    <ConsequenceItem label="Progress" value={consequences.progress ?? 0} />
-                </div>
-                
-                {(badge || loot.length > 0) && <ThematicSeparator />}
-
-                {(loot.length > 0) && (
-                     <div className="text-center py-4 space-y-3">
-                        <h4 className="font-headline text-xl text-center text-primary mb-2">Loot Chest Opened!</h4>
-                        {loot.map(item => (
-                            <div key={item.name} className='text-left font-body p-2 bg-muted/30 rounded-sm border border-border/30'>
-                                <p className={`font-bold ${getQualityColor(item.quality)}`}>{item.name} [{item.quality}]</p>
-                                <p className="text-sm italic text-muted-foreground">{item.flavorText}</p>
-                            </div>
-                        ))}
+                    <div className="space-y-2 py-4">
+                        <h4 className="font-headline text-xl text-center text-primary mb-4">Consequences</h4>
+                        <ConsequenceItem label="Health" value={consequences.health ?? 0} />
+                        <ConsequenceItem label="Style" value={consequences.style ?? 0} />
+                        <ConsequenceItem label="Irony" value={consequences.irony ?? 0} />
+                        <ConsequenceItem label="Authenticity" value={consequences.authenticity ?? 0} />
+                        <ConsequenceItem label="Vibes" value={consequences.vibes ?? 0} />
+                        <ConsequenceItem label="Bike Stamina" value={consequences.stamina ?? 0} />
+                        <ConsequenceItem label="Coffee Beans" value={consequences.coffee ?? 0} />
+                        <ConsequenceItem label="Vinyls" value={consequences.vinyls ?? 0} />
+                        <ConsequenceItem label="Progress" value={consequences.progress ?? 0} />
                     </div>
-                )}
-                
-                {badge && (
-                    <div className="text-center pb-4">
-                        <p className="text-2xl">{badge.emoji}</p>
-                        <p className="font-body text-lg">{badge.description}</p>
-                        <p className="text-sm text-muted-foreground">(Badge Added to Collection)</p>
-                    </div>
-                )}
+                    
+                    {hasRewards && <ThematicSeparator />}
 
+                    {(loot.length > 0) && (
+                         <div className="text-center py-4 space-y-3">
+                            <h4 className="font-headline text-xl text-center text-primary mb-2">Loot Chest Opened!</h4>
+                            {loot.map(item => (
+                                <div key={item.name} className='text-left font-body p-2 bg-muted/30 rounded-sm border border-border/30'>
+                                    <p className={cn("font-bold", getQualityColor(item.quality))}>{item.name} [{item.quality}]</p>
+                                    <p className="text-sm italic text-muted-foreground">{item.flavorText}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    {badge && (
+                        <div className="text-center pb-4">
+                            <p className="text-2xl">{badge.emoji}</p>
+                            <p className="font-body text-lg">{badge.description}</p>
+                            <p className="text-sm text-muted-foreground">(Badge Added to Collection)</p>
+                        </div>
+                    )}
+                </ScrollArea>
 
-                <DialogFooter>
+                <DialogFooter className="flex-shrink-0 pt-2">
                     <Button onClick={onClose} className="w-full font-headline text-xl" size="lg">Continue</Button>
                 </DialogFooter>
             </DialogContent>
