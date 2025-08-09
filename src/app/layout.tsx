@@ -4,7 +4,6 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Uncial_Antiqua, Cormorant_Garamond } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import { ToastProvider } from '@/hooks/use-toast';
 
 const fontBody = Cormorant_Garamond({
   subsets: ['latin'],
@@ -31,10 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("font-body antialiased", fontBody.variable, fontHeadline.variable)}>
-        <ToastProvider>
-          {children}
-          <Toaster />
-        </ToastProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
   );
