@@ -37,6 +37,14 @@ export const STARTING_CITIES = [
     "Brooklyn",
 ];
 
+// Trail Maps based on Origin
+export const TRAILS: Record<string, string[]> = {
+    'San Francisco': [ 'San Francisco', 'Sacramento', 'Redding', 'Ashland', 'Eugene', 'Salem', 'Portland' ],
+    'Los Angeles': [ 'Los Angeles', 'Bakersfield', 'Sacramento', 'Mt. Shasta', 'Eugene', 'Salem', 'Portland' ],
+    'Austin': [ 'Austin', 'Denver', 'Salt Lake City', 'Boise', 'Bend', 'The Dalles', 'Portland' ],
+    'Brooklyn': [ 'Brooklyn', 'Chicago', 'Minneapolis', 'Bozeman', 'Spokane', 'Hood River', 'Portland' ],
+};
+
 const initialStats = {
     health: 80,
     style: 50,
@@ -61,21 +69,12 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
     inventory: [],
     equipment: {},
   },
-  location: 'San Francisco',
+  location: STARTING_CITIES[0],
   progress: 0,
   vibe: 'Just starting out',
   events: [],
+  trail: TRAILS[STARTING_CITIES[0]],
 };
-
-export const TRAIL_WAYPOINTS = [
-  'San Francisco',
-  'Sacramento',
-  'Redding',
-  'Ashland',
-  'Eugene',
-  'Salem',
-  'Portland',
-];
 
 export const getIronicHealthStatus = (health: number): { text: string; variant: 'default' | 'secondary' | 'destructive' } => {
     if (health > 80) return { text: 'Peak Vibe', variant: 'default' };

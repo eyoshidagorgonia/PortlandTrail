@@ -30,7 +30,6 @@ import {
 import { Orb } from '@/components/ui/orb';
 import { Progress } from '../ui/progress';
 import TrailMap from './trail-map';
-import { TRAIL_WAYPOINTS } from '@/lib/constants';
 import { ThematicSeparator } from './thematic-separator';
 import EquipmentDisplay from './equipment-display';
 import InventoryGrid from './inventory-grid';
@@ -100,7 +99,7 @@ interface StatusDashboardProps {
 
 
 export default function StatusDashboard({ playerState, avatarImage, isImageLoading, onEquip, onUnequip }: StatusDashboardProps) {
-  const { stats, resources, name, job, mood, progress, location, events } = playerState;
+  const { stats, resources, name, job, mood, progress, location, events, trail } = playerState;
 
   const ironicStatus = getIronicHealthStatus(stats.health);
 
@@ -250,7 +249,7 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
         <div className="px-2">
             <TrailMap 
                 progress={progress}
-                waypoints={TRAIL_WAYPOINTS}
+                waypoints={trail}
                 currentLocation={location}
                 events={events}
             />

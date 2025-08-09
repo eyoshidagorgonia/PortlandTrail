@@ -1,3 +1,4 @@
+
 import type { GeneratePortlandScenarioOutput } from "@/ai/flows/generate-portland-scenario";
 import { z } from "zod";
 
@@ -78,6 +79,7 @@ export interface PlayerState {
   progress: number;
   vibe: string;
   events: TrailEvent[];
+  trail: string[];
 }
 
 export const ChoiceSchema = z.object({

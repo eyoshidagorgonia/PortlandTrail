@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { INITIAL_PLAYER_STATE, TRAIL_WAYPOINTS, HIPSTER_JOBS, STARTING_CITIES, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
+import { INITIAL_PLAYER_STATE, TRAILS, HIPSTER_JOBS, STARTING_CITIES, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
 import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, Equipment, EquipmentSlot } from '@/lib/types';
 import { getScenarioAction, getImagesAction, getLootAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
@@ -119,12 +119,14 @@ export default function PortlandTrailPage() {
   }, [toast]);
 
   const waypointIndex = useMemo(() => {
-    return Math.floor(playerState.progress / (100 / (TRAIL_WAYPOINTS.length - 1)));
-  }, [playerState.progress]);
+    if (!playerState.trail || playerState.trail.length <= 1) return 0;
+    return Math.floor(playerState.progress / (100 / (playerState.trail.length - 1)));
+  }, [playerState.progress, playerState.trail]);
 
   const currentLocation = useMemo(() => {
-    return TRAIL_WAYPOINTS[waypointIndex] || TRAIL_WAYPOINTS[TRAIL_WAYPOINTS.length - 1];
-  }, [waypointIndex]);
+    if (!playerState.trail) return '...';
+    return playerState.trail[waypointIndex] || playerState.trail[playerState.trail.length - 1];
+  }, [waypointIndex, playerState.trail]);
   
   const currentVibe = useMemo(() => {
       return getIronicHealthStatus(playerState.stats.health).text;
@@ -263,7 +265,7 @@ export default function PortlandTrailPage() {
     setIsLoading(true);
     const { id: toastId } = toast({ title: 'Starting Your Journey...', description: 'The road to Portland unfolds before you.' });
     
-    const initialEvents: TrailEvent[] = [{ progress: 0, description: "Your journey begins in San Francisco.", timestamp: new Date() }];
+    const initialEvents: TrailEvent[] = [{ progress: 0, description: `Your journey begins in ${origin}.`, timestamp: new Date() }];
     
     const initialState: PlayerState = {
       ...INITIAL_PLAYER_STATE,
@@ -274,12 +276,14 @@ export default function PortlandTrailPage() {
       mood: mood,
       vibe: "Just starting out",
       events: initialEvents,
+      location: origin,
+      trail: TRAILS[origin] || TRAILS['San Francisco'],
     };
     
     setPlayerState(initialState);
     setAvatarImage(introAvatarImage); // Carry over the avatar from the intro screen
     
-    const result = await getScenarioAction({ ...initialState, location: 'San Francisco' });
+    const result = await getScenarioAction(initialState);
     if ('error' in result && result.error) {
       toast({
         id: toastId,
@@ -296,7 +300,7 @@ export default function PortlandTrailPage() {
     setPlayerState(prev => ({...prev, avatar: scenarioResult.playerAvatar || avatarKaomoji }));
     setAvatarKaomoji(scenarioResult.playerAvatar || avatarKaomoji);
     
-    const initialLogMessage = `Your journey as ${name} the ${job} from ${origin} begins in San Francisco. The road to Portland is long and fraught with peril (and artisanal cheese).`;
+    const initialLogMessage = `Your journey as ${name} the ${job} from ${origin} begins. The road to Portland is long and fraught with peril (and artisanal cheese).`;
     setEventLog(initialEvents);
     addLog(initialLogMessage, 0);
     
@@ -484,7 +488,8 @@ export default function PortlandTrailPage() {
     // Recalculate final stats
     tempState.stats = calculateStats(tempState.baseStats, tempState.resources.equipment);
     
-    tempState.location = currentLocation;
+    const newWaypointIndex = Math.floor(tempState.progress / (100 / (tempState.trail.length - 1)));
+    tempState.location = tempState.trail[newWaypointIndex] || tempState.trail[tempState.trail.length - 1];
 
     const newEvent: TrailEvent = {
         progress: tempState.progress,
@@ -556,7 +561,8 @@ export default function PortlandTrailPage() {
         }
     }
     
-    tempState.location = currentLocation;
+    const newWaypointIndex = Math.floor(tempState.progress / (100 / (tempState.trail.length - 1)));
+    tempState.location = tempState.trail[newWaypointIndex] || tempState.trail[tempState.trail.length - 1];
 
     const newEvent: TrailEvent = {
         progress: tempState.progress,
@@ -651,7 +657,7 @@ export default function PortlandTrailPage() {
 
     const getButtonContent = () => {
         if (isLoading) {
-            return <span className="animate-pulse-text-destructive">Hitting The Trail... of Doom</span>
+            return <span className="animate-pulse-text">Hitting The Trail... of Doom</span>
         }
         if (isAnythingLoading) {
             return (
@@ -688,11 +694,12 @@ export default function PortlandTrailPage() {
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0">
                 <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
-                  {isIntroAvatarLoading ? (
+                  {isIntroAvatarLoading && (
                     <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground">
                         <ConjuringIcon className="h-10 w-10" />
                     </div>
-                  ) : (
+                  )}
+                  {!isIntroAvatarLoading && (
                     <AvatarImage 
                         src={introAvatarImage} 
                         alt={name} 
@@ -847,10 +854,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
-
-    
-
-
-
