@@ -1,6 +1,6 @@
 # The Portland Trail: Product Requirements Document (PRD)
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** In Progress
 **Author:** Sr. Product Manager
 
@@ -37,7 +37,7 @@
 
 -   **FRD-010: Turn-Based Progression:** The game progresses in discrete turns. Each turn consists of a scenario, a player choice, an outcome, and an optional player action.
 -   **FRD-011: AI Scenario Generation:** At the start of a turn, the AI Game Master generates a new situation, including an atmospheric scenario description and a specific challenge.
--   **FRD-012: Dynamic Player Choices:** The player is presented with six distinct choices to resolve the scenario. Each choice will have short button text and a more descriptive tooltip.
+-   **FRD-012: Dynamic Player Choices:** The player is presented with four distinct choices to resolve the scenario, with a clear risk/reward gradient (one safe, two moderate, one super risky). Each choice will have short button text and a more descriptive tooltip.
 -   **FRD-013: Consequence & Outcome System:** Player choices will have immediate and clear consequences on their stats, progress, and resources. These outcomes will be displayed to the player before the next turn begins.
 -   **FRD-014: Player Actions:** After a scenario is resolved, the player can perform one of four predefined actions (Forage, Tune-up Bike, Go Thrifting, Street Perform) to manage their resources. Performing an action consumes a turn and triggers the next scenario.
 
@@ -52,14 +52,19 @@
 
 ### 4.4. Loot & Equipment System
 
--   **FRD-030: AI-Generated Loot Drops:** Based on player choices, the system may generate caches of loot items.
+-   **FRD-030: AI-Generated Loot Drops:** Based on player choices, the system may generate caches of 1 to 3 loot items.
 -   **FRD-031: Equipment Slots:** The player can equip one item in each of the five designated slots: **Headwear, Outerwear, Accessory, Footwear, and Eyewear.**
 -   **FRD-032: Gear Quality Tiers:** Items will be procedurally generated with one of several quality tiers (e.g., Thrifted, Artisanal, One-of-One), indicated by color and flavor text.
 -   **FRD-033: Stat Modifiers:** Every piece of equipment will have procedurally generated modifiers that grant positive or negative changes to player stats, enabling unique character builds. Equipping/unequipping items will instantly recalculate the player's effective stats.
+-   **FRD-034: Equipment Management:** Players must be presented with a confirmation modal before equipping an item. When an equipped item is selected, a modal must be presented with options to unequip the item or swap it with another compatible item from the player's inventory ("Tote Bag").
+-   **FRD-035: Upcycling System (In Development):** A crafting system ("Upcycling") will allow players to attempt to improve their gear.
+    -   **Mechanic:** The player can select three items of the same quality tier (e.g., three "Thrifted" items) to consume.
+    -   **Outcome:** This process generates a single new item of the next-higher quality tier (e.g., one "Artisanal" item).
+    -   **Risk/Reward:** The generated item has a **0.05% chance** to be exceptionally powerful (a "blessed" item with significant positive stat modifiers). It has a **99.95% chance** to be "cursed," resulting in an item where the negative stat modifiers significantly outweigh any positive ones.
 
 ### 4.5. Progress & UI/UX
 
--   **FRD-040: Visual Trail Map:** A map will visually represent the player's progress from San Francisco to Portland, highlighting key waypoints.
+-   **FRD-040: Visual Trail Map:** A map will visually represent the player's progress from their starting city to Portland, highlighting key waypoints.
 -   **FRD-041: Travel Diary:** A chronological log will record all scenarios, choices, and outcomes, allowing players to review their story.
 -   **FRD-042: Badges of Dishonor:** The system will award achievement-style badges for specific choices. "Uber" badges will have unique visual effects and AI-generated icons.
 
@@ -74,4 +79,3 @@
 -   Social sharing features for key moments (e.g., earning a badge, finding unique loot).
 -   Leaderboards for stats like "Peak Irony" or "Fastest Completion".
 -   Additional starting locations and professions.
--   A crafting system ("Upcycling") to combine old gear into new items.
