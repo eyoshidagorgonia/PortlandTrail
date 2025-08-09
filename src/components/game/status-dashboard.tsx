@@ -1,10 +1,10 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { PlayerState, LootItem, EquipmentSlot, PlayerAction } from '@/lib/types';
+import type { PlayerState, LootItem, EquipmentSlot, PlayerAction, GearQuality } from '@/lib/types';
 import {
   StyleIcon,
   IronyIcon,
@@ -40,6 +40,7 @@ import InventoryGrid from './inventory-grid';
 import { Button } from '../ui/button';
 import Image from 'next/image';
 import EquipmentInteractionModal from './equipment-interaction-modal';
+import UpcycleStation from './upcycle-station';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -129,6 +130,7 @@ interface StatusDashboardProps {
     onEquip: (item: LootItem, swapItem?: LootItem) => void;
     onUnequip: (slot: EquipmentSlot) => void;
     onAction: (action: PlayerAction) => void;
+    onUpcycle: (items: LootItem[], quality: GearQuality) => void;
     isLoading: boolean;
 }
 
@@ -142,10 +144,10 @@ type ModalState = {
     item: null;
 }
 
-export default function StatusDashboard({ playerState, avatarImage, onEquip, onUnequip, onAction, isLoading }: StatusDashboardProps) {
+export default function StatusDashboard({ playerState, avatarImage, onEquip, onUnequip, onAction, onUpcycle, isLoading }: StatusDashboardProps) {
   const { stats, resources, name, job, mood, progress, location, events, trail } = playerState;
 
-  const [modalState, setModalState] = useState<ModalState>({ isOpen: false, mode: null, item: null});
+  const [modalState, setModalState] = React.useState<ModalState>({ isOpen: false, mode: null, item: null});
 
   const ironicStatus = getIronicHealthStatus(stats.health);
 
@@ -296,6 +298,7 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
 
             <EquipmentDisplay equipment={resources.equipment} onManageItem={handleOpenManageModal} />
             <InventoryGrid inventory={resources.inventory} onEquipItem={handleOpenEquipModal} />
+            <UpcycleStation inventory={resources.inventory} onUpcycle={onUpcycle} isLoading={isLoading} />
         </div>
 
         {resources.badges.length > 0 && (

@@ -1,4 +1,3 @@
-
 'use server';
 import { config } from 'dotenv';
 config();
@@ -9,3 +8,4 @@ import '@/ai/flows/generate-character-mood.ts';
 import '@/ai/flows/generate-transport-mode.ts';
 import '@/ai/flows/generate-images-for-scenario.ts';
 import '@/ai/flows/generate-loot.ts';
+import '@/ai/flows/generate-upcycled-item.ts';

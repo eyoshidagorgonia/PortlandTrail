@@ -4,7 +4,8 @@
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
 import { generateImagesForScenario } from '@/ai/flows/generate-images-for-scenario';
 import { generateLoot } from '@/ai/flows/generate-loot';
-import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, LootItem, LootCache } from '@/lib/types';
+import { generateUpcycledItem } from '@/ai/flows/generate-upcycled-item';
+import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, LootItem, LootCache, GearQuality } from '@/lib/types';
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
@@ -74,5 +75,23 @@ export async function getLootAction(playerState: PlayerState, scenarioText: stri
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[getLootAction] Critical failure: ${errorMessage}`);
         return { error: `Failed to generate loot: ${errorMessage}` };
+    }
+}
+
+export async function upcycleItemsAction(inputQuality: GearQuality): Promise<{ item: LootItem; isBlessed: boolean } | { error: string }> {
+    console.log('[upcycleItemsAction] Action started.');
+    try {
+        // As per FRD-035, 0.05% chance to be blessed, 99.95% to be cursed.
+        const isBlessed = Math.random() < 0.0005;
+
+        const result = await generateUpcycledItem({ inputQuality, isBlessed });
+        
+        console.log(`[upcycleItemsAction] Successfully generated upcycled item. Blessed: ${isBlessed}`);
+
+        return { item: result.item, isBlessed };
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(`[upcycleItemsAction] Critical failure: ${errorMessage}`);
+        return { error: `Failed to generate upcycled item: ${errorMessage}` };
     }
 }

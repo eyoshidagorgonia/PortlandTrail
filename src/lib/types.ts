@@ -179,3 +179,17 @@ export const GenerateLootOutputSchema = LootCacheSchema.extend({
     dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateLootOutput = z.infer<typeof GenerateLootOutputSchema>;
+
+
+// Types for Upcycling
+export const GenerateUpcycledItemInputSchema = z.object({
+  inputQuality: GearQualityEnum,
+  isBlessed: z.boolean(),
+});
+export type GenerateUpcycledItemInput = z.infer<typeof GenerateUpcycledItemInputSchema>;
+
+export const GenerateUpcycledItemOutputSchema = z.object({
+  item: LootItemSchema,
+  dataSource: z.enum(['primary', 'hardcoded']),
+});
+export type GenerateUpcycledItemOutput = z.infer<typeof GenerateUpcycledItemOutputSchema>;

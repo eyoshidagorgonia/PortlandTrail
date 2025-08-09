@@ -10,8 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAILS, HIPSTER_JOBS, STARTING_CITIES, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, LootCache, EquipmentSlot } from '@/lib/types';
-import { getScenarioAction, getImagesAction, getLootAction } from '@/app/actions';
+import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, LootCache, EquipmentSlot, GearQuality } from '@/lib/types';
+import { getScenarioAction, getImagesAction, getLootAction, upcycleItemsAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterMood } from '@/ai/flows/generate-character-mood';
 import StatusDashboard from '@/components/game/status-dashboard';
@@ -80,9 +80,12 @@ export default function PortlandTrailPage() {
             fullyOfflineServices: new Set(prevStatus.fullyOfflineServices),
         };
         let showOfflineToast = false;
+        const newlyOfflineServices: string[] = [];
 
         for (const [service, source] of Object.entries(sources)) {
             const serviceName = SERVICE_DISPLAY_NAMES[service] || service;
+            const wasOffline = prevStatus.fullyOfflineServices.has(serviceName);
+            
             // Remove from all sets first to handle status changes
             newStatus.healthyServices.delete(serviceName);
             newStatus.primaryDegradedServices.delete(serviceName);
@@ -92,18 +95,18 @@ export default function PortlandTrailPage() {
                 newStatus.healthyServices.add(serviceName);
             } else if (source === 'hardcoded') {
                 newStatus.fullyOfflineServices.add(serviceName);
-                 if (!prevStatus.fullyOfflineServices.has(serviceName)) {
-                    showOfflineToast = true;
+                if (!wasOffline) {
+                    newlyOfflineServices.push(serviceName);
                 }
             }
         }
         
-        if (showOfflineToast) {
-            setTimeout(() => {
+        if (newlyOfflineServices.length > 0) {
+             setTimeout(() => {
                 toast({
                     variant: 'destructive',
                     title: 'An AI System is Offline',
-                    description: "Using hardcoded data. The experience will be less dynamic.",
+                    description: `Using hardcoded data for: ${newlyOfflineServices.join(', ')}. The experience will be less dynamic.`,
                 });
             }, 0);
         }
@@ -608,7 +611,7 @@ export default function PortlandTrailPage() {
   };
 
   const handleEquipItem = (itemToEquip: LootItem, itemToSwap?: LootItem) => {
-    const newState = { ...playerState };
+    let newState = { ...playerState };
     const { type } = itemToEquip;
   
     // If there's an item to swap (which would be the currently equipped item),
@@ -638,7 +641,7 @@ export default function PortlandTrailPage() {
   };
 
   const handleUnequipItem = (slot: EquipmentSlot) => {
-    const newState = { ...playerState };
+    let newState = { ...playerState };
     const itemToUnequip = newState.resources.equipment[slot];
   
     if (itemToUnequip) {
@@ -657,6 +660,50 @@ export default function PortlandTrailPage() {
       toast({ title: "Item Unequipped", description: `${itemToUnequip.name} returned to your tote bag.` });
     }
   };
+
+  const handleUpcycle = async (itemsToConsume: LootItem[], quality: GearQuality) => {
+    setIsLoading(true);
+    toast({ title: "Upcycling...", description: "The hum of cosmic irony fills the air." });
+    
+    const result = await upcycleItemsAction(quality);
+    if ('error' in result) {
+        toast({ variant: 'destructive', title: 'Upcycling Failed', description: result.error });
+        setIsLoading(false);
+        return;
+    }
+    
+    const { item: newItem, isBlessed } = result;
+
+    const newState = { ...playerState };
+
+    // Remove consumed items from inventory
+    const consumedItemNames = new Set(itemsToConsume.map(i => i.name));
+    newState.resources.inventory = newState.resources.inventory.filter(i => !consumedItemNames.has(i.name));
+
+    // Add new item to inventory
+    newState.resources.inventory.push(newItem);
+    
+    setPlayerState(newState);
+
+    if (isBlessed) {
+        toast({
+            title: "✨ A Blessed Creation! ✨",
+            description: `You've crafted a masterpiece: ${newItem.name}.`,
+            duration: 7000,
+        });
+        addLog(`You defied the odds and upcycled a blessed item: ${newItem.name}!`, playerState.progress);
+    } else {
+         toast({
+            variant: "destructive",
+            title: "A Cursed Creation...",
+            description: `You've crafted a truly tragic item: ${newItem.name}.`,
+            duration: 7000,
+        });
+        addLog(`You gambled and lost, upcycling a cursed item: ${newItem.name}.`, playerState.progress);
+    }
+    
+    setIsLoading(false);
+  }
   
   const StatusIcons = () => {
     return (
@@ -844,6 +891,7 @@ export default function PortlandTrailPage() {
               onEquip={handleEquipItem}
               onUnequip={handleUnequipItem}
               onAction={handleAction}
+              onUpcycle={handleUpcycle}
               isLoading={isLoading || isImageLoading}
             />
           </div>
@@ -882,5 +930,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
