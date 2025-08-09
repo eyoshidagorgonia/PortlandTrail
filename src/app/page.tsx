@@ -752,21 +752,23 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <Button 
-                size="lg" 
-                onClick={startGame} 
-                disabled={isButtonDisabled} 
-                className={cn(
-                    "font-headline text-2xl mt-4",
-                    isReady && "animate-glow-primary"
-                )}
-            >
-                {getButtonContent()}
-            </Button>
+            <div className="flex flex-col items-center mt-4">
+                <Button 
+                    size="lg" 
+                    onClick={startGame} 
+                    disabled={isButtonDisabled} 
+                    className={cn(
+                        "font-headline text-2xl",
+                        isReady && "animate-glow-primary"
+                    )}
+                >
+                    {getButtonContent()}
+                </Button>
 
-            <Link href="/help" passHref>
-                <Button variant="link" className="text-muted-foreground mt-2">Whisper to the Vibe Sage</Button>
-            </Link>
+                <Link href="/help" passHref>
+                    <Button variant="link" className="text-muted-foreground mt-4">Whisper to the Vibe Sage</Button>
+                </Link>
+            </div>
           </CardContent>
            <div className="absolute bottom-2 right-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
                 <StatusIcons />
@@ -840,5 +842,7 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
 
     
