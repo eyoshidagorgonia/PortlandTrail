@@ -56,67 +56,67 @@ export default function HelpPage() {
     <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
       <Card className="max-w-4xl w-full shadow-xl bg-card/90 backdrop-blur-sm border-2 border-border/20">
         <CardHeader className="text-center">
-          <CardTitle className="text-5xl font-headline font-bold">How to Survive</CardTitle>
-          <CardDescription className="pt-2 font-body text-xl text-muted-foreground">A guide to your dark and ironic journey.</CardDescription>
+          <CardTitle className="text-5xl font-headline font-bold">How to Suffer Beautifully</CardTitle>
+          <CardDescription className="pt-2 font-body text-xl text-muted-foreground">A curated guide to your ironic journey.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 p-6 md:p-8">
           <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
             <AccordionItem value="item-1">
               <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
-                <GoalIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> The Goal
+                <GoalIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> The "Goal"
               </AccordionTrigger>
               <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 font-body">
-                Your quest is to travel from the accursed lands of **San Francisco** to the promised land of **Portland**. The path is long and treacherous, measured by your **Progress**. Reach 100% progress to achieve ultimate coolness and win the game. But beware, the journey is fraught with existential dread!
+                Your so-called quest is to journey from the tech-bro hellscape of **San Francisco** to the flannel-draped promised land of **Portland**. The path is measured by your **Progress**. Reach 100% to win, whatever that means.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2">
               <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
-                <VitalsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Your Vitals
+                <VitalsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Your Corporeal Form
               </AccordionTrigger>
               <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
-                <p className="flex items-start"><HungerIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Health:** If this reaches zero, you succumb to artisanal starvation. Keep it topped up by foraging or through scenario choices.</span></p>
-                <p className="flex items-start"><VibeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Vibes:** Your "mana" or mental energy. Certain choices or actions might require or grant vibes.</span></p>
-                <p className="flex items-start"><BikeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Fixie Bike:** Your trusty fixed-gear bike's endurance. If it drops to zero, you're stranded. Perform maintenance to keep it in good shape.</span></p>
+                <p className="flex items-start"><HungerIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Health:** If this hits zero, you've ironically starved. Try foraging. Or don't. It's your story.</span></p>
+                <p className="flex items-start"><VibeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Vibes:** Your "mana." Represents your capacity for creative ennui. You'll need it for... things.</span></p>
+                <p className="flex items-start"><BikeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Fixie Stamina:** Your bike's structural integrity. If it fails, you're just a pedestrian. The horror.</span></p>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
               <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
-                <SocialStatsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Social Stats & Resources
+                <SocialStatsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Social Currency
               </AccordionTrigger>
               <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
-                <p className="flex items-start"><StyleIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Style:** Your aesthetic sense. High style might open up unique opportunities.</span></p>
-                <p className="flex items-start"><IronyIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Irony:** Your ability to find humor in the mundane. A sharp wit can be a powerful tool.</span></p>
-                <p className="flex items-start"><AuthenticityIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Authenticity:** How "real" you are. This can be a double-edged sword in the world of hipsters.</span></p>
-                <p className="flex items-start"><CoffeeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Coffee Beans:** The currency of the trail. Spend it on actions like bike tune-ups or thrifting.</span></p>
-                <p className="flex items-start"><VinylIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Vinyls:** Prized possessions that prove your superior taste. A collection is a status symbol.</span></p>
+                <p className="flex items-start"><StyleIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Style:** Your painstakingly curated aesthetic. Opens doors, probably to places that are already over.</span></p>
+                <p className="flex items-start"><IronyIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Irony:** Your ability to appreciate things for what they aren't. A powerful shield against sincerity.</span></p>
+                <p className="flex items-start"><AuthenticityIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Authenticity:** How "real" you are. A dangerous game to play when you've spent this long on your look.</span></p>
+                <p className="flex items-start"><CoffeeIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Coffee Beans:** The realm's true currency. For when you need to buy things, or just feel something.</span></p>
+                <p className="flex items-start"><VinylIcon className="h-6 w-6 mr-3 mt-1 shrink-0 text-secondary" /> <span>**Vinyls:** Tangible proof of your superior taste. You don't need a record player to own them.</span></p>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-4">
               <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
-                <MapIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> Gameplay Loop
+                <MapIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> The Unbearable Loop of Being
               </AccordionTrigger>
               <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
-                <p>The game unfolds in a turn-based loop:</p>
+                <p>Existence is cyclical. So is this game:</p>
                 <ol className="list-decimal list-inside space-y-2">
-                  <li>**Scenario:** The game presents you with an AI-generated scenario. Read it carefully to understand the situation.</li>
-                  <li>**Choice:** Make a choice. Each choice has consequences that will affect your stats, resources, and progress.</li>
-                  <li>**Actions:** Between scenarios, you can perform one of four actions to manage your resources and vitals. Performing an action advances the game to the next scenario.</li>
+                  <li>**Scenario:** The AI Game Master, in its infinite apathy, presents a situation.</li>
+                  <li>**Choice:** You pick one of six ways to react. Consequences are a thing, apparently.</li>
+                  <li>**Actions:** Before the next tragedy, you can perform an action. This also, bafflingly, moves time forward.</li>
                 </ol>
               </AccordionContent>
             </AccordionItem>
              <AccordionItem value="item-5">
               <AccordionTrigger className="font-headline text-2xl text-left hover:no-underline">
-                <CardsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> On-Screen Cards
+                <CardsIcon className="mr-3 h-6 w-6 text-primary shrink-0" /> User Interface (Or Whatever)
               </AccordionTrigger>
               <AccordionContent className="text-lg text-foreground/90 pl-12 pt-2 space-y-4 font-body">
-                <p>**Status Dashboard:** Your character sheet. All your vitals, stats, and inventory are here.</p>
-                <p>**Actions Card:** Your available actions between story events. Use them wisely!</p>
-                <p>**The Trail Map:** Shows your overall progress towards Portland.</p>
-                <p>**Scenario Display:** This is where the story happens. Read the text and make your choices here.</p>
-                <p>**Travel Diary:** A running history of what has happened on your journey.</p>
+                <p>**Status Dashboard:** Your character sheet. All your stats, gear, and questionable life choices, quantified.</p>
+                <p>**Actions Card:** The things you can do. Each costs a turn and pushes you closer to the next crisis.</p>
+                <p>**The Trail Map:** Proof that you are, in fact, going somewhere. Or at least, moving.</p>
+                <p>**Scenario Display:** Where the grim narrative unfolds. Make a choice. Or don't. See what happens.</p>
+                <p>**Travel Diary:** A log of your journey. For when you want to reflect on your past mistakes.</p>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -125,7 +125,7 @@ export default function HelpPage() {
             <Link href="/" passHref>
               <Button size="lg" className="font-headline text-xl">
                 <LeftArrowIcon className="mr-2 h-5 w-5" />
-                Return to Game
+                Return to the Farce
               </Button>
             </Link>
           </div>
@@ -138,3 +138,5 @@ export default function HelpPage() {
     </main>
   );
 }
+
+    

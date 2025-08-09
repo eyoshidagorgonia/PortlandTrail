@@ -98,25 +98,25 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
 const actions: PlayerAction[] = [
   {
     text: 'Forage for Food',
-    description: 'Scour for snacks. [+10 Health, -2 Style, -1 Progress]',
+    description: 'Scour for "wild" edibles. [+10 Health, -2 Style, -1 Progress]',
     icon: ForageIcon,
     consequences: { health: 10, style: -2, irony: 0, authenticity: 0, vibes: 0, coffee: 0, vinyls: 0, progress: -1, stamina: 0 },
   },
   {
-    text: 'Tune-up Bike',
-    description: 'Maintain your fixie. [-5 Coffee, +15 Fixie Bike, -1 Progress]',
+    text: 'Tune-up Fixie',
+    description: 'Perform "maintenance". [-5 Coffee, +15 Stamina, -1 Progress]',
     icon: TuneUpIcon,
     consequences: { health: 0, style: 0, irony: 0, authenticity: 0, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 15 },
   },
   {
     text: 'Go Thrifting',
-    description: 'Hunt for vintage threads. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
+    description: 'Acquire pre-loved artifacts. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
     icon: ThriftIcon,
     consequences: { health: 0, style: 10, irony: 0, authenticity: -5, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 0 },
   },
   {
     text: 'Street Perform',
-    description: 'Share your "art". [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
+    description: 'Share your "art" with unwilling strangers. [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
     icon: StreetPerformIcon,
     consequences: { health: 0, style: 0, irony: 5, authenticity: -5, vibes: 0, coffee: 10, vinyls: 0, progress: -1, stamina: 0 },
   },
@@ -174,7 +174,7 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
                         </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Your overall vibe, based on your current health.</p>
+                        <p>A poetic summary of your current state of being.</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -182,8 +182,8 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         <div className="flex justify-center gap-4 px-2">
-            <Orb label="Health" value={stats.health} tooltip="Gotta eat to keep up the non-conformity. Don't starve." color="hsl(var(--destructive))"/>
-            <Orb label="Vibes" value={stats.vibes} tooltip="Your creative and spiritual energy. Needed for... things." color="hsl(260, 80%, 70%)"/>
+            <Orb label="Health" value={stats.health} tooltip="Your mortal coil's current status. Don't let it unravel." color="hsl(var(--destructive))"/>
+            <Orb label="Vibes" value={stats.vibes} tooltip="Your creative essence. Required for most forms of self-expression." color="hsl(260, 80%, 70%)"/>
         </div>
 
         <div className="px-4 space-y-2">
@@ -191,13 +191,13 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
                 <Tooltip>
                     <TooltipTrigger className="w-full">
                         <div className="flex items-center justify-between text-muted-foreground mb-1">
-                            <label className="font-headline text-lg tracking-wider">BIKE STAMINA</label>
+                            <label className="font-headline text-lg tracking-wider">FIXIE STAMINA</label>
                             <span className="font-mono font-bold text-foreground">{resources.stamina}%</span>
                         </div>
                         <Progress value={resources.stamina} className="h-3" />
                     </TooltipTrigger>
                      <TooltipContent>
-                        <p>Your fixed-gear's condition. A breakdown is social suicide.</p>
+                        <p>Your fixed-gear's integrity. A breakdown would be, like, super inconvenient.</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -206,16 +206,16 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
         <ThematicSeparator />
 
         <div className="space-y-4 px-2">
-            <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your flair. Essential for navigating coffee shops."/>
-            <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your ability to appreciate things in a detached, humorous way."/>
-            <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A delicate balance."/>
+            <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your aesthetic currency. Looking this effortless takes effort."/>
+            <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your defense against the sincere. Use it wisely, or whatever."/>
+            <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A concept you find both fascinating and deeply suspect."/>
         </div>
         
         <ThematicSeparator />
 
          <div className="grid grid-cols-2 gap-4 px-2">
-            <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="Rare records increase your standing." />
-            <ResourceItem icon={CoffeeIcon} label="Coffee Beans" value={resources.coffee} tooltip="Fair-trade, single-origin coffee beans. The currency of the trail."/>
+            <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="A curated collection of vinyl. You haven't listened to them." />
+            <ResourceItem icon={CoffeeIcon} label="Coffee Beans" value={resources.coffee} tooltip="Single-origin, fair-trade, artisanal currency. The lifeblood of the trail."/>
         </div>
         
         <ThematicSeparator />
@@ -293,11 +293,11 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
                             )}
                           </div>
                         <AlertDialogTitle className="font-headline text-2xl pt-4">
-                           Badge Earned: {badge.description}
+                           Badge of Dishonor Earned
                         </AlertDialogTitle>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogAction>Nice</AlertDialogAction>
+                        <AlertDialogAction>Acknowledged</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>

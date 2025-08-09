@@ -137,12 +137,12 @@ export default function PortlandTrailPage() {
 
   const handleGenerateName = useCallback(async () => {
     setIsNameLoading(true);
-    const { id: toastId } = toast({ title: 'Conjuring Name...', description: 'The AI is brewing a quirky moniker.' });
+    const { id: toastId } = toast({ title: 'Conjuring Moniker...', description: 'The Vibe Sage is consulting the ether.' });
     try {
         const result = await generateHipsterName();
         setName(result.name);
         updateSystemStatus({ name: result.dataSource });
-        toast({ id: toastId, title: 'Name Conjured!', description: 'Your new identity awaits.' });
+        toast({ id: toastId, title: 'Moniker Conjured!', description: 'Your new identity awaits, for now.' });
         return result.name;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -168,7 +168,7 @@ export default function PortlandTrailPage() {
         });
         setPlayerState(prev => ({...prev, mood: result.mood, vibe: currentVibe }));
         updateSystemStatus({ mood: result.dataSource });
-        toast({ id: toastId, title: 'Aura Read!', description: 'Your mood has been updated.' });
+        toast({ id: toastId, title: 'Aura Read!', description: 'Your fleeting mood has been captured.' });
     } catch(error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast({ id: toastId, variant: 'destructive', title: 'Aura Reading Failed', description: errorMessage });
@@ -215,7 +215,6 @@ export default function PortlandTrailPage() {
     if (gameState === 'intro' && !hasInitialized) {
         const performInitialSetup = async () => {
             setIsInitializing(true);
-            setHasInitialized(true);
             
             const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
             const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
@@ -231,23 +230,26 @@ export default function PortlandTrailPage() {
                 ]);
             }
             setIsInitializing(false);
+            setHasInitialized(true); 
         };
         performInitialSetup();
     }
   }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
   
 
-  // This useEffect triggers avatar and mood regeneration when user changes dependencies, but only after initial setup is done.
-  useEffect(() => {
-      const regenerate = async () => {
-        if (gameState === 'intro' && name && job && origin && !isInitializing) {
-            await generateIntroAvatar(name, job, origin);
-            await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
-        }
-      }
-      regenerate();
+  const handleUserChange = useCallback(async () => {
+    if (gameState === 'intro' && name && job && origin && hasInitialized && !isInitializing) {
+        await generateIntroAvatar(name, job, origin);
+        await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
+    }
+  // We want this to run on any of these changing, but only after the initial setup.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, job, origin]);
+  }, [name, job, origin, hasInitialized, isInitializing]);
+  
+  useEffect(() => {
+    handleUserChange();
+  }, [handleUserChange]);
+
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
@@ -263,12 +265,12 @@ export default function PortlandTrailPage() {
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
-      toast({ variant: 'destructive', title: 'Name Required', description: 'Please enter a name for your character.' });
+      toast({ variant: 'destructive', title: 'Name Required', description: 'Even ironically, you must have a name.' });
       return;
     }
 
     setIsLoading(true);
-    const { id: toastId } = toast({ title: 'Starting Your Journey...', description: 'The road to Portland unfolds before you.' });
+    const { id: toastId } = toast({ title: 'Beginning the Descent...', description: 'The road to Portland beckons, or something.' });
     
     const chosenTrail = TRAILS[origin] || TRAILS['San Francisco'];
     
@@ -282,7 +284,7 @@ export default function PortlandTrailPage() {
       vibe: "Just starting out",
       location: chosenTrail[0],
       trail: chosenTrail,
-      events: [{ progress: 0, description: `Your journey begins in ${origin}.`, timestamp: new Date() }]
+      events: [{ progress: 0, description: `The "journey" begins in ${origin}.`, timestamp: new Date() }]
     };
     
     setPlayerState(initialState);
@@ -317,7 +319,7 @@ export default function PortlandTrailPage() {
     
     setGameState('playing');
     setIsLoading(false);
-    toast({ id: toastId, title: 'Journey Begun!', description: 'Your first trial awaits.' });
+    toast({ id: toastId, title: 'And So It Begins.', description: 'Your first trial awaits.' });
 
     // Fetch images for the first scenario
     fetchImages(scenarioResult, finalInitialState);
@@ -404,14 +406,10 @@ export default function PortlandTrailPage() {
       return;
     }
 
-    const { id: toastId, update } = toast({ title: 'Game Master is thinking...', description: 'Analyzing your precarious situation.' });
+    const { id: toastId, update } = toast({ title: 'The universe considers...', description: 'Crafting a new, ironic trial...' });
 
     const getNextScenario = async () => {
         try {
-            setTimeout(() => {
-                update({ id: toastId, title: 'Game Master is thinking...', description: 'Crafting a quirky, ironic trial...' });
-            }, 750);
-            
             const result = await getScenarioAction(tempState);
 
             if ('error' in result && result.error) {
@@ -465,8 +463,8 @@ export default function PortlandTrailPage() {
     if (playerState.resources.coffee + action.consequences.coffee < 0) {
         toast({
             variant: 'destructive',
-            title: 'Not Enough Coffee',
-            description: 'You need more coffee beans to perform this action.',
+            title: 'Not Enough Coffee Beans',
+            description: 'Your artisanal wallet is empty. A familiar feeling.',
         });
         return;
     }
@@ -495,13 +493,13 @@ export default function PortlandTrailPage() {
 
     const newEvent: TrailEvent = {
         progress: tempState.progress,
-        description: `You chose to: ${action.text}.`,
+        description: `You decided to: ${action.text}.`,
         timestamp: new Date()
     };
     tempState.events = [newEvent, ...tempState.events];
 
     setPlayerState(tempState);
-    addLog(`You chose to: ${action.text}.`, tempState.progress);
+    addLog(`You decided to: ${action.text}.`, tempState.progress);
     
     // For actions, we show a simplified outcome via toast and advance immediately.
     toast({
@@ -538,15 +536,15 @@ export default function PortlandTrailPage() {
     let earnedBadge: Badge | null = null;
     
     if (scenario) {
-        const { id: toastId } = toast({ title: 'Opening Loot Chest...', description: 'What treasures await?' });
+        const { id: toastId } = toast({ title: 'Opening Loot Chest...', description: 'What fresh nonsense awaits?' });
         const lootResult = await getLootAction(tempState, scenario.scenario);
         if ('error' in lootResult) {
             toast({ id: toastId, variant: 'destructive', title: 'Loot Generation Failed', description: lootResult.error });
         } else {
             earnedLoot = lootResult.loot;
             tempState.resources.inventory.push(...earnedLoot);
-            addLog(`You found a cache of items!`, tempState.progress);
-            toast({ id: toastId, title: 'Loot Found!', description: 'Check your inventory for new gear.' });
+            addLog(`You found some stuff.`, tempState.progress);
+            toast({ id: toastId, title: 'Loot Acquired!', description: 'Check your tote bag for questionably useful items.' });
             if (lootResult.dataSource) {
                 updateSystemStatus({ loot: lootResult.dataSource });
             }
@@ -598,8 +596,8 @@ export default function PortlandTrailPage() {
         const finalBadge = { ...earnedBadge, image: finalBadgeImage };
         tempState.resources.badges.push(finalBadge);
         setLastBadge(finalBadge); // Update badge with image for modal
-        addLog(`You earned a badge: "${finalBadge.description}"!`, tempState.progress);
-        toast({ title: 'Badge Earned!', description: finalBadge.description });
+        addLog(`You "earned" a badge: "${finalBadge.description}"`, tempState.progress);
+        toast({ title: 'Badge of Dishonor Earned!', description: finalBadge.description });
         setIsImageLoading(false); // Stop image loading spinner
     }
 
@@ -631,7 +629,7 @@ export default function PortlandTrailPage() {
         // Recalculate stats
         newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
         addLog(`You equipped: ${item.name}.`, newState.progress);
-        toast({ title: "Item Equipped", description: `${item.name} is now active.` });
+        toast({ title: "Item Equipped", description: `${item.name} is now part of your "look."` });
 
         return newState;
     });
@@ -651,7 +649,7 @@ export default function PortlandTrailPage() {
             // Recalculate stats
             newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
             addLog(`You unequipped: ${itemToUnequip.name}.`, newState.progress);
-            toast({ title: "Item Unequipped", description: `${itemToUnequip.name} returned to inventory.` });
+            toast({ title: "Item Unequipped", description: `${itemToUnequip.name} returned to your tote bag.` });
         }
         
         return newState;
@@ -689,13 +687,13 @@ export default function PortlandTrailPage() {
 
     const getButtonContent = () => {
         if (isLoading) {
-            return <span className="animate-pulse-text">Hitting The Trail... of Doom</span>
+            return <span className="animate-pulse-text">Beginning the Descent...</span>
         }
         if (isAnythingLoading) {
             return (
                 <>
                     <ConjuringIcon className="mr-2 h-5 w-5 animate-pulse-text" />
-                    <span className="animate-pulse-text">Conjuring...</span>
+                    <span className="animate-pulse-text">Curating...</span>
                 </>
             );
         }
@@ -884,3 +882,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    

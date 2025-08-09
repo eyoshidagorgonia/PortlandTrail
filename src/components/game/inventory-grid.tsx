@@ -5,6 +5,7 @@ import type { LootItem, EquipmentSlot } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+import { Button } from '../ui/button';
 
 const getQualityColor = (quality: string) => {
     switch (quality) {
@@ -83,7 +84,7 @@ export default function InventoryGrid({ inventory, onEquip }: { inventory: LootI
             <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Inventory</h3>
             <div className="grid grid-cols-3 gap-2 p-2 rounded-sm border border-border/20 bg-black/20 min-h-[96px]">
                 {inventory.length === 0 && (
-                    <p className="col-span-3 text-center text-muted-foreground italic p-4 text-sm">Your bag is tragically empty.</p>
+                    <p className="col-span-3 text-center text-muted-foreground italic p-4 text-sm">Your tote bag is tragically empty.</p>
                 )}
                 {inventory.map((item, index) => (
                     <InventoryItemDisplay key={`${item.name}-${index}`} item={item} onEquip={onEquip} />
@@ -93,3 +94,4 @@ export default function InventoryGrid({ inventory, onEquip }: { inventory: LootI
     );
 }
 
+    

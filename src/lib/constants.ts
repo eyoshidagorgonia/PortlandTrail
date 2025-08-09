@@ -19,15 +19,15 @@ export const IRONIC_TAGLINES = [
 
 export const HIPSTER_JOBS = [
   "Artisanal Pickle Maker",
-  "Kombucha Brewer",
-  "Fixie Bike Mechanic",
-  "Terrarium Builder",
-  "Vintage Clothing Curator",
-  "Urban Beekeeper",
-  "Indie Band Vlogger",
-  "Latte Artist",
-  "Zine Publisher",
-  "Etsy Artisan",
+  "Kombucha Sommelier",
+  "Fixie Bike Purist",
+  "Terrarium Sculptor",
+  "Vintage Flannel Archivist",
+  "Urban Forager",
+  "Indie Music Ontologist",
+  "Oat Milk Barista",
+  "Zine Librarian",
+  "Small-Batch Anything-Maker",
 ];
 
 export const STARTING_CITIES = [
@@ -93,3 +93,5 @@ export const SERVICE_DISPLAY_NAMES: Record<string, string> = {
     badge: "Badge Generation",
     loot: "Loot Generation",
 }
+
+    
