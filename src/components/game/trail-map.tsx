@@ -112,8 +112,7 @@ export default function TrailMap({ progress, waypoints, currentLocation, events 
             <div className="h-8"> {/* Container to give space for player pin */}
                 <MapView progress={progress} waypoints={waypoints} events={events} isMini={true} />
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground font-body mt-2">
-                <span>SF</span>
+            <div className="flex justify-end text-xs text-muted-foreground font-body mt-2">
                 <span>PDX</span>
             </div>
         </CardContent>
@@ -126,7 +125,6 @@ export default function TrailMap({ progress, waypoints, currentLocation, events 
                  <MapView progress={progress} waypoints={waypoints} events={events} isMini={false} />
             </div>
             <div className="flex justify-between text-lg text-muted-foreground font-body mt-2">
-                <span>San Francisco</span>
                 <span className="font-bold text-foreground">Near: {currentLocation}</span>
                 <span className="font-bold text-primary">Portland</span>
             </div>
