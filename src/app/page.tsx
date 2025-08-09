@@ -812,7 +812,7 @@ export default function PortlandTrailPage() {
             <StatusDashboard 
               playerState={playerState} 
               avatarImage={avatarImage} 
-              isImageLoading={isImageLoading} 
+              isImageLoading={false} // Avatar loading is separate now
               onEquip={handleEquipItem}
               onUnequip={handleUnequipItem}
             />
