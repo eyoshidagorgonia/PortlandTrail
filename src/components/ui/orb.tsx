@@ -19,41 +19,59 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
   const orbContent = (
     <div className="flex flex-col items-center gap-2">
         <div 
-            className="relative w-24 h-24 rounded-full border-4 border-border/60 bg-black/50 shadow-inner"
+            className="relative w-24 h-24 rounded-full border-4 border-border/60 bg-black/50 shadow-inner overflow-hidden"
             style={{
-                boxShadow: 'inset 0 0 10px #000, 0 0 15px -5px var(--border)',
+                boxShadow: 'inset 0 0 10px #000, 0 0 15px -5px hsl(var(--border))',
             }}
         >
+            {/* Background Texture */}
+            <div 
+                className="absolute inset-0 opacity-20" 
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}
+            />
+
             {/* The liquid fill */}
             <div 
-                className="absolute bottom-0 left-0 right-0 rounded-full transition-all duration-500 ease-out"
+                className="absolute bottom-0 left-0 right-0 rounded-t-full transition-all duration-500 ease-out"
                 style={{ 
                     height: `${percentage}%`, 
                     backgroundColor: color,
-                    boxShadow: `0 0 20px 5px ${color}`,
-                    opacity: 0.8,
-                }} 
+                    boxShadow: `0 0 25px 8px ${color}`,
+                    opacity: 0.7,
+                }}
             />
+             {/* Animated energy inside the fill */}
+            <div 
+                className="absolute bottom-0 left-0 right-0 opacity-50 mix-blend-overlay animate-pulse"
+                style={{
+                    height: `${percentage}%`,
+                    background: `radial-gradient(circle at 50% 100%, ${color}, transparent 70%)`,
+                    animationDuration: '3s',
+                }}
+            />
+
             {/* Liquid surface/edge effect */}
             {value > 0 && value < 100 && (
                  <div
-                    className="absolute left-0 right-0 w-full bg-white/40"
+                    className="absolute left-0 right-0 w-full"
                     style={{
                         top: `${100 - percentage}%`,
-                        height: '3px',
-                        filter: 'blur(1px)',
-                        transform: 'translateY(-1.5px)',
+                        height: '4px',
+                        transform: 'translateY(-2px)',
+                        background: `radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%)`,
+                        filter: 'blur(1.5px)',
                     }}
                  />
             )}
-            {/* Glassy glare effect */}
+            
+            {/* Inner glow/glare effect, more subtle */}
             <div 
-                className="absolute top-2 left-2 w-20 h-20 rounded-full"
+                className="absolute inset-0 rounded-full"
                 style={{
-                    background: 'radial-gradient(circle at 50% 40%, rgba(255,255,255,0.4), transparent 60%)',
-                    transform: 'rotate(10deg)',
+                    background: 'radial-gradient(circle at 50% 40%, hsla(0,0%,100%,0.2), transparent 50%)',
                 }}
             />
+
             <div className="absolute inset-0 flex items-center justify-center">
                  <span className="font-mono text-3xl font-bold text-white" style={{textShadow: '2px 2px 4px #000'}}>{Math.round(value)}</span>
             </div>
