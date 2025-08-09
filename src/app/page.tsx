@@ -62,7 +62,6 @@ export default function PortlandTrailPage() {
   // Intro-specific image state
   const [introAvatarImage, setIntroAvatarImage] = useState<string>('');
   const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
-  const [countdown, setCountdown] = useState(3);
   
   // Outcome modal state
   const [lastChoice, setLastChoice] = useState<Choice | null>(null);
@@ -216,18 +215,19 @@ export default function PortlandTrailPage() {
     if (gameState === 'intro' && !hasInitialized) {
         setHasInitialized(true);
         setIsInitializing(true);
-      
+        
         const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
-        setJob(randomJob);
         const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
+        setJob(randomJob);
         setOrigin(randomOrigin);
 
         handleGenerateName().then(generatedName => {
-            setIsInitializing(false);
             if (generatedName) {
+                // Now we have the name, job, and origin, so we generate the avatar and mood.
                 generateIntroAvatar(generatedName, randomJob, randomOrigin);
                 handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin });
             }
+            setIsInitializing(false);
         });
     }
   }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
@@ -240,16 +240,6 @@ export default function PortlandTrailPage() {
           handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
       }
   }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood, isInitializing]);
-
-  // Countdown timer effect
-  useEffect(() => {
-    if (gameState === 'intro' && introAvatarImage && !isIntroAvatarLoading) {
-        if (countdown > 0) {
-            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-            return () => clearTimeout(timer);
-        }
-    }
-  }, [gameState, countdown, introAvatarImage, isIntroAvatarLoading]);
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
@@ -273,7 +263,6 @@ export default function PortlandTrailPage() {
     const { id: toastId } = toast({ title: 'Starting Your Journey...', description: 'The road to Portland unfolds before you.' });
     
     const chosenTrail = TRAILS[origin] || TRAILS['San Francisco'];
-    const initialEvents: TrailEvent[] = [{ progress: 0, description: `Your journey begins in ${origin}.`, timestamp: new Date() }];
     
     const initialState: PlayerState = {
       ...INITIAL_PLAYER_STATE,
@@ -285,8 +274,8 @@ export default function PortlandTrailPage() {
       vibe: "Just starting out",
       location: chosenTrail[0],
       trail: chosenTrail,
+      events: [{ progress: 0, description: `Your journey begins in ${origin}.`, timestamp: new Date() }]
     };
-    initialState.events = initialEvents;
     
     setPlayerState(initialState);
     setAvatarImage(introAvatarImage); // Carry over the avatar from the intro screen
@@ -305,11 +294,12 @@ export default function PortlandTrailPage() {
     
     const scenarioResult = result as Scenario;
     
-    setPlayerState(prev => ({...prev, avatar: scenarioResult.playerAvatar || avatarKaomoji }));
+    const finalInitialState = {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji};
+    setPlayerState(finalInitialState);
     setAvatarKaomoji(scenarioResult.playerAvatar || avatarKaomoji);
     
     const initialLogMessage = `Your journey as ${name} the ${job} from ${origin} begins. The road to Portland is long and fraught with peril (and artisanal cheese).`;
-    setEventLog(initialEvents);
+    setEventLog(finalInitialState.events);
     addLog(initialLogMessage, 0);
     
     setScenario(scenarioResult);
@@ -323,8 +313,7 @@ export default function PortlandTrailPage() {
     toast({ id: toastId, title: 'Journey Begun!', description: 'Your first trial awaits.' });
 
     // Fetch images for the first scenario
-    // We pass the *full* new player state, including the potentially new kaomoji
-    fetchImages(scenarioResult, {...initialState, avatar: scenarioResult.playerAvatar || avatarKaomoji });
+    fetchImages(scenarioResult, finalInitialState);
 
   }, [name, job, origin, avatarKaomoji, mood, toast, addLog, updateSystemStatus, introAvatarImage]);
   
@@ -342,7 +331,6 @@ export default function PortlandTrailPage() {
     setAvatarImage('');
     setIntroAvatarImage('');
     setBadgeImage(null);
-    setCountdown(3);
     localStorage.removeItem('healthyServices');
     localStorage.removeItem('primaryDegradedServices');
     localStorage.removeItem('fullyOfflineServices');
@@ -656,26 +644,19 @@ export default function PortlandTrailPage() {
   }
 
   if (gameState === 'intro') {
-    const isAnythingLoading = isNameLoading || isMoodLoading || isIntroAvatarLoading;
-    const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || !origin || (introAvatarImage && countdown > 0);
-    const isCountdownActive = introAvatarImage && countdown > 0;
-    const isReady = introAvatarImage && !isIntroAvatarLoading && countdown === 0;
+    const isAnythingLoading = isNameLoading || isMoodLoading || isIntroAvatarLoading || isInitializing;
+    const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || !origin;
 
     const getButtonContent = () => {
         if (isLoading) {
             return <span className="animate-pulse-text">Hitting The Trail... of Doom</span>
         }
-        if (isInitializing || isAnythingLoading) {
+        if (isAnythingLoading) {
             return (
                 <>
                     <ConjuringIcon className="mr-2 h-5 w-5 animate-pulse-text" />
                     <span className="animate-pulse-text">Conjuring...</span>
                 </>
-            );
-        }
-        if (isCountdownActive) {
-            return (
-                <span className="animate-pulse-text">Conjuring... {countdown}</span>
             );
         }
         return (
@@ -740,7 +721,7 @@ export default function PortlandTrailPage() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="job" className='font-headline text-xl'>VOCATION</Label>
-                        <Select value={job} onValueChange={setJob} disabled={isLoading}>
+                        <Select value={job} onValueChange={setJob} disabled={isLoading || isInitializing}>
                             <SelectTrigger id="job" className="text-lg">
                             <SelectValue placeholder="Select a profession" />
                             </SelectTrigger>
@@ -753,7 +734,7 @@ export default function PortlandTrailPage() {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="origin" className='font-headline text-xl'>PROVENANCE</Label>
-                        <Select value={origin} onValueChange={setOrigin} disabled={isLoading}>
+                        <Select value={origin} onValueChange={setOrigin} disabled={isLoading || isInitializing}>
                             <SelectTrigger id="origin" className="text-lg">
                             <SelectValue placeholder="Select an origin" />
                             </SelectTrigger>
@@ -775,7 +756,7 @@ export default function PortlandTrailPage() {
                     disabled={isButtonDisabled} 
                     className={cn(
                         "font-headline text-2xl",
-                        isReady && "animate-glow-primary"
+                        !isButtonDisabled && "animate-glow-primary"
                     )}
                 >
                     {getButtonContent()}
