@@ -142,16 +142,16 @@ export default function PortlandTrailPage() {
 
   const handleGenerateName = useCallback(async () => {
     setIsNameLoading(true);
-    const { id: toastId } = toast({ title: 'Conjuring Moniker...', description: 'The Vibe Sage is consulting the ether.' });
+    toast({ title: 'Conjuring Moniker...', description: 'The Vibe Sage is consulting the ether.' });
     try {
         const result = await generateHipsterName();
         setName(result.name);
         updateSystemStatus({ name: result.dataSource });
-        toast({ id: toastId, title: 'Moniker Conjured!', description: 'Your new identity awaits, for now.' });
+        toast({ title: 'Moniker Conjured!', description: 'Your new identity awaits, for now.' });
         return result.name;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ id: toastId, variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
+        toast({ variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
         return '';
     } finally {
         setIsNameLoading(false);
@@ -272,7 +272,7 @@ export default function PortlandTrailPage() {
     }
 
     setIsLoading(true);
-    const { id: toastId } = toast({ title: 'Beginning the Descent...', description: 'The road to Portland beckons, or something.' });
+    toast({ title: 'Beginning the Descent...', description: 'The road to Portland beckons, or something.' });
     
     const chosenTrail = TRAILS[origin] || TRAILS['San Francisco'];
     
@@ -294,7 +294,6 @@ export default function PortlandTrailPage() {
     const result = await getScenarioAction(initialState);
     if ('error' in result && result.error) {
       toast({
-        id: toastId,
         variant: 'destructive',
         title: 'A Rocky Start',
         description: result.error,
@@ -321,7 +320,7 @@ export default function PortlandTrailPage() {
     
     setGameState('playing');
     setIsLoading(false);
-    toast({ id: toastId, title: 'And So It Begins.', description: 'Your first trial awaits.' });
+    toast({ title: 'And So It Begins.', description: 'Your first trial awaits.' });
 
     // Fetch images for the first scenario
     fetchImages(scenarioResult, finalInitialState);
@@ -876,3 +875,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
