@@ -46,21 +46,24 @@ export async function generatePortlandScenario(
 ): Promise<GeneratePortlandScenarioOutput> {
   console.log('[generatePortlandScenario] Started with agent flow.');
   
-  const prompt = `You are the Game Master for "The Portland Trail," a quirky text-based RPG. Create a complete scenario. Loot and badges are handled separately and should not be included in your response.
+  const prompt = `You are the Game Master for "The Portland Trail," a quirky, dark, and ironic text-based RPG. Your goal is to create a scenario that is challenging and contributes to a longer gameplay experience.
 
 **Player Status:** ${input.playerStatus}
 **Location:** ${input.location}
 **Character:** Name: ${input.character.name}, Job: ${input.character.job}
 
 **Instructions:**
-1.  **Analyze Player Status**: Create balanced choices. If the player is struggling, make rewards generous.
+1.  **Analyze Player Status & Create Challenge**: Based on the player's status, create a balanced but difficult scenario. The consequences should be logical extensions of the choice. For example, a physically demanding choice should affect health and stamina, while a social choice should affect style, irony, or authenticity.
 2.  **Generate Scenario**: Create a quirky scenario specific to the player's location, with a subtle Diablo II reference.
 3.  **Create Choices**: Generate 6 distinct choices. Each choice MUST have two fields for its text:
     - "text": A short, 2-4 word summary for the button.
     - "description": A longer, 1-2 sentence description for a tooltip.
-4.  **Consequences MUST be Numbers**: All consequence values (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina) MUST be numbers, not strings. For example, use "health": 10, not "health": "10".
+4.  **Calculate Consequences Carefully**: Progress should be hard to earn.
+    -   All consequence values (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina) MUST be numbers.
+    -   **Progress can be negative.** A bad choice can push the player backward on the trail. Use negative numbers for the "progress" field to represent this. For example: \`"progress": -5\`.
+    -   Do not be overly generous. A choice should rarely award more than 5-10 points to any single stat, but negative consequences can be larger to increase the challenge.
 5.  **No Loot or Badges**: Do NOT include 'reward' or 'badge' objects in the consequences. This is handled by a different system.
-6.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player.
+6.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player that reflects the mood of the scenario.
 
 You MUST respond with only a valid JSON object, with no other text before or after it. All fields are required unless specified as optional. The JSON object must match this structure exactly:
 {
