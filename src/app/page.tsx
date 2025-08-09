@@ -508,7 +508,8 @@ export default function PortlandTrailPage() {
           description: eventLog[0].description,
         });
     }
-  }, [eventLog, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventLog]);
 
   const handleChoice = async (choice: Choice) => {
     if (isLoading || isImageLoading) return;
@@ -614,14 +615,16 @@ export default function PortlandTrailPage() {
     if (lastLoot.length > 0) {
       toast({ title: 'Loot Acquired!', description: 'Check your tote bag for questionably useful items.' });
     }
-  }, [lastLoot, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastLoot]);
 
   // Toast for badge earned
   useEffect(() => {
     if (lastBadge) {
       toast({ title: 'Badge of Dishonor Earned!', description: lastBadge.description });
     }
-  }, [lastBadge, toast]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastBadge]);
 
 
   const handleEquipItem = (item: LootItem) => {

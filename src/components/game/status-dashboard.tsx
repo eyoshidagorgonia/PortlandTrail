@@ -37,7 +37,6 @@ import TrailMap from './trail-map';
 import { ThematicSeparator } from './thematic-separator';
 import EquipmentDisplay from './equipment-display';
 import InventoryGrid from './inventory-grid';
-import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
 
 interface StatItemProps {
@@ -98,25 +97,25 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
 const actions: PlayerAction[] = [
   {
     text: 'Forage for Food',
-    description: 'Scour for "wild" edibles. [+10 Health, -2 Style, -1 Progress]',
+    description: 'Scour for "wild" edibles. Risking it all for a handful of berries another creature probably spit out. [+10 Health, -2 Style, -1 Progress]',
     icon: ForageIcon,
     consequences: { health: 10, style: -2, irony: 0, authenticity: 0, vibes: 0, coffee: 0, vinyls: 0, progress: -1, stamina: 0 },
   },
   {
     text: 'Tune-up Fixie',
-    description: 'Perform "maintenance". [-5 Coffee, +15 Stamina, -1 Progress]',
+    description: 'Perform "maintenance" on your single-gear bicycle with a wrench you bought at a flea market. It probably does something. [-5 Coffee, +15 Stamina, -1 Progress]',
     icon: TuneUpIcon,
     consequences: { health: 0, style: 0, irony: 0, authenticity: 0, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 15 },
   },
   {
     text: 'Go Thrifting',
-    description: 'Acquire pre-loved artifacts. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
+    description: 'Acquire pre-loved artifacts from a dusty emporium. The more obscure the stain, the higher the style. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
     icon: ThriftIcon,
     consequences: { health: 0, style: 10, irony: 0, authenticity: -5, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 0 },
   },
   {
     text: 'Street Perform',
-    description: 'Share your "art" with unwilling strangers. [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
+    description: 'Share your "art" with unwilling strangers. Their confused glances are a currency of their own. [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
     icon: StreetPerformIcon,
     consequences: { health: 0, style: 0, irony: 5, authenticity: -5, vibes: 0, coffee: 10, vinyls: 0, progress: -1, stamina: 0 },
   },
