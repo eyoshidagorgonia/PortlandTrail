@@ -20,7 +20,7 @@ import GameOverScreen from '@/components/game/game-over-screen';
 import OutcomeModal from '@/components/game/outcome-modal';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { PennyFarthingIcon, ConjuringIcon, VibeSageIcon } from '@/components/game/icons';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast.tsx";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Image from 'next/image';
 import TrailMap from '@/components/game/trail-map';
@@ -99,11 +99,13 @@ export default function PortlandTrailPage() {
         }
         
         if (showOfflineToast) {
-            toast({
-                variant: 'destructive',
-                title: 'An AI System is Offline',
-                description: "Using hardcoded data. The experience will be less dynamic.",
-            });
+            setTimeout(() => {
+                toast({
+                    variant: 'destructive',
+                    title: 'An AI System is Offline',
+                    description: "Using hardcoded data. The experience will be less dynamic.",
+                });
+            }, 0);
         }
         
         // Persist to local storage for other pages
@@ -876,3 +878,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
