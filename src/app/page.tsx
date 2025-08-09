@@ -125,7 +125,7 @@ export default function PortlandTrailPage() {
   }, [playerState.progress, playerState.trail]);
 
   const currentLocation = useMemo(() => {
-    if (!playerState.trail) return '...';
+    if (!playerState.trail || playerState.trail.length === 0) return '...';
     return playerState.trail[waypointIndex] || playerState.trail[playerState.trail.length - 1];
   }, [waypointIndex, playerState.trail]);
   
@@ -264,6 +264,7 @@ export default function PortlandTrailPage() {
     setIsLoading(true);
     const { id: toastId } = toast({ title: 'Starting Your Journey...', description: 'The road to Portland unfolds before you.' });
     
+    const chosenTrail = TRAILS[origin] || TRAILS['San Francisco'];
     const initialEvents: TrailEvent[] = [{ progress: 0, description: `Your journey begins in ${origin}.`, timestamp: new Date() }];
     
     const initialState: PlayerState = {
@@ -276,7 +277,7 @@ export default function PortlandTrailPage() {
       vibe: "Just starting out",
       events: initialEvents,
       location: origin,
-      trail: TRAILS[origin] || TRAILS['San Francisco'],
+      trail: chosenTrail,
     };
     
     setPlayerState(initialState);
@@ -853,5 +854,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    

@@ -69,11 +69,11 @@ export const INITIAL_PLAYER_STATE: PlayerState = {
     inventory: [],
     equipment: {},
   },
-  location: STARTING_CITIES[0],
+  location: '', // This will be set dynamically based on origin.
   progress: 0,
   vibe: 'Just starting out',
   events: [],
-  trail: TRAILS[STARTING_CITIES[0]],
+  trail: [], // This will be set dynamically based on origin.
 };
 
 export const getIronicHealthStatus = (health: number): { text: string; variant: 'default' | 'secondary' | 'destructive' } => {
