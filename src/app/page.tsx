@@ -213,33 +213,39 @@ export default function PortlandTrailPage() {
   useEffect(() => {
     setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
-        setHasInitialized(true);
-        setIsInitializing(true);
-        
-        const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
-        const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
-        setJob(randomJob);
-        setOrigin(randomOrigin);
+        const performInitialSetup = async () => {
+            setHasInitialized(true);
+            setIsInitializing(true);
+            
+            const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
+            const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
+            setJob(randomJob);
+            setOrigin(randomOrigin);
 
-        handleGenerateName().then(generatedName => {
+            const generatedName = await handleGenerateName();
+            
             if (generatedName) {
-                // Now we have the name, job, and origin, so we generate the avatar and mood.
-                generateIntroAvatar(generatedName, randomJob, randomOrigin);
-                handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin });
+                // Now we have all three, generate the avatar and mood once.
+                await generateIntroAvatar(generatedName, randomJob, randomOrigin);
+                await handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin });
             }
             setIsInitializing(false);
-        });
+        };
+        performInitialSetup();
     }
   }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
   
 
-  // This useEffect triggers avatar and mood generation when user changes dependencies, but not on initial load
+  // This useEffect triggers avatar and mood regeneration when user changes dependencies, but not on initial load
   useEffect(() => {
-      if (gameState === 'intro' && name && job && origin && !isInitializing) {
-          generateIntroAvatar(name, job, origin);
-          handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
+      const regenerate = async () => {
+        if (gameState === 'intro' && name && job && origin && !isInitializing) {
+            await generateIntroAvatar(name, job, origin);
+            await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
+        }
       }
-  }, [name, job, origin, gameState, isInitializing]);
+      regenerate();
+  }, [name, job, origin, gameState, isInitializing, generateIntroAvatar, handleGenerateMood]);
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
