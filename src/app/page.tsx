@@ -146,9 +146,11 @@ export default function PortlandTrailPage() {
         setName(result.name);
         updateSystemStatus({ name: result.dataSource });
         toast({ id: toastId, title: 'Name Conjured!', description: 'Your new identity awaits.' });
+        return result.name;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast({ id: toastId, variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
+        return '';
     } finally {
         setIsNameLoading(false);
     }
@@ -215,23 +217,32 @@ export default function PortlandTrailPage() {
   useEffect(() => {
     setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
-        setIsInitializing(true);
-        handleGenerateName().finally(() => setIsInitializing(false));
-        const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
-        setJob(randomJob);
-        const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
-        setOrigin(randomOrigin);
-        setHasInitialized(true);
-    }
-  }, [gameState, hasInitialized, handleGenerateName]);
+      setHasInitialized(true);
+      setIsInitializing(true);
+      
+      const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
+      setJob(randomJob);
+      const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
+      setOrigin(randomOrigin);
 
-  // This useEffect triggers avatar and mood generation when dependencies change.
+      handleGenerateName().then(generatedName => {
+        setIsInitializing(false);
+        if (generatedName) {
+            generateIntroAvatar(generatedName, randomJob, randomOrigin);
+            handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin });
+        }
+      });
+    }
+  }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
+  
+
+  // This useEffect triggers avatar and mood generation when dependencies change, but not on initial load
   useEffect(() => {
-      if (gameState === 'intro' && name && job && origin && !isInitializing) {
+      if (gameState === 'intro' && name && job && origin && !isInitializing && hasInitialized) {
           generateIntroAvatar(name, job, origin);
           handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
       }
-  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood, isInitializing]);
+  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood, isInitializing, hasInitialized]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -328,6 +339,7 @@ export default function PortlandTrailPage() {
     setJob('');
     setOrigin('');
     setHasInitialized(false);
+    setIsInitializing(true); // Reset for next game start
     setSystemStatus(INITIAL_SYSTEM_STATUS);
     setSceneImage('');
     setAvatarImage('');
@@ -692,20 +704,20 @@ export default function PortlandTrailPage() {
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0 h-40 w-40">
                 {isInitializing || isIntroAvatarLoading ? (
-                    <div className="h-full w-full rounded-full border-4 border-secondary/50 bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
-                        <ConjuringIcon className="h-10 w-10" />
-                    </div>
+                  <div className="h-full w-full rounded-full border-4 border-secondary/50 bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
+                    <ConjuringIcon className="h-10 w-10" />
+                  </div>
                 ) : (
-                    <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
-                        <AvatarImage 
-                            src={introAvatarImage} 
-                            alt={name} 
-                            className="rounded-full" 
-                            data-ai-hint="avatar portrait" 
-                            onLoad={() => setIsAvatarRendered(true)}
-                        />
-                        <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>
-                    </Avatar>
+                  <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
+                    <AvatarImage
+                      src={introAvatarImage}
+                      alt={name}
+                      className="rounded-full"
+                      data-ai-hint="avatar portrait"
+                      onLoad={() => setIsAvatarRendered(true)}
+                    />
+                    <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>
+                  </Avatar>
                 )}
               </div>
 
@@ -854,3 +866,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
