@@ -663,7 +663,7 @@ export default function PortlandTrailPage() {
             return (
                 <>
                     <ConjuringIcon className="mr-2 h-5 w-5" />
-                    <span>Conjuring...</span>
+                    <span className="animate-pulse-text">Conjuring...</span>
                 </>
             );
         }
@@ -695,7 +695,7 @@ export default function PortlandTrailPage() {
               <div className="relative shrink-0">
                 <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
                   {isIntroAvatarLoading && (
-                    <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground">
+                    <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
                         <ConjuringIcon className="h-10 w-10" />
                     </div>
                   )}

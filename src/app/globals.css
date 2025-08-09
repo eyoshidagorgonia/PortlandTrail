@@ -141,13 +141,13 @@
     animation: pulse-text 1.5s ease-in-out infinite;
 }
 
-@keyframes pulse-text-destructive {
+@keyframes pulse-destructive {
   0%, 100% { color: hsl(var(--destructive) / 0.8); }
   50% { color: hsl(var(--destructive)); }
 }
 
-.animate-pulse-text-destructive {
-    animation: pulse-text-destructive 1.5s ease-in-out infinite;
+.animate-pulse-destructive {
+    animation: pulse-destructive 1.5s ease-in-out infinite;
 }
 
 @keyframes glow-primary {

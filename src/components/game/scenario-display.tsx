@@ -24,7 +24,7 @@ const LoadingState = () => (
         <Skeleton className="h-8 w-3/4" />
       </CardHeader>
       <CardContent className="p-4 pt-2 space-y-3">
-        <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground">
+        <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
             <ConjuringIcon className="h-10 w-10" />
             <p className="font-body">The Vibe Sage is painting the scene...</p>
         </div>
@@ -59,7 +59,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
       <CardContent className="p-6 pt-2 flex-grow">
         <div className="mb-4 overflow-hidden rounded-sm border-2 border-border/50 bg-muted/30">
           {isImageLoading || !sceneImage ? (
-             <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground">
+             <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
                 <ConjuringIcon className="h-10 w-10" />
                 <p className="font-body">The Vibe Sage is painting the scene...</p>
             </div>
