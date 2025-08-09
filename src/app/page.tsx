@@ -26,7 +26,6 @@ import Image from 'next/image';
 import TrailMap from '@/components/game/trail-map';
 import { cn } from '@/lib/utils';
 import { calculateStats } from '@/lib/utils';
-import HistoryDisplay from '@/components/game/history-display';
 
 const INITIAL_SYSTEM_STATUS: SystemStatus = {
     healthyServices: new Set(),
@@ -810,7 +809,6 @@ export default function PortlandTrailPage() {
                 <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
             </div>
         </Card>
-        <HistoryDisplay />
       </main>
     );
   }
@@ -871,7 +869,6 @@ export default function PortlandTrailPage() {
 
         </div>
       </div>
-      <HistoryDisplay />
       <div className="absolute bottom-2 left-3 text-xs text-muted-foreground/50 font-code flex items-center gap-2">
         <StatusIcons />
         <span>Build: {BUILD_NUMBER.toFixed(3)}</span>
