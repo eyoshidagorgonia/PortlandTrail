@@ -721,7 +721,7 @@ export default function PortlandTrailPage() {
                       disabled={isLoading || isNameLoading}
                       aria-label="Randomize Name"
                       >
-                      {isNameLoading ? <ConjuringIcon className="h-6 w-6 animate-pulse-text" /> : <RefreshCw />}
+                      <ConjuringIcon className={cn("h-6 w-6", isNameLoading && "animate-pulse-text")} />
                     </Button>
                   </div>
                 </div>
