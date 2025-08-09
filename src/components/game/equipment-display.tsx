@@ -119,6 +119,12 @@ export default function EquipmentDisplay({ equipment, onManageItem }: { equipmen
                         backgroundSize: '60%',
                     }}
                 />
+                {/* Placeholders for consistent spacing */}
+                <div className="row-start-1 col-start-1"></div>
+                <div className="row-start-1 col-start-3"></div>
+                <div className="row-start-3 col-start-1"></div>
+                <div className="row-start-3 col-start-3"></div>
+
                 {SLOTS.map(slot => (
                     <EquipmentSlotDisplay key={slot} slot={slot} item={equipment[slot]} onManageItem={onManageItem} />
                 ))}
