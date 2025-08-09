@@ -54,11 +54,11 @@ const ItemTooltipContent = ({ item, actionText = "Click to manage" }: { item: Lo
 
 const EquipmentSlotDisplay = ({ slot, item, onManageItem }: { slot: EquipmentSlot, item: LootItem | undefined, onManageItem: (item: LootItem) => void }) => {
     const gridPosition: { [key in EquipmentSlot]: string } = {
-        Headwear: 'col-start-2',
-        Eyewear: 'col-start-3',
-        Outerwear: 'col-start-2',
-        Accessory: 'col-start-1',
-        Footwear: 'col-start-2',
+        Headwear: 'row-start-1 col-start-2',
+        Accessory: 'row-start-2 col-start-1',
+        Outerwear: 'row-start-2 col-start-2',
+        Eyewear: 'row-start-2 col-start-3',
+        Footwear: 'row-start-3 col-start-2',
     };
     
     const Icon = getItemIcon(slot);
@@ -106,7 +106,7 @@ export default function EquipmentDisplay({ equipment, onManageItem }: { equipmen
         <div>
             <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Equipment</h3>
             <div 
-                className="relative grid grid-cols-3 justify-center gap-1 p-4 rounded-sm"
+                className="relative grid grid-cols-3 grid-rows-3 justify-center gap-1 p-4 rounded-sm"
                 style={{ backgroundImage: `
                     radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%),
                     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23D5A87A' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
