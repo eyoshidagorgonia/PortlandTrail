@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { getItemIcon } from './icons';
 import { Checkbox } from '../ui/checkbox';
 import { AlertCircle, Zap } from 'lucide-react';
-import { ThematicSeparator } from './thematic-separator';
 
 interface UpcycleModalProps {
   isOpen: boolean;
@@ -74,6 +73,10 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
         });
         return groups;
     }, [allItems]);
+
+    const hasAnyUpcyclableGroups = useMemo(() => {
+        return Object.values(groupedItems).some(group => group.length >= 3);
+    }, [groupedItems]);
 
     const handleSelect = (item: LootItem) => {
         if (isLoading) return;
@@ -145,14 +148,14 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
                                                 item={item} 
                                                 isSelected={selectedItems.some(i => i.name === item.name)}
                                                 onSelect={handleSelect} 
-                                                disabled={isOtherQualitySelected || (!isThisQualitySelected && !canSelectMore)}
+                                                disabled={isOtherQualitySelected || (isThisQualitySelected && !canSelectMore && !selectedItems.some(i => i.name === item.name))}
                                             />
                                         ))}
                                     </div>
                                 </div>
                             )
                         })}
-                        {allItems.filter(i => i.quality !== 'One-of-One').length === 0 && (
+                        {!hasAnyUpcyclableGroups && (
                             <p className="text-sm text-center text-muted-foreground italic p-4">You have no items eligible for upcycling.</p>
                         )}
                      </div>
@@ -182,6 +185,3 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
         </Dialog>
     );
 }
-
-
-    
