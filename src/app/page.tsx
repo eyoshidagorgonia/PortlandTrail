@@ -233,13 +233,13 @@ export default function PortlandTrailPage() {
   }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
   
 
-  // This useEffect triggers avatar and mood generation when dependencies change, but not on initial load
+  // This useEffect triggers avatar and mood generation when user changes dependencies, but not on initial load
   useEffect(() => {
       if (gameState === 'intro' && name && job && origin && !isInitializing) {
           generateIntroAvatar(name, job, origin);
           handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
       }
-  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood, isInitializing]);
+  }, [name, job, origin, gameState, isInitializing]);
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
