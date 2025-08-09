@@ -51,7 +51,7 @@ export const LootItemSchema = z.object({
     quality: GearQualityEnum.describe("The quality tier of the item."),
     flavorText: z.string().describe("A short, ironic description of the item."),
     modifiers: StatModifierSchema.describe("The stat changes this item provides. Can be positive or negative."),
-});
+}).and(z.object({isEquipped: z.boolean().optional()})); // Add isEquipped for client-side logic
 export type LootItem = z.infer<typeof LootItemSchema>;
 
 export type Equipment = Partial<Record<EquipmentSlot, LootItem>>;
@@ -194,3 +194,5 @@ export const GenerateUpcycledItemOutputSchema = z.object({
   dataSource: z.enum(['primary', 'hardcoded']),
 });
 export type GenerateUpcycledItemOutput = z.infer<typeof GenerateUpcycledItemOutputSchema>;
+
+    

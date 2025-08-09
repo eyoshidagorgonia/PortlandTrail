@@ -674,14 +674,27 @@ export default function PortlandTrailPage() {
     
     const { item: newItem, isBlessed } = result;
 
-    const newState = { ...playerState };
+    let newState = { ...playerState };
 
-    // Remove consumed items from inventory
+    // Create a set of names for efficient lookup
     const consumedItemNames = new Set(itemsToConsume.map(i => i.name));
+
+    // Filter inventory
     newState.resources.inventory = newState.resources.inventory.filter(i => !consumedItemNames.has(i.name));
+    
+    // Filter equipment
+    for (const slot in newState.resources.equipment) {
+        const equippedItem = newState.resources.equipment[slot as EquipmentSlot];
+        if (equippedItem && consumedItemNames.has(equippedItem.name)) {
+            delete newState.resources.equipment[slot as EquipmentSlot];
+        }
+    }
 
     // Add new item to inventory
     newState.resources.inventory.push(newItem);
+    
+    // Recalculate stats after equipment change
+    newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
     
     setPlayerState(newState);
 
@@ -930,3 +943,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    

@@ -40,7 +40,8 @@ import InventoryGrid from './inventory-grid';
 import { Button } from '../ui/button';
 import Image from 'next/image';
 import EquipmentInteractionModal from './equipment-interaction-modal';
-import UpcycleStation from './upcycle-station';
+import { Zap } from 'lucide-react';
+import UpcycleModal from './upcycle-modal';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -134,7 +135,7 @@ interface StatusDashboardProps {
     isLoading: boolean;
 }
 
-type ModalState = {
+type EquipModalState = {
     isOpen: boolean;
     mode: 'equip' | 'manage';
     item: LootItem;
@@ -147,44 +148,64 @@ type ModalState = {
 export default function StatusDashboard({ playerState, avatarImage, onEquip, onUnequip, onAction, onUpcycle, isLoading }: StatusDashboardProps) {
   const { stats, resources, name, job, mood, progress, location, events, trail } = playerState;
 
-  const [modalState, setModalState] = React.useState<ModalState>({ isOpen: false, mode: null, item: null});
+  const [equipModalState, setEquipModalState] = React.useState<EquipModalState>({ isOpen: false, mode: null, item: null});
+  const [isUpcycleModalOpen, setIsUpcycleModalOpen] = React.useState(false);
 
   const ironicStatus = getIronicHealthStatus(stats.health);
 
   const handleOpenEquipModal = (item: LootItem) => {
-    setModalState({ isOpen: true, mode: 'equip', item });
+    setEquipModalState({ isOpen: true, mode: 'equip', item });
   }
 
   const handleOpenManageModal = (item: LootItem) => {
-    setModalState({ isOpen: true, mode: 'manage', item });
+    setEquipModalState({ isOpen: true, mode: 'manage', item });
   }
 
-  const handleModalClose = () => {
-    setModalState({ isOpen: false, mode: null, item: null });
+  const handleEquipModalClose = () => {
+    setEquipModalState({ isOpen: false, mode: null, item: null });
   }
 
   const handleEquipFromModal = (itemToEquip: LootItem, itemToSwap?: LootItem) => {
     onEquip(itemToEquip, itemToSwap);
-    handleModalClose();
+    handleEquipModalClose();
   }
 
   const handleUnequipFromModal = (slot: EquipmentSlot) => {
     onUnequip(slot);
-    handleModalClose();
+    handleEquipModalClose();
   }
   
-  const swappableItems = modalState.item 
-    ? resources.inventory.filter(i => i.type === modalState.item?.type)
+  const swappableItems = equipModalState.item 
+    ? resources.inventory.filter(i => i.type === equipModalState.item?.type)
     : [];
+  
+  const allItems = [...resources.inventory, ...Object.values(resources.equipment)];
+  const upcycleCounts = allItems.reduce((acc, item) => {
+    if (item.quality !== 'One-of-One') {
+      acc[item.quality] = (acc[item.quality] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<GearQuality, number>);
+  
+  const canUpcycleAny = Object.values(upcycleCounts).some(count => count >= 3);
+
 
   return (
     <>
     <EquipmentInteractionModal 
-        modalState={modalState}
+        modalState={equipModalState}
         swappableItems={swappableItems}
-        onClose={handleModalClose}
+        onClose={handleEquipModalClose}
         onEquip={handleEquipFromModal}
         onUnequip={handleUnequipFromModal}
+    />
+    <UpcycleModal 
+        isOpen={isUpcycleModalOpen}
+        onClose={() => setIsUpcycleModalOpen(false)}
+        inventory={resources.inventory}
+        equipment={resources.equipment}
+        onUpcycle={onUpcycle}
+        isLoading={isLoading}
     />
     <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="text-center items-center pb-4">
@@ -298,7 +319,20 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
 
             <EquipmentDisplay equipment={resources.equipment} onManageItem={handleOpenManageModal} />
             <InventoryGrid inventory={resources.inventory} onEquipItem={handleOpenEquipModal} />
-            <UpcycleStation inventory={resources.inventory} onUpcycle={onUpcycle} isLoading={isLoading} />
+
+            <ThematicSeparator />
+             <div>
+              <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Crafting</h3>
+                <Button 
+                    variant="outline"
+                    className="w-full font-headline text-lg"
+                    onClick={() => setIsUpcycleModalOpen(true)}
+                    disabled={!canUpcycleAny || isLoading}
+                >
+                    <Zap className="mr-2 h-5 w-5" />
+                    Upcycle Items
+                </Button>
+            </div>
         </div>
 
         {resources.badges.length > 0 && (
@@ -369,3 +403,5 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
     </>
   );
 }
+
+    

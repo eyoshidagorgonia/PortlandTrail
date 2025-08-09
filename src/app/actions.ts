@@ -5,7 +5,7 @@ import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario'
 import { generateImagesForScenario } from '@/ai/flows/generate-images-for-scenario';
 import { generateLoot } from '@/ai/flows/generate-loot';
 import { generateUpcycledItem } from '@/ai/flows/generate-upcycled-item';
-import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, LootItem, LootCache, GearQuality } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, LootItem, LootCache, GearQuality, EquipmentSlot } from '@/lib/types';
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
@@ -95,3 +95,5 @@ export async function upcycleItemsAction(inputQuality: GearQuality): Promise<{ i
         return { error: `Failed to generate upcycled item: ${errorMessage}` };
     }
 }
+
+    
