@@ -46,9 +46,11 @@ export default function PortlandTrailPage() {
   const [job, setJob] = useState('');
   const [origin, setOrigin] = useState('');
   const [avatarKaomoji, setAvatarKaomoji] = useState('(-_-)');
-  const [mood, setMood] = useState('');
   const [isNameLoading, setIsNameLoading] = useState(false);
+  
+  // Mood is part of playerState now, but we need a loading flag for the UI.
   const [isMoodLoading, setIsMoodLoading] = useState(false);
+  
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(INITIAL_SYSTEM_STATUS);
@@ -100,8 +102,6 @@ export default function PortlandTrailPage() {
         }
         
         // Persist to local storage for other pages
-        localStorage.setItem('healthyServices', JSON.stringify(Array.from(newStatus.healthyServices)));
-        localStorage.setItem('primaryDegradedServices', JSON.stringify(Array.from(newStatus.primaryDegradedServices)));
         localStorage.setItem('fullyOfflineServices', JSON.stringify(Array.from(newStatus.fullyOfflineServices)));
         
         return newStatus;
@@ -115,14 +115,21 @@ export default function PortlandTrailPage() {
         });
     }
   }, [toast]);
+  
+  // This effect will run only on the client, after hydration.
+  useEffect(() => {
+    setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
+  }, []);
 
   const waypointIndex = useMemo(() => {
     if (!playerState.trail || playerState.trail.length <= 1) return 0;
-    return Math.floor(playerState.progress / (100 / (playerState.trail.length - 1)));
+    // Ensure we don't go out of bounds if progress is 100%
+    const calculatedIndex = Math.floor(playerState.progress / (100 / (playerState.trail.length - 1)));
+    return Math.min(calculatedIndex, playerState.trail.length - 1);
   }, [playerState.progress, playerState.trail]);
 
   const currentLocation = useMemo(() => {
-    if (!playerState.trail || playerState.trail.length === 0) return '...';
+    if (!playerState.trail || playerState.trail.length === 0) return 'The Void';
     return playerState.trail[waypointIndex] || playerState.trail[playerState.trail.length - 1];
   }, [waypointIndex, playerState.trail]);
   
@@ -156,7 +163,7 @@ export default function PortlandTrailPage() {
   const handleGenerateMood = useCallback(async (state: PlayerState) => {
      if (!state.name || !state.job || !state.origin) return;
     setIsMoodLoading(true);
-    const { id: toastId } = toast({ title: 'Reading the Aura...', description: 'The Vibe Sage is assessing your current mood.' });
+    // Don't toast here to reduce notification spam
     try {
         const result = await generateCharacterMood({ 
             name: state.name, 
@@ -168,10 +175,9 @@ export default function PortlandTrailPage() {
         });
         setPlayerState(prev => ({...prev, mood: result.mood, vibe: currentVibe }));
         updateSystemStatus({ mood: result.dataSource });
-        toast({ id: toastId, title: 'Aura Read!', description: 'Your fleeting mood has been captured.' });
     } catch(error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ id: toastId, variant: 'destructive', title: 'Aura Reading Failed', description: errorMessage });
+        toast({ variant: 'destructive', title: 'Aura Reading Failed', description: errorMessage });
     } finally {
         setIsMoodLoading(false);
     }
@@ -180,8 +186,6 @@ export default function PortlandTrailPage() {
   const generateIntroAvatar = useCallback(async (currentName: string, currentJob: string, currentOrigin: string) => {
     if (!currentName || !currentJob || !currentOrigin) return;
     setIsIntroAvatarLoading(true);
-    const { id: toastId } = toast({ title: 'Conjuring Avatar...', description: 'Capturing your artisanal essence in pixels.' });
-    
     const imageInput = {
       scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${currentName}, who is a ${currentJob} from ${currentOrigin}.`,
       character: { name: currentName, job: currentJob, origin: currentOrigin, vibe: "Just starting out", avatarKaomoji },
@@ -190,7 +194,7 @@ export default function PortlandTrailPage() {
     try {
         const imageResult = await getImagesAction(imageInput);
         if ('error' in imageResult) {
-            toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+            toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
             setAvatarImage(''); // Set to empty on failure
         } else {
             // In the intro, the sceneImage field is repurposed to carry the avatar image.
@@ -198,62 +202,62 @@ export default function PortlandTrailPage() {
             if (imageResult.dataSource) {
                 updateSystemStatus({ image: imageResult.dataSource });
             }
-            toast({ id: toastId, title: 'Avatar Conjured', description: 'Your essence has been captured.' });
         }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
+        toast({ variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
         setAvatarImage(''); // Set to empty on failure
     } finally {
         setIsIntroAvatarLoading(false);
     }
   }, [avatarKaomoji, toast, updateSystemStatus]);
 
-  // Initial load effect
+  // Effect for initial game setup.
   useEffect(() => {
-    setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
         const performInitialSetup = async () => {
             setIsInitializing(true);
             
+            // Set random job and origin first
             const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
             const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
             setJob(randomJob);
             setOrigin(randomOrigin);
 
+            // Then generate the name
             const generatedName = await handleGenerateName();
             
+            // Only after name is generated, do we generate avatar and mood
             if (generatedName) {
                 await Promise.all([
                     generateIntroAvatar(generatedName, randomJob, randomOrigin),
                     handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin })
                 ]);
             }
+
             setIsInitializing(false);
             setHasInitialized(true); 
         };
         performInitialSetup();
     }
   }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
-  
 
-  const handleUserChange = useCallback(async () => {
-    if (gameState === 'intro' && name && job && origin && hasInitialized && !isInitializing) {
-        await generateIntroAvatar(name, job, origin);
-        await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
-    }
-  // We want this to run on any of these changing, but only after the initial setup.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, job, origin, hasInitialized, isInitializing]);
-  
+  // Effect for user-driven changes on the intro screen, AFTER initial setup.
   useEffect(() => {
+    const handleUserChange = async () => {
+        if (gameState === 'intro' && hasInitialized && !isInitializing) {
+            await generateIntroAvatar(name, job, origin);
+            await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
+        }
+    };
     handleUserChange();
-  }, [handleUserChange]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, job, origin, hasInitialized]);
 
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
-    if(gameState === 'playing') {
+    if(gameState === 'playing' && !isInitializing) {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
         const newState = {...playerState, vibe: newVibe};
@@ -261,7 +265,7 @@ export default function PortlandTrailPage() {
         handleGenerateMood(newState);
       }
     }
-  }, [currentVibe, gameState, playerState, handleGenerateMood]);
+  }, [currentVibe, gameState, playerState, handleGenerateMood, isInitializing]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -280,7 +284,7 @@ export default function PortlandTrailPage() {
       job: job,
       origin: origin,
       avatar: avatarKaomoji,
-      mood: mood,
+      mood: playerState.mood, // Carry over the generated mood
       vibe: "Just starting out",
       location: chosenTrail[0],
       trail: chosenTrail,
@@ -324,13 +328,12 @@ export default function PortlandTrailPage() {
     // Fetch images for the first scenario
     fetchImages(scenarioResult, finalInitialState);
 
-  }, [name, job, origin, avatarKaomoji, mood, toast, addLog, updateSystemStatus]);
+  }, [name, job, origin, avatarKaomoji, playerState.mood, toast, addLog, updateSystemStatus]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
     setPlayerState(INITIAL_PLAYER_STATE);
     setName('');
-    setMood('');
     setJob('');
     setOrigin('');
     setHasInitialized(false);
@@ -339,8 +342,7 @@ export default function PortlandTrailPage() {
     setSceneImage('');
     setAvatarImage('');
     setBadgeImage(null);
-    localStorage.removeItem('healthyServices');
-    localStorage.removeItem('primaryDegradedServices');
+    setEventLog([]);
     localStorage.removeItem('fullyOfflineServices');
   }, []);
 
@@ -348,7 +350,6 @@ export default function PortlandTrailPage() {
     setIsImageLoading(true);
     setSceneImage('');
     setBadgeImage(null);
-    const { id: toastId } = toast({ title: 'Conjuring Scene...', description: 'The Vibe Sage is painting a picture of your surroundings.' });
 
     const imageInput = {
       scenarioDescription: currentScenario.scenario,
@@ -366,7 +367,7 @@ export default function PortlandTrailPage() {
     try {
         const imageResult = await getImagesAction(imageInput);
         if ('error' in imageResult) {
-            toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
+            toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
         } else {
             setSceneImage(imageResult.sceneImage);
             if (imageResult.badgeImage) {
@@ -375,11 +376,10 @@ export default function PortlandTrailPage() {
             if (imageResult.dataSource) {
                 updateSystemStatus({ image: imageResult.dataSource });
             }
-            toast({ id: toastId, title: 'Visions Conjured', description: 'The scene has been rendered.' });
         }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
+        toast({ variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
     } finally {
         setIsImageLoading(false);
     }
@@ -406,16 +406,13 @@ export default function PortlandTrailPage() {
       return;
     }
 
-    const { id: toastId, update } = toast({ title: 'The universe considers...', description: 'Crafting a new, ironic trial...' });
-
     const getNextScenario = async () => {
         try {
             const result = await getScenarioAction(tempState);
 
             if ('error' in result && result.error) {
                 addLog(result.error, tempState.progress);
-                update({
-                    id: toastId,
+                 toast({
                     variant: "destructive",
                     title: "The Trail Went Cold",
                     description: result.error,
@@ -430,13 +427,11 @@ export default function PortlandTrailPage() {
                 
                 const newPlayerState = {...tempState, avatar: scenarioResult.playerAvatar!};
                 setPlayerState(newPlayerState);
-                update({ id: toastId, title: 'New Scenario!', description: 'What fresh weirdness is this?' });
                 fetchImages(scenarioResult, newPlayerState);
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            update({
-                id: toastId,
+            toast({
                 variant: "destructive",
                 title: "Failed to get next scenario",
                 description: errorMessage,
@@ -468,7 +463,8 @@ export default function PortlandTrailPage() {
         });
         return;
     }
-
+    
+    setIsLoading(true);
     let tempState = { ...playerState };
     const consequences = action.consequences;
 
@@ -501,13 +497,18 @@ export default function PortlandTrailPage() {
     setPlayerState(tempState);
     addLog(`You decided to: ${action.text}.`, tempState.progress);
     
-    // For actions, we show a simplified outcome via toast and advance immediately.
-    toast({
-      title: 'Action Taken',
-      description: action.description,
-    });
     advanceTurn(tempState);
   };
+  
+  // Toast for action taken
+  useEffect(() => {
+    if (eventLog[0]?.description.startsWith('You decided to:')) {
+        toast({
+          title: 'Action Taken',
+          description: eventLog[0].description,
+        });
+    }
+  }, [eventLog, toast]);
 
   const handleChoice = async (choice: Choice) => {
     if (isLoading || isImageLoading) return;
@@ -536,15 +537,13 @@ export default function PortlandTrailPage() {
     let earnedBadge: Badge | null = null;
     
     if (scenario) {
-        const { id: toastId } = toast({ title: 'Opening Loot Chest...', description: 'What fresh nonsense awaits?' });
         const lootResult = await getLootAction(tempState, scenario.scenario);
         if ('error' in lootResult) {
-            toast({ id: toastId, variant: 'destructive', title: 'Loot Generation Failed', description: lootResult.error });
+            toast({ variant: 'destructive', title: 'Loot Generation Failed', description: lootResult.error });
         } else {
             earnedLoot = lootResult.loot;
             tempState.resources.inventory.push(...earnedLoot);
             addLog(`You found some stuff.`, tempState.progress);
-            toast({ id: toastId, title: 'Loot Acquired!', description: 'Check your tote bag for questionably useful items.' });
             if (lootResult.dataSource) {
                 updateSystemStatus({ loot: lootResult.dataSource });
             }
@@ -554,7 +553,6 @@ export default function PortlandTrailPage() {
                     description: lootResult.badge.badgeDescription,
                     emoji: lootResult.badge.badgeEmoji,
                     isUber: lootResult.badge.isUber || false,
-                    // The image will be added later if generated successfully
                 };
                 earnedBadge = newBadge;
                 setLastBadge(newBadge); // Set for image generation
@@ -563,7 +561,8 @@ export default function PortlandTrailPage() {
     }
 
     const newWaypointIndex = Math.floor(tempState.progress / (100 / (tempState.trail.length - 1)));
-    tempState.location = tempState.trail[newWaypointIndex] || tempState.trail[newWaypointIndex] || tempState.trail[tempState.trail.length - 1];
+    const finalWaypointIndex = Math.min(newWaypointIndex, tempState.trail.length - 1);
+    tempState.location = tempState.trail[finalWaypointIndex] || tempState.trail[tempState.trail.length - 1];
 
     const newEvent: TrailEvent = {
         progress: tempState.progress,
@@ -597,7 +596,6 @@ export default function PortlandTrailPage() {
         tempState.resources.badges.push(finalBadge);
         setLastBadge(finalBadge); // Update badge with image for modal
         addLog(`You "earned" a badge: "${finalBadge.description}"`, tempState.progress);
-        toast({ title: 'Badge of Dishonor Earned!', description: finalBadge.description });
         setIsImageLoading(false); // Stop image loading spinner
     }
 
@@ -610,6 +608,21 @@ export default function PortlandTrailPage() {
     setIsOutcomeModalOpen(true);
     setIsLoading(false); // Done with this choice, modal is open
   };
+
+  // Toast for loot found
+  useEffect(() => {
+    if (lastLoot.length > 0) {
+      toast({ title: 'Loot Acquired!', description: 'Check your tote bag for questionably useful items.' });
+    }
+  }, [lastLoot, toast]);
+
+  // Toast for badge earned
+  useEffect(() => {
+    if (lastBadge) {
+      toast({ title: 'Badge of Dishonor Earned!', description: lastBadge.description });
+    }
+  }, [lastBadge, toast]);
+
 
   const handleEquipItem = (item: LootItem) => {
     setPlayerState(prevState => {
@@ -882,5 +895,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
