@@ -24,15 +24,15 @@ export async function generateImagesForScenario(input: GenerateImagesInput): Pro
     const isDirectPrompt = input.scenarioDescription.toLowerCase().includes('portrait of a hipster named');
 
     if (isDirectPrompt) {
-        console.log('[generateImagesForScenario] Direct prompt detected. Skipping prompt generation and generating avatar directly.');
+        console.log('[generateImagesForScenario] Direct prompt detected. Generating avatar directly for intro screen.');
         const avatarImage = await generateImage(
             `${input.scenarioDescription}, Diablo IV x Hipster x Studio Ghibli style, high-detail painterly illustration, dark fantasy shadows, soft natural lighting`,
             'photorealistic, 3d render, photo, realism, ugly, deformed',
             512, 512
         );
+        // This path is now only for the intro screen avatar
         return {
-            avatarImage,
-            sceneImage: '', // No scene for direct avatar prompts
+            sceneImage: avatarImage, // Repurposing sceneImage to carry the avatar for this specific case
             badgeImage: undefined,
             dataSource: 'primary',
         };
@@ -60,9 +60,6 @@ You MUST respond with only a valid JSON object, with no other text before or aft
 
     const imagePromises = [];
 
-    // Avatar is no longer generated here. Push a resolved promise with an empty string.
-    imagePromises.push(Promise.resolve(''));
-
     // Scene Image Promise
     imagePromises.push(generateImage(
         `${prompts.scenePrompt}, Studio Ghibli brushwork, Diablo IV darkness, painterly illustration`,
@@ -81,12 +78,11 @@ You MUST respond with only a valid JSON object, with no other text before or aft
         imagePromises.push(Promise.resolve(undefined));
     }
 
-    const [avatarImage, sceneImage, badgeImage] = await Promise.all(imagePromises);
+    const [sceneImage, badgeImage] = await Promise.all(imagePromises);
 
     console.log('[generateImagesForScenario] All images generated.');
 
     return {
-      avatarImage,
       sceneImage,
       badgeImage,
       dataSource: 'primary',

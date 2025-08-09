@@ -194,7 +194,8 @@ export default function PortlandTrailPage() {
             toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
             setIntroAvatarImage('');
         } else {
-            setIntroAvatarImage(imageResult.avatarImage);
+            // In the intro, the sceneImage field is repurposed to carry the avatar image.
+            setIntroAvatarImage(imageResult.sceneImage);
             if (imageResult.dataSource) {
                 updateSystemStatus({ image: imageResult.dataSource });
             }
@@ -347,7 +348,6 @@ export default function PortlandTrailPage() {
     const { id: toastId } = toast({ title: 'Conjuring Scene...', description: 'The Vibe Sage is painting a picture of your surroundings.' });
 
     const imageInput = {
-      // The avatar is no longer regenerated here, so we only need scene and badge info.
       scenarioDescription: currentScenario.scenario,
       character: {
         name: currentPlayerState.name,
@@ -364,7 +364,6 @@ export default function PortlandTrailPage() {
         if ('error' in imageResult) {
             toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
         } else {
-            // Only update scene and badge images. Avatar remains the same.
             setSceneImage(imageResult.sceneImage);
             if (imageResult.badgeImage) {
                 setBadgeImage(imageResult.badgeImage);
@@ -812,7 +811,6 @@ export default function PortlandTrailPage() {
             <StatusDashboard 
               playerState={playerState} 
               avatarImage={avatarImage} 
-              isImageLoading={false} // Avatar loading is separate now
               onEquip={handleEquipItem}
               onUnequip={handleUnequipItem}
             />

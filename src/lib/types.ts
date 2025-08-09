@@ -158,7 +158,6 @@ export const GenerateImagesInputSchema = z.object({
 export type GenerateImagesInput = z.infer<typeof GenerateImagesInputSchema>;
 
 export const GenerateImagesOutputSchema = z.object({
-  avatarImage: z.string().describe("A data URI of the generated player avatar image."),
   sceneImage: z.string().describe("A data URI of the generated scene image."),
   badgeImage: z.string().optional().describe("A data URI of the generated badge image, if applicable."),
   dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),

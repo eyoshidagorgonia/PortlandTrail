@@ -33,6 +33,7 @@ import TrailMap from './trail-map';
 import { ThematicSeparator } from './thematic-separator';
 import EquipmentDisplay from './equipment-display';
 import InventoryGrid from './inventory-grid';
+import { Skeleton } from '../ui/skeleton';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -92,13 +93,12 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
 interface StatusDashboardProps {
     playerState: PlayerState;
     avatarImage: string | null;
-    isImageLoading: boolean;
     onEquip: (item: LootItem) => void;
     onUnequip: (slot: EquipmentSlot) => void;
 }
 
 
-export default function StatusDashboard({ playerState, avatarImage, isImageLoading, onEquip, onUnequip }: StatusDashboardProps) {
+export default function StatusDashboard({ playerState, avatarImage, onEquip, onUnequip }: StatusDashboardProps) {
   const { stats, resources, name, job, mood, progress, location, events, trail } = playerState;
 
   const ironicStatus = getIronicHealthStatus(stats.health);
@@ -108,8 +108,8 @@ export default function StatusDashboard({ playerState, avatarImage, isImageLoadi
     <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="text-center items-center pb-4">
         <Avatar className="h-32 w-32 border-2 border-border/50 text-4xl font-headline rounded-full">
-            {isImageLoading || !avatarImage ? (
-                <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground">
+            {!avatarImage ? (
+                <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
                     <ConjuringIcon className="h-10 w-10" />
                 </div>
             ) : (
