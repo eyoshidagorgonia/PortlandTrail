@@ -4,7 +4,7 @@
 import { generatePortlandScenario } from '@/ai/flows/generate-portland-scenario';
 import { generateImagesForScenario } from '@/ai/flows/generate-images-for-scenario';
 import { generateLoot } from '@/ai/flows/generate-loot';
-import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, LootItem } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, GenerateImagesInput, GenerateImagesOutput, LootItem, LootCache } from '@/lib/types';
 
 export async function getScenarioAction(playerState: PlayerState): Promise<Scenario | { error: string }> {
   console.log('[getScenarioAction] Action started. Fetching new scenario for player:', playerState.name);
@@ -23,33 +23,15 @@ export async function getScenarioAction(playerState: PlayerState): Promise<Scena
     let dataSources: Record<string, 'primary' | 'hardcoded'> = {
         scenario: scenarioDetails.dataSource,
     };
-
-    let choices: Choice[] = scenarioDetails.choices;
     
-    const choiceWithBadge = choices.find(c => c.consequences.badge);
-
-    if (choiceWithBadge) {
-        const badge = choiceWithBadge.consequences.badge!;
-        dataSources.badge = scenarioDetails.dataSource;
-        console.log(`[getScenarioAction] Badge "${badge.badgeDescription}" details found on choice "${choiceWithBadge.text}".`);
-    }
-
     const finalScenario: Scenario = {
       scenario: scenarioDetails.scenario,
       challenge: scenarioDetails.challenge,
       diablo2Element: scenarioDetails.diablo2Element,
-      choices,
+      choices: scenarioDetails.choices,
       playerAvatar: scenarioDetails.avatarKaomoji, // The kaomoji is now here
       dataSources,
     };
-    
-    if (choiceWithBadge) {
-        const badgeInfo = choiceWithBadge.consequences.badge!;
-        finalScenario.badge = {
-            description: badgeInfo.badgeDescription,
-            emoji: badgeInfo.badgeEmoji,
-        }
-    }
 
     console.log('[getScenarioAction] Successfully constructed scenario object.');
     return finalScenario;
@@ -77,7 +59,7 @@ export async function getImagesAction(input: GenerateImagesInput): Promise<Gener
 }
 
 
-export async function getLootAction(playerState: PlayerState, scenarioText: string): Promise<{ loot?: LootItem[], dataSource?: 'primary' | 'hardcoded', error?: string }> {
+export async function getLootAction(playerState: PlayerState, scenarioText: string): Promise<LootCache | { error: string }> {
     console.log('[getLootAction] Action started. Fetching loot.');
     try {
         const lootInput = {
@@ -87,7 +69,7 @@ export async function getLootAction(playerState: PlayerState, scenarioText: stri
 
         const result = await generateLoot(lootInput);
         console.log(`[getLootAction] Successfully generated loot. Source: ${result.dataSource}`);
-        return { loot: result.loot, dataSource: result.dataSource };
+        return { loot: result.loot, badge: result.badge, dataSource: result.dataSource };
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`[getLootAction] Critical failure: ${errorMessage}`);

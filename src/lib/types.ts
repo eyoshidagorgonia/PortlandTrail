@@ -95,10 +95,6 @@ export const ChoiceSchema = z.object({
         coffee: z.number().optional().describe('The change in coffee beans. Can be positive or negative.'),
         vinyls: z.number().optional().describe('The change in vinyl records. Can be positive or negative.'),
         stamina: z.number().optional().describe('The change in bike stamina. Can be positive or negative.'),
-        badge: BadgeSchema.nullable().optional(),
-        reward: z.object({
-            loot: z.boolean().describe("Set to true if this choice should reward the player with loot."),
-        }).nullable().optional(),
     }),
 });
 export type Choice = z.infer<typeof ChoiceSchema>;
@@ -171,7 +167,15 @@ export const GenerateLootInputSchema = z.object({
 });
 export type GenerateLootInput = z.infer<typeof GenerateLootInputSchema>;
 
-export const GenerateLootOutputSchema = z.object({
+export const LootCacheSchema = z.object({
     loot: z.array(LootItemSchema).describe("An array of 1 to 3 generated loot items."),
+    badge: BadgeSchema.nullable().optional(),
+});
+export type LootCache = z.infer<typeof LootCacheSchema> & {
+    dataSource?: 'primary' | 'hardcoded';
+};
+
+export const GenerateLootOutputSchema = LootCacheSchema.extend({
+    dataSource: z.enum(['primary', 'hardcoded']).describe('The source of the generated data.'),
 });
 export type GenerateLootOutput = z.infer<typeof GenerateLootOutputSchema>;

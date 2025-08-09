@@ -3,7 +3,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Choice, LootItem } from '@/lib/types';
+import { Choice, LootItem, Badge } from '@/lib/types';
 import { ThematicSeparator } from './thematic-separator';
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
 
@@ -12,6 +12,7 @@ interface OutcomeModalProps {
   onClose: () => void;
   choice: Choice;
   loot: LootItem[];
+  badge: Badge | null;
 }
 
 const ConsequenceItem = ({ label, value }: { label: string; value: number }) => {
@@ -41,11 +42,10 @@ const getQualityColor = (quality: string) => {
     }
 }
 
-export default function OutcomeModal({ isOpen, onClose, choice, loot }: OutcomeModalProps) {
+export default function OutcomeModal({ isOpen, onClose, choice, loot, badge }: OutcomeModalProps) {
     if (!choice) return null;
 
     const { consequences, text, description } = choice;
-    const badge = (consequences as any).badge;
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -72,30 +72,26 @@ export default function OutcomeModal({ isOpen, onClose, choice, loot }: OutcomeM
                     <ConsequenceItem label="Progress" value={consequences.progress ?? 0} />
                 </div>
                 
-                {badge && (
-                    <>
-                        <ThematicSeparator />
-                        <div className="text-center py-4">
-                            <h4 className="font-headline text-xl text-center text-primary mb-2">Badge Earned!</h4>
-                            <p className="text-2xl">{badge.badgeEmoji}</p>
-                            <p className="font-body text-lg">{badge.badgeDescription}</p>
-                        </div>
-                    </>
-                )}
+                {(badge || loot.length > 0) && <ThematicSeparator />}
 
-                {loot.length > 0 && (
-                     <>
-                        <ThematicSeparator />
-                        <div className="text-center py-4 space-y-3">
-                            <h4 className="font-headline text-xl text-center text-primary mb-2">Loot Found!</h4>
-                            {loot.map(item => (
-                                <div key={item.name} className='text-left font-body p-2 bg-muted/30 rounded-sm border border-border/30'>
-                                    <p className={`font-bold ${getQualityColor(item.quality)}`}>{item.name} [{item.quality}]</p>
-                                    <p className="text-sm italic text-muted-foreground">{item.flavorText}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </>
+                {(loot.length > 0) && (
+                     <div className="text-center py-4 space-y-3">
+                        <h4 className="font-headline text-xl text-center text-primary mb-2">Loot Chest Opened!</h4>
+                        {loot.map(item => (
+                            <div key={item.name} className='text-left font-body p-2 bg-muted/30 rounded-sm border border-border/30'>
+                                <p className={`font-bold ${getQualityColor(item.quality)}`}>{item.name} [{item.quality}]</p>
+                                <p className="text-sm italic text-muted-foreground">{item.flavorText}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                
+                {badge && (
+                    <div className="text-center pb-4">
+                        <p className="text-2xl">{badge.emoji}</p>
+                        <p className="font-body text-lg">{badge.description}</p>
+                        <p className="text-sm text-muted-foreground">(Badge Added to Collection)</p>
+                    </div>
                 )}
 
 

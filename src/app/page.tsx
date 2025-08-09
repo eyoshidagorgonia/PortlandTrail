@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAILS, HIPSTER_JOBS, STARTING_CITIES, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, Equipment, EquipmentSlot } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, LootCache } from '@/lib/types';
 import { getScenarioAction, getImagesAction, getLootAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterMood } from '@/ai/flows/generate-character-mood';
@@ -67,6 +67,7 @@ export default function PortlandTrailPage() {
   const [lastChoice, setLastChoice] = useState<Choice | null>(null);
   const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
   const [lastLoot, setLastLoot] = useState<LootItem[]>([]);
+  const [lastBadge, setLastBadge] = useState<Badge | null>(null);
 
   const [randomTagline, setRandomTagline] = useState('');
 
@@ -214,8 +215,8 @@ export default function PortlandTrailPage() {
     setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
         const performInitialSetup = async () => {
-            setHasInitialized(true);
             setIsInitializing(true);
+            setHasInitialized(true);
             
             const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
             const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
@@ -357,7 +358,8 @@ export default function PortlandTrailPage() {
         vibe: currentPlayerState.vibe,
         avatarKaomoji: currentPlayerState.avatar,
       },
-      badge: currentScenario.badge ? { description: currentScenario.badge.description, emoji: currentScenario.badge.emoji } : undefined,
+      // Badge is now part of the loot cache, but we can pass its details if it exists for image gen
+      badge: lastBadge ? { description: lastBadge.description, emoji: lastBadge.emoji } : undefined,
     };
 
     try {
@@ -455,6 +457,7 @@ export default function PortlandTrailPage() {
         advanceTurn(playerState); // playerState is already updated
         setLastChoice(null);
         setLastLoot([]);
+        setLastBadge(null);
   }
 
   const handleAction = (action: PlayerAction) => {
@@ -531,24 +534,15 @@ export default function PortlandTrailPage() {
     // Recalculate final stats
     tempState.stats = calculateStats(tempState.baseStats, tempState.resources.equipment);
 
-    const potentialBadge = consequences.badge;
-    if (potentialBadge) {
-        const newBadge: Badge = { 
-            description: potentialBadge.badgeDescription,
-            emoji: potentialBadge.badgeEmoji,
-            isUber: potentialBadge.isUber || false,
-            image: badgeImage || undefined,
-         };
-        tempState.resources.badges = [...tempState.resources.badges, newBadge];
-        addLog(`You earned a badge: "${newBadge.description}"!`, tempState.progress);
-        toast({ title: 'Badge Earned!', description: newBadge.description });
-    }
-    
     let earnedLoot: LootItem[] = [];
-    if (consequences.reward?.loot && scenario) {
-        const { id: toastId } = toast({ title: 'Finding Treasure...', description: 'Searching for something ironically cool.' });
+    let earnedBadge: Badge | null = null;
+    
+    if (scenario) {
+        const { id: toastId } = toast({ title: 'Opening Loot Chest...', description: 'What treasures await?' });
         const lootResult = await getLootAction(tempState, scenario.scenario);
-        if (lootResult.loot) {
+        if ('error' in lootResult) {
+            toast({ id: toastId, variant: 'destructive', title: 'Loot Generation Failed', description: lootResult.error });
+        } else {
             earnedLoot = lootResult.loot;
             tempState.resources.inventory.push(...earnedLoot);
             addLog(`You found a cache of items!`, tempState.progress);
@@ -556,11 +550,20 @@ export default function PortlandTrailPage() {
             if (lootResult.dataSource) {
                 updateSystemStatus({ loot: lootResult.dataSource });
             }
-        } else if (lootResult.error) {
-            toast({ id: toastId, variant: 'destructive', title: 'Loot Generation Failed', description: lootResult.error });
+            
+            if (lootResult.badge) {
+                const newBadge: Badge = { 
+                    description: lootResult.badge.badgeDescription,
+                    emoji: lootResult.badge.badgeEmoji,
+                    isUber: lootResult.badge.isUber || false,
+                    // The image will be added later if generated successfully
+                };
+                earnedBadge = newBadge;
+                setLastBadge(newBadge); // Set for image generation
+            }
         }
     }
-    
+
     const newWaypointIndex = Math.floor(tempState.progress / (100 / (tempState.trail.length - 1)));
     tempState.location = tempState.trail[newWaypointIndex] || tempState.trail[newWaypointIndex] || tempState.trail[tempState.trail.length - 1];
 
@@ -570,6 +573,36 @@ export default function PortlandTrailPage() {
         timestamp: new Date()
     };
     tempState.events = [newEvent, ...tempState.events];
+
+    // Badge image generation happens here, after the loot has been decided
+    if (earnedBadge) {
+        setIsImageLoading(true); // Start image loading spinner
+        const imageInput = {
+            scenarioDescription: scenario!.scenario,
+            character: {
+                name: tempState.name,
+                job: tempState.job,
+                origin: tempState.origin,
+                vibe: tempState.vibe,
+                avatarKaomoji: tempState.avatar,
+            },
+            badge: { description: earnedBadge.description, emoji: earnedBadge.emoji },
+        };
+        const imageResult = await getImagesAction(imageInput);
+        let finalBadgeImage: string | undefined = undefined;
+        if (!('error' in imageResult) && imageResult.badgeImage) {
+            finalBadgeImage = imageResult.badgeImage;
+            updateSystemStatus({ image: imageResult.dataSource });
+        }
+        
+        const finalBadge = { ...earnedBadge, image: finalBadgeImage };
+        tempState.resources.badges.push(finalBadge);
+        setLastBadge(finalBadge); // Update badge with image for modal
+        addLog(`You earned a badge: "${finalBadge.description}"!`, tempState.progress);
+        toast({ title: 'Badge Earned!', description: finalBadge.description });
+        setIsImageLoading(false); // Stop image loading spinner
+    }
+
 
     setPlayerState(tempState);
     addLog(`You chose to "${choice.text}".`, tempState.progress);
@@ -798,6 +831,7 @@ export default function PortlandTrailPage() {
                 onClose={handleModalClose}
                 choice={lastChoice}
                 loot={lastLoot}
+                badge={lastBadge}
             />
         )}
       <div className="container mx-auto max-w-7xl">
