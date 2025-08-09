@@ -4,7 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Uncial_Antiqua, Cormorant_Garamond } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import { ToastProvider } from '@/hooks/use-toast';
+import { ToastProvider } from '@/hooks/use-toast.tsx';
 
 const fontBody = Cormorant_Garamond({
   subsets: ['latin'],
