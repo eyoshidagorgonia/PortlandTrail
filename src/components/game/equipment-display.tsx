@@ -38,7 +38,7 @@ const StatModifierDisplay = ({ label, value }: { label: string, value: number}) 
     )
 }
 
-const ItemTooltipContent = ({ item }: { item: LootItem }) => (
+const ItemTooltipContent = ({ item, actionText = "Click to manage" }: { item: LootItem, actionText?: string }) => (
     <div className="p-1 space-y-1 font-body">
         <p className={cn("font-bold", getQualityColor(item.quality))}>{item.name}</p>
         <p className="text-xs italic text-muted-foreground max-w-xs">{item.flavorText}</p>
@@ -47,12 +47,12 @@ const ItemTooltipContent = ({ item }: { item: LootItem }) => (
                 <StatModifierDisplay key={stat} label={stat} value={value || 0} />
             ))}
         </div>
-        <p className="text-xs text-destructive pt-2">Click to unequip</p>
+        <p className="text-xs text-primary pt-2">{actionText}</p>
     </div>
 );
 
 
-const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, item: LootItem | undefined, onUnequip: (slot: EquipmentSlot) => void }) => {
+const EquipmentSlotDisplay = ({ slot, item, onManageItem }: { slot: EquipmentSlot, item: LootItem | undefined, onManageItem: (item: LootItem) => void }) => {
     const gridPosition: { [key in EquipmentSlot]: string } = {
         Headwear: 'col-start-2',
         Eyewear: 'col-start-3',
@@ -74,7 +74,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
                                 item ? getQualityColor(item.quality) : 'border-border/50',
                                 item && "cursor-pointer"
                             )}
-                            onClick={() => item && onUnequip(item.type)}
+                            onClick={() => item && onManageItem(item)}
                         >
                             {item ? (
                                 <div className={cn("p-1 text-center flex items-center justify-center h-full w-full", getQualityBgColor(item.quality))}>
@@ -87,7 +87,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
                     </TooltipTrigger>
                     {item ? (
                         <TooltipContent side="right" className="ml-2">
-                           <ItemTooltipContent item={item} />
+                           <ItemTooltipContent item={item} actionText="Click to manage this item" />
                         </TooltipContent>
                     ) : (
                         <TooltipContent side="right" className="ml-2">
@@ -100,7 +100,7 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
     );
 };
 
-export default function EquipmentDisplay({ equipment, onUnequip }: { equipment: Equipment, onUnequip: (slot: EquipmentSlot) => void }) {
+export default function EquipmentDisplay({ equipment, onManageItem }: { equipment: Equipment, onManageItem: (item: LootItem) => void }) {
     const SLOTS: EquipmentSlot[] = ["Headwear", "Accessory", "Outerwear", "Eyewear", "Footwear"];
     
     return (
@@ -121,9 +121,11 @@ export default function EquipmentDisplay({ equipment, onUnequip }: { equipment: 
                     }}
                 />
                 {SLOTS.map(slot => (
-                    <EquipmentSlotDisplay key={slot} slot={slot} item={equipment[slot]} onUnequip={onUnequip} />
+                    <EquipmentSlotDisplay key={slot} slot={slot} item={equipment[slot]} onManageItem={onManageItem} />
                 ))}
             </div>
         </div>
     );
 }
+
+    

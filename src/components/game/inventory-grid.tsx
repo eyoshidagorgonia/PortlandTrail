@@ -53,7 +53,7 @@ const ItemTooltipContent = ({ item }: { item: LootItem }) => (
 );
 
 
-const InventoryItemDisplay = ({ item, onEquip }: { item: LootItem, onEquip: (item: LootItem) => void }) => {
+const InventoryItemDisplay = ({ item, onEquipItem }: { item: LootItem, onEquipItem: (item: LootItem) => void }) => {
     const Icon = getItemIcon(item.type);
     
     return (
@@ -65,7 +65,7 @@ const InventoryItemDisplay = ({ item, onEquip }: { item: LootItem, onEquip: (ite
                             "h-20 w-20 flex items-center justify-center rounded-sm border-2 bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer",
                             getQualityColor(item.quality)
                         )}
-                        onClick={() => onEquip(item)}
+                        onClick={() => onEquipItem(item)}
                     >
                         <div className={cn("p-1 text-center flex items-center justify-center h-full w-full", getQualityBgColor(item.quality))}>
                            <Icon className="h-10 w-10" />
@@ -81,7 +81,7 @@ const InventoryItemDisplay = ({ item, onEquip }: { item: LootItem, onEquip: (ite
 }
 
 
-export default function InventoryGrid({ inventory, onEquip }: { inventory: LootItem[], onEquip: (item: LootItem) => void }) {
+export default function InventoryGrid({ inventory, onEquipItem }: { inventory: LootItem[], onEquipItem: (item: LootItem) => void }) {
     
     return (
         <div>
@@ -91,9 +91,11 @@ export default function InventoryGrid({ inventory, onEquip }: { inventory: LootI
                     <p className="col-span-3 text-center text-muted-foreground italic p-4 text-sm">Your tote bag is tragically empty.</p>
                 )}
                 {inventory.map((item, index) => (
-                    <InventoryItemDisplay key={`${item.name}-${index}`} item={item} onEquip={onEquip} />
+                    <InventoryItemDisplay key={`${item.name}-${index}`} item={item} onEquipItem={onEquipItem} />
                 ))}
             </div>
         </div>
     );
 }
+
+    

@@ -607,45 +607,51 @@ export default function PortlandTrailPage() {
     setIsLoading(false); // Done with this choice, modal is open
   };
 
-  const handleEquipItem = (item: LootItem) => {
+  const handleEquipItem = (itemToEquip: LootItem, itemToSwap?: LootItem) => {
     const newState = { ...playerState };
-    const { type } = item;
-
-    // Unequip the current item in that slot and move it to inventory
-    const currentItem = newState.resources.equipment[type];
-    if (currentItem) {
-      newState.resources.inventory.push(currentItem);
+    const { type } = itemToEquip;
+  
+    // If there's an item to swap (which would be the currently equipped item),
+    // move it from equipment to inventory.
+    if (itemToSwap) {
+      newState.resources.inventory.push(itemToSwap);
+    } else {
+        // If we are not swapping, check if there is an item in the slot and move it to inventory
+        const currentItem = newState.resources.equipment[type];
+        if (currentItem) {
+            newState.resources.inventory.push(currentItem);
+        }
     }
-
+  
     // Equip the new item and remove it from inventory
-    newState.resources.equipment[type] = item;
-    newState.resources.inventory = newState.resources.inventory.filter(invItem => invItem.name !== item.name);
-
+    newState.resources.equipment[type] = itemToEquip;
+    newState.resources.inventory = newState.resources.inventory.filter(invItem => invItem.name !== itemToEquip.name);
+  
     // Recalculate stats
     newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
     
     setPlayerState(newState);
-
-    const logMessage = `You equipped: ${item.name}.`;
+  
+    const logMessage = `You equipped: ${itemToEquip.name}.`;
     addLog(logMessage, newState.progress);
-    toast({ title: "Item Equipped", description: `${item.name} is now part of your "look."` });
+    toast({ title: "Item Equipped", description: `${itemToEquip.name} is now part of your "look."` });
   };
 
   const handleUnequipItem = (slot: EquipmentSlot) => {
     const newState = { ...playerState };
     const itemToUnequip = newState.resources.equipment[slot];
-
+  
     if (itemToUnequip) {
       // Move item back to inventory
       newState.resources.inventory.push(itemToUnequip);
       // Clear the equipment slot
       delete newState.resources.equipment[slot];
-
+  
       // Recalculate stats
       newState.stats = calculateStats(newState.baseStats, newState.resources.equipment);
       
       setPlayerState(newState);
-
+  
       const logMessage = `You unequipped: ${itemToUnequip.name}.`;
       addLog(logMessage, newState.progress);
       toast({ title: "Item Unequipped", description: `${itemToUnequip.name} returned to your tote bag.` });
@@ -876,3 +882,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    

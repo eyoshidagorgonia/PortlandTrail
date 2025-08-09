@@ -1,7 +1,7 @@
 
 'use client';
 
-import Image from 'next/image';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { PlayerState, LootItem, EquipmentSlot, PlayerAction } from '@/lib/types';
@@ -38,6 +38,8 @@ import { ThematicSeparator } from './thematic-separator';
 import EquipmentDisplay from './equipment-display';
 import InventoryGrid from './inventory-grid';
 import { Button } from '../ui/button';
+import Image from 'next/image';
+import EquipmentInteractionModal from './equipment-interaction-modal'; // New Import
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -124,20 +126,64 @@ const actions: PlayerAction[] = [
 interface StatusDashboardProps {
     playerState: PlayerState;
     avatarImage: string | null;
-    onEquip: (item: LootItem) => void;
+    onEquip: (item: LootItem, swapItem?: LootItem) => void;
     onUnequip: (slot: EquipmentSlot) => void;
     onAction: (action: PlayerAction) => void;
     isLoading: boolean;
 }
 
+type ModalState = {
+    isOpen: boolean;
+    mode: 'equip' | 'manage';
+    item: LootItem;
+} | {
+    isOpen: boolean;
+    mode: null;
+    item: null;
+}
 
 export default function StatusDashboard({ playerState, avatarImage, onEquip, onUnequip, onAction, isLoading }: StatusDashboardProps) {
   const { stats, resources, name, job, mood, progress, location, events, trail } = playerState;
 
+  const [modalState, setModalState] = useState<ModalState>({ isOpen: false, mode: null, item: null});
+
   const ironicStatus = getIronicHealthStatus(stats.health);
 
+  const handleOpenEquipModal = (item: LootItem) => {
+    setModalState({ isOpen: true, mode: 'equip', item });
+  }
+
+  const handleOpenManageModal = (item: LootItem) => {
+    setModalState({ isOpen: true, mode: 'manage', item });
+  }
+
+  const handleModalClose = () => {
+    setModalState({ isOpen: false, mode: null, item: null });
+  }
+
+  const handleEquipFromModal = (itemToEquip: LootItem, itemToSwap?: LootItem) => {
+    onEquip(itemToEquip, itemToSwap);
+    handleModalClose();
+  }
+
+  const handleUnequipFromModal = (slot: EquipmentSlot) => {
+    onUnequip(slot);
+    handleModalClose();
+  }
+  
+  const swappableItems = modalState.item 
+    ? resources.inventory.filter(i => i.type === modalState.item?.type)
+    : [];
 
   return (
+    <>
+    <EquipmentInteractionModal 
+        modalState={modalState}
+        swappableItems={swappableItems}
+        onClose={handleModalClose}
+        onEquip={handleEquipFromModal}
+        onUnequip={handleUnequipFromModal}
+    />
     <Card className="bg-card/90 backdrop-blur-sm">
       <CardHeader className="text-center items-center pb-4">
         <Avatar className="h-32 w-32 border-2 border-border/50 text-4xl font-headline rounded-full">
@@ -214,7 +260,7 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
 
          <div className="grid grid-cols-2 gap-4 px-2">
             <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="A curated collection of vinyl. You haven't listened to them." />
-            <ResourceItem icon={CoffeeIcon} label="Coffee Beans" value={resources.coffee} tooltip="Single-origin, fair-trade, artisanal currency. The lifeblood of the trail."/>
+            <ResourceItem icon={CoffeeIcon} label="CoffeeBeans" value={resources.coffee} tooltip="Single-origin, fair-trade, artisanal currency. The lifeblood of the trail."/>
         </div>
         
         <ThematicSeparator />
@@ -248,8 +294,8 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
             
             <ThematicSeparator />
 
-            <EquipmentDisplay equipment={resources.equipment} onUnequip={onUnequip} />
-            <InventoryGrid inventory={resources.inventory} onEquip={onEquip} />
+            <EquipmentDisplay equipment={resources.equipment} onManageItem={handleOpenManageModal} />
+            <InventoryGrid inventory={resources.inventory} onEquipItem={handleOpenEquipModal} />
         </div>
 
         {resources.badges.length > 0 && (
@@ -317,5 +363,8 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
         </div>
       </CardContent>
     </Card>
+    </>
   );
 }
+
+    
