@@ -49,7 +49,7 @@ const getQualityColor = (quality: string) => {
 export default function OutcomeModal({ isOpen, onClose, choice, loot, badge }: OutcomeModalProps) {
     if (!choice) return null;
 
-    const { consequences, text, description } = choice;
+    const { consequences, text, description, outcome } = choice;
     const hasRewards = loot.length > 0 || badge;
 
     return (
@@ -63,7 +63,9 @@ export default function OutcomeModal({ isOpen, onClose, choice, loot, badge }: O
                 </DialogHeader>
                 
                 <ScrollArea className="flex-grow overflow-y-auto pr-4 -mr-4 my-2">
-                    <ThematicSeparator />
+                    <p className="text-center text-lg italic text-foreground/80 py-4 px-2 border-y border-dashed border-border/20">
+                        {outcome}
+                    </p>
 
                     <div className="space-y-2 py-4">
                         <h4 className="font-headline text-xl text-center text-primary mb-4">Consequences</h4>

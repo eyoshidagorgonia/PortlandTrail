@@ -59,7 +59,7 @@ export async function generatePortlandScenario(
     -   **One Safe Choice:** Low risk, low reward. Minimal stat changes.
     -   **Two Moderate Choices:** Balanced risk and reward.
     -   **One Super Risky Choice:** High risk, high reward. This choice should have the potential for large positive and negative consequences.
-    -   Each choice MUST have "text" (a short 2-4 word summary for a button) and "description" (a longer 1-2 sentence description for a tooltip).
+    -   Each choice MUST have "text" (a short 2-4 word summary for a button), "description" (a longer 1-2 sentence description for a tooltip), and "outcome" (a 1-2 sentence narrative of what happened).
 4.  **Calculate Consequences Carefully**: Progress should be hard to earn.
     -   All consequence values (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina) MUST be numbers.
     -   **Progress can be negative.** A bad choice can push the player backward on the trail. Use negative numbers for the "progress" field to represent this. For example: \`"progress": -5\`.
@@ -77,6 +77,7 @@ You MUST respond with only a valid JSON object, with no other text before or aft
     {
       "text": "string (short, for a button)",
       "description": "string (longer, for a tooltip)",
+      "outcome": "string (narrative result of the choice)",
       "consequences": {
         "health": "number",
         "style": "number",

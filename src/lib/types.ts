@@ -85,6 +85,7 @@ export interface PlayerState {
 export const ChoiceSchema = z.object({
     text: z.string().describe("The text for the choice button, e.g., 'Embrace the weirdness'"),
     description: z.string().describe("A tooltip description for the choice."),
+    outcome: z.string().describe("A short, 1-2 sentence narrative description of what happens as a result of this choice."),
     consequences: z.object({
         health: z.number().optional().describe('The change in health. Can be positive or negative.'),
         style: z.number().optional().describe('The change in style. Can be positive or negative.'),
