@@ -133,7 +133,7 @@
 }
 
 @keyframes pulse-text {
-  0%, 100% { color: hsl(var(--primary)); }
+  0%, 100% { color: hsl(var(--primary) / 0.8); }
   50% { color: hsl(var(--foreground)); }
 }
 
@@ -142,8 +142,8 @@
 }
 
 @keyframes pulse-text-destructive {
-  0%, 100% { color: hsl(var(--destructive)); }
-  50% { color: hsl(var(--foreground)); }
+  0%, 100% { color: hsl(var(--destructive) / 0.8); }
+  50% { color: hsl(var(--destructive)); }
 }
 
 .animate-pulse-text-destructive {
