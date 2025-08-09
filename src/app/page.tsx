@@ -530,7 +530,7 @@ export default function PortlandTrailPage() {
     // Recalculate final stats
     tempState.stats = calculateStats(tempState.baseStats, tempState.resources.equipment);
 
-    const potentialBadge = (consequences as any).badge;
+    const potentialBadge = consequences.badge;
     if (potentialBadge) {
         const newBadge: Badge = { 
             description: potentialBadge.badgeDescription,

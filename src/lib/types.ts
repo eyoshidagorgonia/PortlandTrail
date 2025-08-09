@@ -95,10 +95,10 @@ export const ChoiceSchema = z.object({
         coffee: z.number().optional().describe('The change in coffee beans. Can be positive or negative.'),
         vinyls: z.number().optional().describe('The change in vinyl records. Can be positive or negative.'),
         stamina: z.number().optional().describe('The change in bike stamina. Can be positive or negative.'),
-        badge: BadgeSchema.optional(),
+        badge: BadgeSchema.nullable().optional(),
         reward: z.object({
             loot: z.boolean().describe("Set to true if this choice should reward the player with loot."),
-        }).optional(),
+        }).nullable().optional(),
     }),
 });
 export type Choice = z.infer<typeof ChoiceSchema>;
