@@ -51,6 +51,7 @@ export default function PortlandTrailPage() {
   const [isNameLoading, setIsNameLoading] = useState(false);
   const [isMoodLoading, setIsMoodLoading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(INITIAL_SYSTEM_STATUS);
 
   // Image states
@@ -214,7 +215,8 @@ export default function PortlandTrailPage() {
   useEffect(() => {
     setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
-        handleGenerateName();
+        setIsInitializing(true);
+        handleGenerateName().finally(() => setIsInitializing(false));
         const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
         setJob(randomJob);
         const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
@@ -225,11 +227,11 @@ export default function PortlandTrailPage() {
 
   // This useEffect triggers avatar and mood generation when dependencies change.
   useEffect(() => {
-      if (gameState === 'intro' && name && job && origin) {
+      if (gameState === 'intro' && name && job && origin && !isInitializing) {
           generateIntroAvatar(name, job, origin);
           handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
       }
-  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood]);
+  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood, isInitializing]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -557,7 +559,7 @@ export default function PortlandTrailPage() {
     }
     
     const newWaypointIndex = Math.floor(tempState.progress / (100 / (tempState.trail.length - 1)));
-    tempState.location = tempState.trail[newWaypointIndex] || tempState.trail[tempState.trail.length - 1];
+    tempState.location = tempState.trail[newWaypointIndex] || tempState.trail[newWaypointIndex] || tempState.trail[tempState.trail.length - 1];
 
     const newEvent: TrailEvent = {
         progress: tempState.progress,
@@ -654,7 +656,7 @@ export default function PortlandTrailPage() {
         if (isLoading) {
             return <span className="animate-pulse-text">Hitting The Trail... of Doom</span>
         }
-        if (isAnythingLoading) {
+        if (isAnythingLoading || isInitializing) {
             return (
                 <>
                     <ConjuringIcon className="mr-2 h-5 w-5 animate-pulse-text" />
@@ -688,7 +690,7 @@ export default function PortlandTrailPage() {
 
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0 h-40 w-40">
-                {isIntroAvatarLoading ? (
+                {isInitializing || isIntroAvatarLoading ? (
                     <div className="h-full w-full rounded-full border-4 border-secondary/50 bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
                         <ConjuringIcon className="h-10 w-10" />
                     </div>
@@ -710,16 +712,16 @@ export default function PortlandTrailPage() {
                 <div className="space-y-2">
                   <Label htmlFor="name" className='font-headline text-xl'>YOUR MONIKER</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading} className="text-lg" />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading || isInitializing} className="text-lg" />
                     <Button 
                       type="button"
                       size="icon" 
                       variant="secondary" 
                       onClick={handleGenerateName}
-                      disabled={isLoading || isNameLoading}
+                      disabled={isLoading || isNameLoading || isInitializing}
                       aria-label="Randomize Name"
                       >
-                      {isNameLoading ? (
+                      {isNameLoading || isInitializing ? (
                         <ConjuringIcon className="h-6 w-6 animate-pulse-text" />
                       ) : (
                         <ConjuringIcon className="h-6 w-6" />
@@ -851,3 +853,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
