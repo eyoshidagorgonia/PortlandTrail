@@ -48,8 +48,8 @@ export default function PortlandTrailPage() {
   const [origin, setOrigin] = useState('');
   const [avatarKaomoji, setAvatarKaomoji] = useState('(-_-)');
   const [mood, setMood] = useState('');
-  const [isNameLoading, setIsNameLoading] = useState(true);
-  const [isMoodLoading, setIsMoodLoading] = useState(true);
+  const [isNameLoading, setIsNameLoading] = useState(false);
+  const [isMoodLoading, setIsMoodLoading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(INITIAL_SYSTEM_STATUS);
 
@@ -177,15 +177,15 @@ export default function PortlandTrailPage() {
     }
   }, [updateSystemStatus, toast, currentVibe]);
   
-  const generateIntroAvatar = useCallback(async () => {
-    if (!name || !job || !origin) return;
+  const generateIntroAvatar = useCallback(async (currentName: string, currentJob: string, currentOrigin: string) => {
+    if (!currentName || !currentJob || !currentOrigin) return;
     setIsIntroAvatarLoading(true);
     setIsAvatarRendered(false);
     const { id: toastId } = toast({ title: 'Conjuring Avatar...', description: 'Capturing your artisanal essence in pixels.' });
     
     const imageInput = {
-      scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${name}, who is a ${job} from ${origin}.`,
-      character: { name, job, origin, vibe: "Just starting out", avatarKaomoji },
+      scenarioDescription: `A beautiful, painterly, nostalgic, Studio Ghibli anime style portrait of a hipster named ${currentName}, who is a ${currentJob} from ${currentOrigin}.`,
+      character: { name: currentName, job: currentJob, origin: currentOrigin, vibe: "Just starting out", avatarKaomoji },
     };
     
     try {
@@ -208,32 +208,28 @@ export default function PortlandTrailPage() {
     } finally {
         setIsIntroAvatarLoading(false);
     }
-  }, [name, job, origin, avatarKaomoji, toast, updateSystemStatus]);
+  }, [avatarKaomoji, toast, updateSystemStatus]);
 
+  // Initial load effect
   useEffect(() => {
     setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
-      handleGenerateName();
-      const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
-      setJob(randomJob);
-      const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
-      setOrigin(randomOrigin);
-      setHasInitialized(true);
+        handleGenerateName();
+        const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
+        setJob(randomJob);
+        const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
+        setOrigin(randomOrigin);
+        setHasInitialized(true);
     }
   }, [gameState, hasInitialized, handleGenerateName]);
 
+  // This useEffect triggers avatar and mood generation when dependencies change.
   useEffect(() => {
-    if (gameState === 'intro' && name && job && origin && !mood) {
-      handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
-    }
-  }, [gameState, name, job, origin, mood, handleGenerateMood]);
-  
-  // This useEffect now handles initial load AND job/origin changes for the avatar.
-  useEffect(() => {
-    if (gameState === 'intro' && name && job && origin) {
-        generateIntroAvatar();
-    }
-  }, [name, job, origin, gameState, generateIntroAvatar]);
+      if (gameState === 'intro' && name && job && origin) {
+          generateIntroAvatar(name, job, origin);
+          handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
+      }
+  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood]);
 
   // Countdown timer effect
   useEffect(() => {
