@@ -469,17 +469,17 @@ export default function PortlandTrailPage() {
     const consequences = action.consequences;
 
     // Apply consequences to base stats
-    tempState.baseStats.health = Math.max(0, tempState.baseStats.health + consequences.health);
-    tempState.baseStats.style = Math.max(0, tempState.baseStats.style + consequences.style);
-    tempState.baseStats.irony = Math.max(0, tempState.baseStats.irony + consequences.irony);
-    tempState.baseStats.authenticity = Math.max(0, tempState.baseStats.authenticity + consequences.authenticity);
-    tempState.baseStats.vibes = Math.max(0, tempState.baseStats.vibes + consequences.vibes);
+    tempState.baseStats.health = Math.max(0, tempState.baseStats.health + (consequences.health ?? 0));
+    tempState.baseStats.style = Math.max(0, tempState.baseStats.style + (consequences.style ?? 0));
+    tempState.baseStats.irony = Math.max(0, tempState.baseStats.irony + (consequences.irony ?? 0));
+    tempState.baseStats.authenticity = Math.max(0, tempState.baseStats.authenticity + (consequences.authenticity ?? 0));
+    tempState.baseStats.vibes = Math.max(0, tempState.baseStats.vibes + (consequences.vibes ?? 0));
     
     // Apply consequences to resources
-    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + consequences.coffee);
-    tempState.resources.vinyls = Math.max(0, tempState.resources.vinyls + consequences.vinyls);
-    tempState.progress = Math.min(100, Math.max(0, tempState.progress + consequences.progress));
-    tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
+    tempState.resources.coffee = Math.max(0, tempState.resources.coffee + (consequences.coffee ?? 0));
+    tempState.resources.vinyls = Math.max(0, tempState.resources.vinyls + (consequences.vinyls ?? 0));
+    tempState.progress = Math.min(100, Math.max(0, tempState.progress + (consequences.progress ?? 0)));
+    tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + (consequences.stamina ?? 0)));
     
     // Recalculate final stats
     tempState.stats = calculateStats(tempState.baseStats, tempState.resources.equipment);
@@ -511,17 +511,17 @@ export default function PortlandTrailPage() {
     const consequences = choice.consequences;
 
     // Apply consequences to base stats
-    tempState.baseStats.health += consequences.health;
-    tempState.baseStats.style += consequences.style;
-    tempState.baseStats.irony += consequences.irony;
-    tempState.baseStats.authenticity += consequences.authenticity;
-    tempState.baseStats.vibes += consequences.vibes;
+    tempState.baseStats.health += consequences.health ?? 0;
+    tempState.baseStats.style += consequences.style ?? 0;
+    tempState.baseStats.irony += consequences.irony ?? 0;
+    tempState.baseStats.authenticity += consequences.authenticity ?? 0;
+    tempState.baseStats.vibes += consequences.vibes ?? 0;
 
     // Apply consequences to resources
-    tempState.resources.coffee += consequences.coffee;
-    tempState.resources.vinyls += consequences.vinyls;
-    tempState.progress = Math.min(100, tempState.progress + consequences.progress);
-    tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + consequences.stamina));
+    tempState.resources.coffee += consequences.coffee ?? 0;
+    tempState.resources.vinyls += consequences.vinyls ?? 0;
+    tempState.progress = Math.min(100, tempState.progress + (consequences.progress ?? 0));
+    tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + (consequences.stamina ?? 0)));
     
     // Recalculate final stats
     tempState.stats = calculateStats(tempState.baseStats, tempState.resources.equipment);
@@ -851,5 +851,6 @@ export default function PortlandTrailPage() {
     
 
     
+
 
 

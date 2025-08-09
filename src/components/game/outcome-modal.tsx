@@ -61,15 +61,15 @@ export default function OutcomeModal({ isOpen, onClose, choice, loot }: OutcomeM
 
                 <div className="space-y-2 py-4">
                     <h4 className="font-headline text-xl text-center text-primary mb-4">Consequences</h4>
-                    <ConsequenceItem label="Health" value={consequences.health} />
-                    <ConsequenceItem label="Style" value={consequences.style} />
-                    <ConsequenceItem label="Irony" value={consequences.irony} />
-                    <ConsequenceItem label="Authenticity" value={consequences.authenticity} />
-                    <ConsequenceItem label="Vibes" value={consequences.vibes} />
-                    <ConsequenceItem label="Bike Stamina" value={consequences.stamina} />
-                    <ConsequenceItem label="Coffee Beans" value={consequences.coffee} />
-                    <ConsequenceItem label="Vinyls" value={consequences.vinyls} />
-                    <ConsequenceItem label="Progress" value={consequences.progress} />
+                    <ConsequenceItem label="Health" value={consequences.health ?? 0} />
+                    <ConsequenceItem label="Style" value={consequences.style ?? 0} />
+                    <ConsequenceItem label="Irony" value={consequences.irony ?? 0} />
+                    <ConsequenceItem label="Authenticity" value={consequences.authenticity ?? 0} />
+                    <ConsequenceItem label="Vibes" value={consequences.vibes ?? 0} />
+                    <ConsequenceItem label="Bike Stamina" value={consequences.stamina ?? 0} />
+                    <ConsequenceItem label="Coffee Beans" value={consequences.coffee ?? 0} />
+                    <ConsequenceItem label="Vinyls" value={consequences.vinyls ?? 0} />
+                    <ConsequenceItem label="Progress" value={consequences.progress ?? 0} />
                 </div>
                 
                 {badge && (
