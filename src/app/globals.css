@@ -133,7 +133,7 @@
 }
 
 @keyframes pulse-text {
-  0%, 100% { color: hsl(var(--primary) / 0.8); }
+  0%, 100% { color: hsl(var(--primary-foreground) / 0.9); }
   50% { color: hsl(var(--foreground)); }
 }
 
