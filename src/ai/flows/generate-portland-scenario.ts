@@ -53,15 +53,17 @@ export async function generatePortlandScenario(
 **Character:** Name: ${input.character.name}, Job: ${input.character.job}
 
 **Instructions:**
-1.  **Analyze Player Status & Create Challenge**: Based on the player's status, create a balanced but difficult scenario. The consequences should be logical extensions of the choice. For example, a physically demanding choice should affect health and stamina, while a social choice should affect style, irony, or authenticity.
+1.  **Analyze Player Status & Create Challenge**: Based on the player's status, create a balanced but difficult scenario.
 2.  **Generate Scenario**: Create a quirky scenario specific to the player's location, with a subtle Diablo II reference.
-3.  **Create Choices**: Generate 6 distinct choices. Each choice MUST have two fields for its text:
-    - "text": A short, 2-4 word summary for the button.
-    - "description": A longer, 1-2 sentence description for a tooltip.
+3.  **Create 4 Distinct Choices**: Generate exactly 4 choices with a clear risk/reward gradient.
+    -   **One Safe Choice:** Low risk, low reward. Minimal stat changes.
+    -   **Two Moderate Choices:** Balanced risk and reward.
+    -   **One Super Risky Choice:** High risk, high reward. This choice should have the potential for large positive and negative consequences.
+    -   Each choice MUST have "text" (a short 2-4 word summary for a button) and "description" (a longer 1-2 sentence description for a tooltip).
 4.  **Calculate Consequences Carefully**: Progress should be hard to earn.
     -   All consequence values (health, style, irony, authenticity, vibes, progress, coffee, vinyls, stamina) MUST be numbers.
     -   **Progress can be negative.** A bad choice can push the player backward on the trail. Use negative numbers for the "progress" field to represent this. For example: \`"progress": -5\`.
-    -   Do not be overly generous. A choice should rarely award more than 5-10 points to any single stat, but negative consequences can be larger to increase the challenge.
+    -   The riskier the choice, the larger the potential stat swings (both positive and negative). The "Super Risky" choice could award 20+ points or penalize just as harshly.
 5.  **No Loot or Badges**: Do NOT include 'reward' or 'badge' objects in the consequences. This is handled by a different system.
 6.  **Avatar Kaomoji**: Create a Japanese-style Kaomoji for the player that reflects the mood of the scenario.
 

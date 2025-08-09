@@ -31,9 +31,7 @@ const LoadingState = () => (
         <div className="h-5 w-full bg-muted/50 rounded animate-pulse" />
         <div className="h-5 w-5/6 bg-muted/50 rounded animate-pulse" />
       </CardContent>
-      <CardFooter className="grid grid-cols-3 gap-4 p-4 pt-4 border-t border-border/50">
-        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
-        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
+      <CardFooter className="grid grid-cols-2 gap-4 p-4 pt-4 border-t border-border/50">
         <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
         <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
         <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
@@ -79,7 +77,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
           </p>
         )}
       </CardContent>
-      <CardFooter className="grid grid-cols-3 gap-4 p-6 pt-4 border-t-2 border-border/50">
+      <CardFooter className="grid grid-cols-2 gap-4 p-6 pt-4 border-t-2 border-border/50">
         <TooltipProvider>
           {scenario.choices.map((choice, index) => (
             <Tooltip key={index}>
