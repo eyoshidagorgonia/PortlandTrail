@@ -30,39 +30,16 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}
             />
 
-            {/* The liquid fill */}
+            {/* The glowing fill */}
             <div 
-                className="absolute bottom-0 left-0 right-0 rounded-t-full transition-all duration-500 ease-out"
+                className="absolute bottom-0 left-0 right-0 transition-all duration-500 ease-out"
                 style={{ 
                     height: `${percentage}%`, 
-                    backgroundColor: color,
-                    boxShadow: `0 0 25px 8px ${color}`,
-                    opacity: 0.7,
+                    background: `radial-gradient(ellipse at bottom, ${color} 0%, transparent 80%)`,
+                    boxShadow: `0 0 30px 10px ${color}`,
+                    opacity: 0.8,
                 }}
             />
-             {/* Animated energy inside the fill */}
-            <div 
-                className="absolute bottom-0 left-0 right-0 opacity-50 mix-blend-overlay animate-pulse"
-                style={{
-                    height: `${percentage}%`,
-                    background: `radial-gradient(circle at 50% 100%, ${color}, transparent 70%)`,
-                    animationDuration: '3s',
-                }}
-            />
-
-            {/* Liquid surface/edge effect */}
-            {value > 0 && value < 100 && (
-                 <div
-                    className="absolute left-0 right-0 w-full"
-                    style={{
-                        top: `${100 - percentage}%`,
-                        height: '4px',
-                        transform: 'translateY(-2px)',
-                        background: `radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%)`,
-                        filter: 'blur(1.5px)',
-                    }}
-                 />
-            )}
             
             {/* Inner glow/glare effect, more subtle */}
             <div 
