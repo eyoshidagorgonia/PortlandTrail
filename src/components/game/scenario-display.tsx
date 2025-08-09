@@ -86,7 +86,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant='secondary'
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
-                  className={cn("font-headline text-xl w-full whitespace-normal h-auto")}
+                  className={cn("font-headline text-xl w-full whitespace-normal flex flex-col justify-center h-full")}
                   size="lg"
                 >
                   {choice.text}
