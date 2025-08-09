@@ -8,6 +8,8 @@ import { ThematicSeparator } from './thematic-separator';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { getItemIcon } from './icons';
+import React from 'react';
 
 interface OutcomeModalProps {
   isOpen: boolean;
@@ -81,12 +83,18 @@ export default function OutcomeModal({ isOpen, onClose, choice, loot, badge }: O
                     {(loot.length > 0) && (
                          <div className="text-center py-4 space-y-3">
                             <h4 className="font-headline text-xl text-center text-primary mb-2">Loot Chest Opened!</h4>
-                            {loot.map(item => (
-                                <div key={item.name} className='text-left font-body p-2 bg-muted/30 rounded-sm border border-border/30'>
-                                    <p className={cn("font-bold", getQualityColor(item.quality))}>{item.name} [{item.quality}]</p>
-                                    <p className="text-sm italic text-muted-foreground">{item.flavorText}</p>
-                                </div>
-                            ))}
+                            {loot.map(item => {
+                                const Icon = getItemIcon(item.type);
+                                return (
+                                    <div key={item.name} className='flex items-center gap-4 text-left font-body p-2 bg-muted/30 rounded-sm border border-border/30'>
+                                        <Icon className={cn("h-8 w-8 shrink-0", getQualityColor(item.quality))} />
+                                        <div>
+                                            <p className={cn("font-bold", getQualityColor(item.quality))}>{item.name} [{item.quality}]</p>
+                                            <p className="text-sm italic text-muted-foreground">{item.flavorText}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                     

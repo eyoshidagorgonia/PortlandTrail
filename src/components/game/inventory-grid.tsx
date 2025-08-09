@@ -6,6 +6,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { Button } from '../ui/button';
+import { getItemIcon } from './icons';
+import React from 'react';
 
 const getQualityColor = (quality: string) => {
     switch (quality) {
@@ -52,6 +54,8 @@ const ItemTooltipContent = ({ item }: { item: LootItem }) => (
 
 
 const InventoryItemDisplay = ({ item, onEquip }: { item: LootItem, onEquip: (item: LootItem) => void }) => {
+    const Icon = getItemIcon(item.type);
+    
     return (
          <TooltipProvider>
             <Tooltip>
@@ -63,8 +67,8 @@ const InventoryItemDisplay = ({ item, onEquip }: { item: LootItem, onEquip: (ite
                         )}
                         onClick={() => onEquip(item)}
                     >
-                        <div className={cn("p-1 text-center", getQualityBgColor(item.quality))}>
-                            <p className="font-bold text-xs leading-tight">{item.name}</p>
+                        <div className={cn("p-1 text-center flex items-center justify-center h-full w-full", getQualityBgColor(item.quality))}>
+                           <Icon className="h-10 w-10" />
                         </div>
                     </div>
                 </TooltipTrigger>
@@ -81,7 +85,7 @@ export default function InventoryGrid({ inventory, onEquip }: { inventory: LootI
     
     return (
         <div>
-            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Inventory</h3>
+            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Tote Bag</h3>
             <div className="grid grid-cols-3 gap-2 p-2 rounded-sm border border-border/20 bg-black/20 min-h-[96px]">
                 {inventory.length === 0 && (
                     <p className="col-span-3 text-center text-muted-foreground italic p-4 text-sm">Your tote bag is tragically empty.</p>
@@ -93,5 +97,3 @@ export default function InventoryGrid({ inventory, onEquip }: { inventory: LootI
         </div>
     );
 }
-
-    

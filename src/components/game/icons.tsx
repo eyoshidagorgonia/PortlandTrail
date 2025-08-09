@@ -1,6 +1,8 @@
 
 import type { LucideProps } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { EquipmentSlot } from '@/lib/types';
+import React from 'react';
 
 // Gritty, woodcut-style icons for Diablo II feel
 
@@ -109,6 +111,63 @@ export const StreetPerformIcon = (props: LucideProps) => (
     <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
   </svg>
 );
+
+// Equipment Slot Icons
+export const HeadwearIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a5 5 0 0 0-5 5v1h10V7a5 5 0 0 0-5-5z"/>
+        <path d="M7 8v2a5 5 0 0 0 10 0V8"/>
+        <path d="M17 10v2a5 5 0 0 1-10 0v-2"/>
+        <path d="M7 12v2a5 5 0 0 0 10 0v-2"/>
+        <path d="M7 14a2 2 0 0 0-2 2v4h14v-4a2 2 0 0 0-2-2h-2"/>
+    </svg>
+);
+export const OuterwearIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 4h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+        <path d="M12 4V2"/>
+        <path d="M12 11l-4 4-4-4"/>
+        <path d="M12 11l4 4 4-4"/>
+        <path d="M8 4h8"/>
+    </svg>
+);
+export const FootwearIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 12V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v13a1 1 0 0 0 1 1h14"/>
+        <path d="M4 12h16"/>
+        <path d="M12 12V4"/>
+        <path d="M12 21v-4"/>
+    </svg>
+);
+export const EyewearIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="6" cy="12" r="4"/>
+        <circle cx="18" cy="12" r="4"/>
+        <path d="M10 12h4"/>
+        <path d="M22 12h-2"/>
+        <path d="M2 12h2"/>
+        <path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/>
+    </svg>
+);
+export const AccessoryIcon = (props: LucideProps) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M12 11l4.5 4.5"/>
+        <path d="M12 11l-4.5 4.5"/>
+        <path d="M12 11V3"/>
+    </svg>
+);
+
+export function getItemIcon(slot: EquipmentSlot): React.ElementType<LucideProps> {
+    switch (slot) {
+        case 'Headwear': return HeadwearIcon;
+        case 'Outerwear': return OuterwearIcon;
+        case 'Accessory': return AccessoryIcon;
+        case 'Footwear': return FootwearIcon;
+        case 'Eyewear': return EyewearIcon;
+        default: return AccessoryIcon; // Fallback
+    }
+}
 
 
 // Help Page Icons

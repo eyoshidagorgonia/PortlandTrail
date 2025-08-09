@@ -5,6 +5,7 @@ import type { Equipment, EquipmentSlot, LootItem } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+import { getItemIcon } from './icons';
 
 const getQualityColor = (quality: string) => {
     switch (quality) {
@@ -59,6 +60,8 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
         Footwear: 'col-start-2 row-start-3',
     };
     
+    const Icon = getItemIcon(slot);
+    
     return (
         <div className={cn("flex flex-col items-center justify-center", gridPosition[slot])}>
             <TooltipProvider>
@@ -73,17 +76,21 @@ const EquipmentSlotDisplay = ({ slot, item, onUnequip }: { slot: EquipmentSlot, 
                             onClick={() => item && onUnequip(item.type)}
                         >
                             {item ? (
-                                <div className={cn("p-1 text-center", getQualityBgColor(item.quality))}>
-                                    <p className="font-bold text-xs leading-tight">{item.name}</p>
+                                <div className={cn("p-1 text-center flex items-center justify-center h-full w-full", getQualityBgColor(item.quality))}>
+                                    {React.createElement(getItemIcon(item.type), { className: "h-10 w-10" })}
                                 </div>
                             ) : (
-                                <span className="text-xs text-muted-foreground/80 capitalize">{slot}</span>
+                                <Icon className="h-10 w-10 text-muted-foreground/50" />
                             )}
                         </div>
                     </TooltipTrigger>
-                    {item && (
+                    {item ? (
                         <TooltipContent side="right" className="ml-2">
                            <ItemTooltipContent item={item} />
+                        </TooltipContent>
+                    ) : (
+                        <TooltipContent side="right" className="ml-2">
+                            <p className="capitalize">{slot}</p>
                         </TooltipContent>
                     )}
                 </Tooltip>
