@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { INITIAL_PLAYER_STATE, TRAILS, HIPSTER_JOBS, STARTING_CITIES, BUILD_NUMBER, getIronicHealthStatus, SERVICE_DISPLAY_NAMES, IRONIC_TAGLINES } from '@/lib/constants';
-import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, LootCache } from '@/lib/types';
+import type { PlayerState, Scenario, Choice, PlayerAction, SystemStatus, Badge, TrailEvent, LootItem, LootCache, EquipmentSlot } from '@/lib/types';
 import { getScenarioAction, getImagesAction, getLootAction } from '@/app/actions';
 import { generateHipsterName } from '@/ai/flows/generate-hipster-name';
 import { generateCharacterMood } from '@/ai/flows/generate-character-mood';
@@ -60,7 +60,6 @@ export default function PortlandTrailPage() {
   const [badgeImage, setBadgeImage] = useState<string | null>(null);
 
   // Intro-specific image state
-  const [introAvatarImage, setIntroAvatarImage] = useState<string>('');
   const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
   
   // Outcome modal state
@@ -192,10 +191,10 @@ export default function PortlandTrailPage() {
         const imageResult = await getImagesAction(imageInput);
         if ('error' in imageResult) {
             toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
-            setIntroAvatarImage('');
+            setAvatarImage(''); // Set to empty on failure
         } else {
             // In the intro, the sceneImage field is repurposed to carry the avatar image.
-            setIntroAvatarImage(imageResult.sceneImage);
+            setAvatarImage(imageResult.sceneImage);
             if (imageResult.dataSource) {
                 updateSystemStatus({ image: imageResult.dataSource });
             }
@@ -204,7 +203,7 @@ export default function PortlandTrailPage() {
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast({ id: toastId, variant: 'destructive', title: 'Image Generation Failed', description: errorMessage });
-        setIntroAvatarImage('');
+        setAvatarImage(''); // Set to empty on failure
     } finally {
         setIsIntroAvatarLoading(false);
     }
@@ -226,9 +225,10 @@ export default function PortlandTrailPage() {
             const generatedName = await handleGenerateName();
             
             if (generatedName) {
-                // Now we have all three, generate the avatar and mood once.
-                await generateIntroAvatar(generatedName, randomJob, randomOrigin);
-                await handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin });
+                await Promise.all([
+                    generateIntroAvatar(generatedName, randomJob, randomOrigin),
+                    handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin })
+                ]);
             }
             setIsInitializing(false);
         };
@@ -237,7 +237,7 @@ export default function PortlandTrailPage() {
   }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
   
 
-  // This useEffect triggers avatar and mood regeneration when user changes dependencies, but not on initial load
+  // This useEffect triggers avatar and mood regeneration when user changes dependencies, but only after initial setup is done.
   useEffect(() => {
       const regenerate = async () => {
         if (gameState === 'intro' && name && job && origin && !isInitializing) {
@@ -246,7 +246,8 @@ export default function PortlandTrailPage() {
         }
       }
       regenerate();
-  }, [name, job, origin, gameState, isInitializing, generateIntroAvatar, handleGenerateMood]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, job, origin]);
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
@@ -285,7 +286,6 @@ export default function PortlandTrailPage() {
     };
     
     setPlayerState(initialState);
-    setAvatarImage(introAvatarImage); // Carry over the avatar from the intro screen
     
     const result = await getScenarioAction(initialState);
     if ('error' in result && result.error) {
@@ -322,7 +322,7 @@ export default function PortlandTrailPage() {
     // Fetch images for the first scenario
     fetchImages(scenarioResult, finalInitialState);
 
-  }, [name, job, origin, avatarKaomoji, mood, toast, addLog, updateSystemStatus, introAvatarImage]);
+  }, [name, job, origin, avatarKaomoji, mood, toast, addLog, updateSystemStatus]);
   
   const restartGame = useCallback(() => {
     setGameState('intro');
@@ -336,7 +336,6 @@ export default function PortlandTrailPage() {
     setSystemStatus(INITIAL_SYSTEM_STATUS);
     setSceneImage('');
     setAvatarImage('');
-    setIntroAvatarImage('');
     setBadgeImage(null);
     localStorage.removeItem('healthyServices');
     localStorage.removeItem('primaryDegradedServices');
@@ -514,6 +513,7 @@ export default function PortlandTrailPage() {
 
   const handleChoice = async (choice: Choice) => {
     if (isLoading || isImageLoading) return;
+    setIsLoading(true);
 
     let tempState = { ...playerState };
     const consequences = choice.consequences;
@@ -610,6 +610,7 @@ export default function PortlandTrailPage() {
     setLastChoice(choice);
     setLastLoot(earnedLoot);
     setIsOutcomeModalOpen(true);
+    setIsLoading(false); // Done with this choice, modal is open
   };
 
   const handleEquipItem = (item: LootItem) => {
@@ -726,7 +727,7 @@ export default function PortlandTrailPage() {
                 ) : (
                   <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
                     <AvatarImage
-                      src={introAvatarImage}
+                      src={avatarImage}
                       alt={name}
                       className="rounded-full"
                       data-ai-hint="avatar portrait"
