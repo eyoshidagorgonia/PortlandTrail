@@ -1,6 +1,7 @@
 
 'use client';
 
+import React from 'react';
 import type { Equipment, EquipmentSlot, LootItem } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';

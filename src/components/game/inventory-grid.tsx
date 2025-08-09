@@ -1,13 +1,13 @@
 
 'use client';
 
+import React from 'react';
 import type { LootItem, EquipmentSlot } from '@/lib/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { Button } from '../ui/button';
 import { getItemIcon } from './icons';
-import React from 'react';
 
 const getQualityColor = (quality: string) => {
     switch (quality) {

@@ -1,6 +1,8 @@
 
 'use client';
 
+import React from 'react';
+
 export const ThematicSeparator = () => (
     <div className="flex items-center justify-center my-2 text-border/50" aria-hidden="true">
         <div className="h-px flex-grow bg-current"></div>
