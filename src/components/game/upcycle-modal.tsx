@@ -67,7 +67,7 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
             'One-of-One': [],
         };
         allItems.forEach(item => {
-            if (groups[item.quality]) {
+            if (item && groups[item.quality]) {
                 groups[item.quality].push(item);
             }
         });
@@ -132,30 +132,31 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
 
                 <ScrollArea className="flex-grow my-4 pr-4 -mr-4">
                      <div className="space-y-4">
-                        {Object.entries(groupedItems).map(([quality, items]) => {
-                            if (items.length === 0 || quality === 'One-of-One') return null;
-                            const isThisQualitySelected = selectedItems.length > 0 && selectedItems[0].quality === quality;
-                            const isOtherQualitySelected = selectedItems.length > 0 && selectedItems[0].quality !== quality;
-                            const canSelectMore = selectedItems.length < 3;
+                        {hasAnyUpcyclableGroups ? (
+                            Object.entries(groupedItems).map(([quality, items]) => {
+                                if (items.length < 3 || quality === 'One-of-One') return null;
+                                const isThisQualitySelected = selectedItems.length > 0 && selectedItems[0].quality === quality;
+                                const isOtherQualitySelected = selectedItems.length > 0 && selectedItems[0].quality !== quality;
+                                const canSelectMore = selectedItems.length < 3;
 
-                            return (
-                                <div key={quality}>
-                                    <h4 className={cn("text-center font-bold mb-2 text-lg", getQualityColor(quality))}>{quality} Items</h4>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {items.map((item, index) => (
-                                            <ItemCard 
-                                                key={`${item.name}-${index}`} 
-                                                item={item} 
-                                                isSelected={selectedItems.some(i => i.name === item.name)}
-                                                onSelect={handleSelect} 
-                                                disabled={isOtherQualitySelected || (isThisQualitySelected && !canSelectMore && !selectedItems.some(i => i.name === item.name))}
-                                            />
-                                        ))}
+                                return (
+                                    <div key={quality}>
+                                        <h4 className={cn("text-center font-bold mb-2 text-lg", getQualityColor(quality))}>{quality} Items</h4>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {items.map((item, index) => (
+                                                <ItemCard 
+                                                    key={`${item.name}-${index}`} 
+                                                    item={item} 
+                                                    isSelected={selectedItems.some(i => i.name === item.name)}
+                                                    onSelect={handleSelect} 
+                                                    disabled={isOtherQualitySelected || (isThisQualitySelected && !canSelectMore && !selectedItems.some(i => i.name === item.name))}
+                                                />
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )
-                        })}
-                        {!hasAnyUpcyclableGroups && (
+                                )
+                            })
+                        ) : (
                             <p className="text-sm text-center text-muted-foreground italic p-4">You have no items eligible for upcycling.</p>
                         )}
                      </div>
