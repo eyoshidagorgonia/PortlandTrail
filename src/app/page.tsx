@@ -518,7 +518,7 @@ export default function PortlandTrailPage() {
     // Apply consequences to resources
     tempState.resources.coffee += consequences.coffee ?? 0;
     tempState.resources.vinyls += consequences.vinyls ?? 0;
-    tempState.progress = Math.min(100, tempState.progress + (consequences.progress ?? 0));
+    tempState.progress = Math.min(100, Math.max(0, tempState.progress + (consequences.progress ?? 0)));
     tempState.resources.stamina = Math.min(100, Math.max(0, tempState.resources.stamina + (consequences.stamina ?? 0)));
     
     // Recalculate final stats
@@ -875,5 +875,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
