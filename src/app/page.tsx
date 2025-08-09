@@ -715,11 +715,15 @@ export default function PortlandTrailPage() {
                       type="button"
                       size="icon" 
                       variant="secondary" 
-                      onClick={() => handleGenerateName()}
+                      onClick={handleGenerateName}
                       disabled={isLoading || isNameLoading}
                       aria-label="Randomize Name"
                       >
-                      <ConjuringIcon className={cn("h-6 w-6", isNameLoading && "animate-pulse-text")} />
+                      {isNameLoading ? (
+                        <ConjuringIcon className="h-6 w-6 animate-pulse-text" />
+                      ) : (
+                        <ConjuringIcon className="h-6 w-6" />
+                      )}
                     </Button>
                   </div>
                 </div>
