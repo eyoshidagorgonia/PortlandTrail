@@ -17,7 +17,6 @@ import { generateCharacterMood } from '@/ai/flows/generate-character-mood';
 import StatusDashboard from '@/components/game/status-dashboard';
 import ScenarioDisplay from '@/components/game/scenario-display';
 import GameOverScreen from '@/components/game/game-over-screen';
-import ActionsCard from '@/components/game/actions-card';
 import OutcomeModal from '@/components/game/outcome-modal';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 import { PennyFarthingIcon, ConjuringIcon, VibeSageIcon } from '@/components/game/icons';
@@ -63,7 +62,6 @@ export default function PortlandTrailPage() {
   // Intro-specific image state
   const [introAvatarImage, setIntroAvatarImage] = useState<string>('');
   const [isIntroAvatarLoading, setIsIntroAvatarLoading] = useState(false);
-  const [isAvatarRendered, setIsAvatarRendered] = useState(false);
   const [countdown, setCountdown] = useState(3);
   
   // Outcome modal state
@@ -183,7 +181,6 @@ export default function PortlandTrailPage() {
   const generateIntroAvatar = useCallback(async (currentName: string, currentJob: string, currentOrigin: string) => {
     if (!currentName || !currentJob || !currentOrigin) return;
     setIsIntroAvatarLoading(true);
-    setIsAvatarRendered(false);
     const { id: toastId } = toast({ title: 'Conjuring Avatar...', description: 'Capturing your artisanal essence in pixels.' });
     
     const imageInput = {
@@ -217,42 +214,42 @@ export default function PortlandTrailPage() {
   useEffect(() => {
     setRandomTagline(IRONIC_TAGLINES[Math.floor(Math.random() * IRONIC_TAGLINES.length)]);
     if (gameState === 'intro' && !hasInitialized) {
-      setHasInitialized(true);
-      setIsInitializing(true);
+        setHasInitialized(true);
+        setIsInitializing(true);
       
-      const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
-      setJob(randomJob);
-      const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
-      setOrigin(randomOrigin);
+        const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
+        setJob(randomJob);
+        const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
+        setOrigin(randomOrigin);
 
-      handleGenerateName().then(generatedName => {
-        setIsInitializing(false);
-        if (generatedName) {
-            generateIntroAvatar(generatedName, randomJob, randomOrigin);
-            handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin });
-        }
-      });
+        handleGenerateName().then(generatedName => {
+            setIsInitializing(false);
+            if (generatedName) {
+                generateIntroAvatar(generatedName, randomJob, randomOrigin);
+                handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin });
+            }
+        });
     }
   }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
   
 
   // This useEffect triggers avatar and mood generation when dependencies change, but not on initial load
   useEffect(() => {
-      if (gameState === 'intro' && name && job && origin && !isInitializing && hasInitialized) {
+      if (gameState === 'intro' && name && job && origin && !isInitializing) {
           generateIntroAvatar(name, job, origin);
           handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
       }
-  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood, isInitializing, hasInitialized]);
+  }, [name, job, origin, gameState, generateIntroAvatar, handleGenerateMood, isInitializing]);
 
   // Countdown timer effect
   useEffect(() => {
-    if (gameState === 'intro' && isAvatarRendered) {
+    if (gameState === 'intro' && introAvatarImage && !isIntroAvatarLoading) {
         if (countdown > 0) {
             const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
             return () => clearTimeout(timer);
         }
     }
-  }, [gameState, countdown, isAvatarRendered]);
+  }, [gameState, countdown, introAvatarImage, isIntroAvatarLoading]);
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
@@ -286,10 +283,10 @@ export default function PortlandTrailPage() {
       avatar: avatarKaomoji,
       mood: mood,
       vibe: "Just starting out",
-      events: initialEvents,
-      location: origin,
+      location: chosenTrail[0],
       trail: chosenTrail,
     };
+    initialState.events = initialEvents;
     
     setPlayerState(initialState);
     setAvatarImage(introAvatarImage); // Carry over the avatar from the intro screen
@@ -346,7 +343,6 @@ export default function PortlandTrailPage() {
     setIntroAvatarImage('');
     setBadgeImage(null);
     setCountdown(3);
-    setIsAvatarRendered(false);
     localStorage.removeItem('healthyServices');
     localStorage.removeItem('primaryDegradedServices');
     localStorage.removeItem('fullyOfflineServices');
@@ -661,15 +657,15 @@ export default function PortlandTrailPage() {
 
   if (gameState === 'intro') {
     const isAnythingLoading = isNameLoading || isMoodLoading || isIntroAvatarLoading;
-    const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || !origin || (isAvatarRendered && countdown > 0);
-    const isCountdownActive = isAvatarRendered && countdown > 0;
-    const isReady = isAvatarRendered && countdown === 0;
+    const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || !origin || (introAvatarImage && countdown > 0);
+    const isCountdownActive = introAvatarImage && countdown > 0;
+    const isReady = introAvatarImage && !isIntroAvatarLoading && countdown === 0;
 
     const getButtonContent = () => {
         if (isLoading) {
             return <span className="animate-pulse-text">Hitting The Trail... of Doom</span>
         }
-        if (isAnythingLoading || isInitializing) {
+        if (isInitializing || isAnythingLoading) {
             return (
                 <>
                     <ConjuringIcon className="mr-2 h-5 w-5 animate-pulse-text" />
@@ -714,7 +710,6 @@ export default function PortlandTrailPage() {
                       alt={name}
                       className="rounded-full"
                       data-ai-hint="avatar portrait"
-                      onLoad={() => setIsAvatarRendered(true)}
                     />
                     <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>
                   </Avatar>
@@ -827,8 +822,9 @@ export default function PortlandTrailPage() {
               avatarImage={avatarImage} 
               onEquip={handleEquipItem}
               onUnequip={handleUnequipItem}
+              onAction={handleAction}
+              isLoading={isLoading || isImageLoading}
             />
-            <ActionsCard onAction={handleAction} isLoading={isLoading || isImageLoading} />
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-6">
@@ -866,5 +862,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    

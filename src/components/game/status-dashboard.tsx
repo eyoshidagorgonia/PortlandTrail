@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { PlayerState, LootItem, EquipmentSlot } from '@/lib/types';
+import type { PlayerState, LootItem, EquipmentSlot, PlayerAction } from '@/lib/types';
 import {
   StyleIcon,
   IronyIcon,
@@ -12,6 +12,10 @@ import {
   VinylIcon,
   CoffeeIcon,
   ConjuringIcon,
+  ForageIcon,
+  TuneUpIcon,
+  ThriftIcon,
+  StreetPerformIcon,
 } from './icons';
 import type { LucideProps } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -34,6 +38,7 @@ import { ThematicSeparator } from './thematic-separator';
 import EquipmentDisplay from './equipment-display';
 import InventoryGrid from './inventory-grid';
 import { Skeleton } from '../ui/skeleton';
+import { Button } from '../ui/button';
 
 interface StatItemProps {
   icon: React.ElementType<LucideProps>;
@@ -90,15 +95,44 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
     </TooltipProvider>
   );
 
+const actions: PlayerAction[] = [
+  {
+    text: 'Forage for Food',
+    description: 'Scour for snacks. [+10 Health, -2 Style, -1 Progress]',
+    icon: ForageIcon,
+    consequences: { health: 10, style: -2, irony: 0, authenticity: 0, vibes: 0, coffee: 0, vinyls: 0, progress: -1, stamina: 0 },
+  },
+  {
+    text: 'Tune-up Bike',
+    description: 'Maintain your fixie. [-5 Coffee, +15 Fixie Bike, -1 Progress]',
+    icon: TuneUpIcon,
+    consequences: { health: 0, style: 0, irony: 0, authenticity: 0, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 15 },
+  },
+  {
+    text: 'Go Thrifting',
+    description: 'Hunt for vintage threads. [-5 Coffee, +10 Style, -5 Authenticity, -1 Progress]',
+    icon: ThriftIcon,
+    consequences: { health: 0, style: 10, irony: 0, authenticity: -5, vibes: 0, coffee: -5, vinyls: 0, progress: -1, stamina: 0 },
+  },
+  {
+    text: 'Street Perform',
+    description: 'Share your "art". [+10 Coffee, +5 Irony, -5 Authenticity, -1 Progress]',
+    icon: StreetPerformIcon,
+    consequences: { health: 0, style: 0, irony: 5, authenticity: -5, vibes: 0, coffee: 10, vinyls: 0, progress: -1, stamina: 0 },
+  },
+];
+
 interface StatusDashboardProps {
     playerState: PlayerState;
     avatarImage: string | null;
     onEquip: (item: LootItem) => void;
     onUnequip: (slot: EquipmentSlot) => void;
+    onAction: (action: PlayerAction) => void;
+    isLoading: boolean;
 }
 
 
-export default function StatusDashboard({ playerState, avatarImage, onEquip, onUnequip }: StatusDashboardProps) {
+export default function StatusDashboard({ playerState, avatarImage, onEquip, onUnequip, onAction, isLoading }: StatusDashboardProps) {
   const { stats, resources, name, job, mood, progress, location, events, trail } = playerState;
 
   const ironicStatus = getIronicHealthStatus(stats.health);
@@ -185,8 +219,36 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
         </div>
         
         <ThematicSeparator />
-        
+
         <div className="px-2 space-y-4">
+            <div>
+              <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Actions</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <TooltipProvider>
+                  {actions.map((action) => (
+                    <Tooltip key={action.text}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          className="flex flex-col h-auto p-3 text-center gap-2"
+                          onClick={() => onAction(action)}
+                          disabled={isLoading}
+                        >
+                          <action.icon className="h-8 w-8" />
+                          <span className="text-sm leading-tight font-body">{action.text}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{action.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </TooltipProvider>
+              </div>
+            </div>
+            
+            <ThematicSeparator />
+
             <EquipmentDisplay equipment={resources.equipment} onUnequip={onUnequip} />
             <InventoryGrid inventory={resources.inventory} onEquip={onEquip} />
         </div>
