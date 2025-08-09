@@ -14,65 +14,40 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement;
 };
 
-const actionTypes = {
-  ADD_TOAST: 'ADD_TOAST',
-  REMOVE_TOAST: 'REMOVE_TOAST',
-} as const;
-
-let memoryState: { toasts: ToasterToast[] } = { toasts: [] };
-
-const listeners: Array<(state: { toasts: ToasterToast[] }) => void> = [];
-
-function dispatch(action: { type: keyof typeof actionTypes; toast?: ToasterToast; toastId?: string }) {
-  if (action.type === 'ADD_TOAST' && action.toast) {
-    memoryState = {
-      ...memoryState,
-      toasts: [action.toast, ...memoryState.toasts].slice(0, TOAST_LIMIT),
-    };
-  }
-
-  if (action.type === 'REMOVE_TOAST' && action.toastId) {
-    memoryState = {
-      ...memoryState,
-      toasts: memoryState.toasts.filter((t) => t.id !== action.toastId),
-    };
-  }
-
-  listeners.forEach((listener) => {
-    listener(memoryState);
-  });
+interface IToastContext {
+  toasts: ToasterToast[];
+  toast: (props: Omit<ToasterToast, 'id'>) => void;
 }
 
-export function toast(props: Omit<ToasterToast, 'id'>) {
-  const id = String(Date.now() + Math.random());
+const ToastContext = React.createContext<IToastContext | null>(null);
 
-  const newToast = {
-    ...props,
-    id,
-  };
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+  const [toasts, setToasts] = React.useState<ToasterToast[]>([]);
 
-  dispatch({ type: 'ADD_TOAST', toast: newToast });
+  const toast = React.useCallback((props: Omit<ToasterToast, 'id'>) => {
+    const id = String(Date.now() + Math.random());
+    const newToast = { ...props, id };
+    
+    setToasts((prevToasts) => [newToast, ...prevToasts].slice(0, TOAST_LIMIT));
 
-  setTimeout(() => {
-    dispatch({ type: 'REMOVE_TOAST', toastId: id });
-  }, TOAST_LIFETIME);
+    setTimeout(() => {
+      setToasts((prevToasts) => prevToasts.filter((t) => t.id !== id));
+    }, TOAST_LIFETIME);
+  }, []);
+
+  const value = React.useMemo(() => ({ toasts, toast }), [toasts, toast]);
+
+  return (
+    <ToastContext.Provider value={value}>
+      {children}
+    </ToastContext.Provider>
+  );
 }
 
 export function useToast() {
-    const [state, setState] = React.useState(memoryState);
-
-    React.useEffect(() => {
-        listeners.push(setState);
-        return () => {
-            const index = listeners.indexOf(setState);
-            if (index > -1) {
-                listeners.splice(index, 1);
-            }
-        };
-    }, [state]);
-
-    return {
-        ...state,
-        toast,
-    };
+  const context = React.useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
 }

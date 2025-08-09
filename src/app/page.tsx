@@ -73,14 +73,13 @@ export default function PortlandTrailPage() {
   const { toast } = useToast();
 
   const updateSystemStatus = useCallback((sources: Record<string, 'primary' | 'hardcoded'>) => {
-    let showOfflineToast = false;
-
     setSystemStatus(prevStatus => {
         const newStatus: SystemStatus = {
             healthyServices: new Set(prevStatus.healthyServices),
             primaryDegradedServices: new Set(prevStatus.primaryDegradedServices),
             fullyOfflineServices: new Set(prevStatus.fullyOfflineServices),
         };
+        let showOfflineToast = false;
 
         for (const [service, source] of Object.entries(sources)) {
             const serviceName = SERVICE_DISPLAY_NAMES[service] || service;
@@ -99,19 +98,19 @@ export default function PortlandTrailPage() {
             }
         }
         
+        if (showOfflineToast) {
+            toast({
+                variant: 'destructive',
+                title: 'An AI System is Offline',
+                description: "Using hardcoded data. The experience will be less dynamic.",
+            });
+        }
+        
         // Persist to local storage for other pages
         localStorage.setItem('fullyOfflineServices', JSON.stringify(Array.from(newStatus.fullyOfflineServices)));
         
         return newStatus;
     });
-
-    if (showOfflineToast) {
-        toast({
-            variant: 'destructive',
-            title: 'An AI System is Offline',
-            description: "Using hardcoded data. The experience will be less dynamic.",
-        });
-    }
   }, [toast]);
   
   // This effect will run only on the client, after hydration.
@@ -583,7 +582,9 @@ export default function PortlandTrailPage() {
         let finalBadgeImage: string | undefined = undefined;
         if (!('error' in imageResult) && imageResult.badgeImage) {
             finalBadgeImage = imageResult.badgeImage;
-            updateSystemStatus({ image: imageResult.dataSource });
+            if (imageResult.dataSource) {
+                updateSystemStatus({ image: imageResult.dataSource });
+            }
         }
         
         const finalBadge = { ...earnedBadge, image: finalBadgeImage };
