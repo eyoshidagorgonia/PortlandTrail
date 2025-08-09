@@ -661,7 +661,7 @@ export default function PortlandTrailPage() {
         if (isAnythingLoading) {
             return (
                 <>
-                    <ConjuringIcon className="mr-2 h-5 w-5" />
+                    <ConjuringIcon className="mr-2 h-5 w-5 animate-pulse-text" />
                     <span className="animate-pulse-text">Conjuring...</span>
                 </>
             );
@@ -693,21 +693,22 @@ export default function PortlandTrailPage() {
             <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
               <div className="relative shrink-0">
                 <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
-                  {isIntroAvatarLoading && (
+                  {isIntroAvatarLoading ? (
                     <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
                         <ConjuringIcon className="h-10 w-10" />
                     </div>
+                  ) : (
+                    <>
+                        <AvatarImage 
+                            src={introAvatarImage} 
+                            alt={name} 
+                            className="rounded-full" 
+                            data-ai-hint="avatar portrait" 
+                            onLoad={() => setIsAvatarRendered(true)}
+                        />
+                        <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>
+                    </>
                   )}
-                  {!isIntroAvatarLoading && (
-                    <AvatarImage 
-                        src={introAvatarImage} 
-                        alt={name} 
-                        className="rounded-full" 
-                        data-ai-hint="avatar portrait" 
-                        onLoad={() => setIsAvatarRendered(true)}
-                    />
-                  )}
-                   {!isIntroAvatarLoading && <AvatarFallback className="rounded-full">{name.charAt(0) || '?'}</AvatarFallback>}
                 </Avatar>
               </div>
 
@@ -724,7 +725,7 @@ export default function PortlandTrailPage() {
                       disabled={isLoading || isNameLoading}
                       aria-label="Randomize Name"
                       >
-                      {isNameLoading ? <ConjuringIcon className="h-6 w-6" /> : <RefreshCw />}
+                      {isNameLoading ? <ConjuringIcon className="h-6 w-6 animate-pulse-text" /> : <RefreshCw />}
                     </Button>
                   </div>
                 </div>
