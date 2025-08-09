@@ -9,9 +9,9 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 3;
-const TOAST_REMOVE_DELAY = 5000;
-const HISTORY_LIMIT = 20;
+const TOAST_LIMIT = 5;
+const TOAST_REMOVE_DELAY = 10000; // Let toasts live longer before they are removed from the array
+const HISTORY_LIMIT = 50;
 
 type ToasterToast = ToastProps & {
   id: string
@@ -63,7 +63,7 @@ const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
-    return
+    clearTimeout(toastTimeouts.get(toastId))
   }
 
   const timeout = setTimeout(() => {
@@ -100,12 +100,13 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
+      // Optimistic update for speedy UI response
       if (toastId) {
-        addToRemoveQueue(toastId)
+        addToRemoveQueue(toastId);
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
-        })
+          addToRemoveQueue(toast.id);
+        });
       }
 
       return {
@@ -176,7 +177,7 @@ function toast(props: Toast) {
     });
   }
   
-  const dismissDelay = props.duration || TOAST_REMOVE_DELAY;
+  const dismissDelay = props.duration || 5000;
   setTimeout(() => {
     dismiss();
   }, dismissDelay);
@@ -210,3 +211,5 @@ function useToast() {
 }
 
 export { useToast, toast }
+
+    
