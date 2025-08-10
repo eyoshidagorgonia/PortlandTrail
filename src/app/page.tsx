@@ -198,7 +198,7 @@ export default function PortlandTrailPage() {
             toast({ variant: 'destructive', title: 'Image Generation Failed', description: imageResult.error });
             setAvatarImage(''); // Set to empty on failure
         } else {
-            // In the intro, the sceneImage field is repurposed to carry the avatar image.
+            // In the intro, the sceneImage field is repurposed to carry the avatar for this specific case.
             setAvatarImage(imageResult.sceneImage);
             if (imageResult.dataSource) {
                 updateSystemStatus({ image: imageResult.dataSource });
