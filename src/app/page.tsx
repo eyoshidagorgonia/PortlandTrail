@@ -818,8 +818,8 @@ export default function PortlandTrailPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                <div className="grid grid-cols-5 gap-4">
+                    <div className="space-y-2 col-span-3">
                         <Label htmlFor="job" className='font-headline text-xl'>VOCATION</Label>
                         <Select value={job} onValueChange={setJob} disabled={isLoading || isInitializing}>
                             <SelectTrigger id="job" className="text-lg">
@@ -832,7 +832,7 @@ export default function PortlandTrailPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 col-span-2">
                         <Label htmlFor="origin" className='font-headline text-xl'>PROVENANCE</Label>
                         <Select value={origin} onValueChange={setOrigin} disabled={isLoading || isInitializing}>
                             <SelectTrigger id="origin" className="text-lg">
@@ -943,5 +943,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
