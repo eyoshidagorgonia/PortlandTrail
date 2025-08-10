@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -49,7 +50,8 @@ export default function PortlandTrailPage() {
   const [isMoodLoading, setIsMoodLoading] = useState(false);
   
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const isInitializing = useRef(true);
+  
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(INITIAL_SYSTEM_STATUS);
 
   // Image states
@@ -214,8 +216,8 @@ export default function PortlandTrailPage() {
   // Effect for initial game setup.
   useEffect(() => {
     if (gameState === 'intro' && !hasInitialized) {
+        isInitializing.current = true;
         const performInitialSetup = async () => {
-            setIsInitializing(true);
             
             // Set random job and origin first
             const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
@@ -232,7 +234,7 @@ export default function PortlandTrailPage() {
             await handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName || '', job: randomJob, origin: randomOrigin });
 
             setHasInitialized(true); 
-            setIsInitializing(false);
+            isInitializing.current = false;
         };
         performInitialSetup();
     }
@@ -243,7 +245,7 @@ export default function PortlandTrailPage() {
     // Debounce handler
     const handler = setTimeout(() => {
         // Only run if initialization is complete, it's the intro screen, and we're not already loading
-        if (gameState === 'intro' && hasInitialized && !isInitializing) {
+        if (gameState === 'intro' && hasInitialized && !isInitializing.current) {
             const updateUserChoices = async () => {
                 await generateIntroAvatar(name, job, origin);
                 await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
@@ -258,12 +260,12 @@ export default function PortlandTrailPage() {
     return () => {
         clearTimeout(handler);
     };
-  }, [name, job, origin, gameState, hasInitialized, isInitializing, generateIntroAvatar, handleGenerateMood]);
+  }, [name, job, origin, gameState, hasInitialized, generateIntroAvatar, handleGenerateMood]);
 
 
   // Regenerate mood when vibe changes during gameplay
   useEffect(() => {
-    if(gameState === 'playing' && !isInitializing) {
+    if(gameState === 'playing' && !isInitializing.current) {
       const newVibe = currentVibe;
       if (newVibe !== playerState.vibe) {
         const newState = {...playerState, vibe: newVibe};
@@ -271,7 +273,7 @@ export default function PortlandTrailPage() {
         handleGenerateMood(newState);
       }
     }
-  }, [currentVibe, gameState, playerState, handleGenerateMood, isInitializing]);
+  }, [currentVibe, gameState, playerState, handleGenerateMood]);
   
   const startGame = useCallback(async () => {
     if (!name.trim()) {
@@ -342,7 +344,7 @@ export default function PortlandTrailPage() {
     setJob('');
     setOrigin('');
     setHasInitialized(false);
-    setIsInitializing(true); // Reset for next game start
+    isInitializing.current = true;
     setSystemStatus(INITIAL_SYSTEM_STATUS);
     setSceneImage('');
     setAvatarImage('');
@@ -748,7 +750,7 @@ export default function PortlandTrailPage() {
   }
 
   if (gameState === 'intro') {
-    const isAnythingLoading = isNameLoading || isMoodLoading || isIntroAvatarLoading || isInitializing;
+    const isAnythingLoading = isNameLoading || isMoodLoading || isIntroAvatarLoading || isInitializing.current;
     const isButtonDisabled = isAnythingLoading || isLoading || !job || !name || !origin;
 
     const getButtonContent = () => {
@@ -784,7 +786,7 @@ export default function PortlandTrailPage() {
 
             <div className="flex flex-col sm:flex-row items-center gap-6 text-left pt-2">
               <div className="relative shrink-0 h-32 w-32">
-                {isInitializing || isIntroAvatarLoading ? (
+                {isInitializing.current || isIntroAvatarLoading ? (
                   <div className="h-full w-full rounded-full border-4 border-secondary/50 bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse">
                     <ConjuringIcon className="h-10 w-10 text-primary" />
                   </div>
@@ -805,16 +807,16 @@ export default function PortlandTrailPage() {
                 <div className="space-y-1">
                   <Label htmlFor="name" className='font-headline text-lg'>YOUR MONIKER</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading || isInitializing} className="text-base" />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading || isInitializing.current} className="text-base" />
                     <Button 
                       type="button"
                       size="icon" 
                       variant="secondary" 
                       onClick={handleGenerateName}
-                      disabled={isLoading || isNameLoading || isInitializing}
+                      disabled={isLoading || isNameLoading || isInitializing.current}
                       aria-label="Randomize Name"
                       >
-                      {isNameLoading || isInitializing ? (
+                      {isNameLoading || isInitializing.current ? (
                         <ConjuringIcon className="h-5 w-5 animate-pulse-text" />
                       ) : (
                         <ConjuringIcon className="h-5 w-5" />
@@ -825,7 +827,7 @@ export default function PortlandTrailPage() {
                 <div className="grid grid-cols-5 gap-4">
                     <div className="space-y-1 col-span-3">
                         <Label htmlFor="job" className='font-headline text-lg'>VOCATION</Label>
-                        <Select value={job} onValueChange={setJob} disabled={isLoading || isInitializing}>
+                        <Select value={job} onValueChange={setJob} disabled={isLoading || isInitializing.current}>
                             <SelectTrigger id="job" className="text-base">
                             <SelectValue placeholder="Select a profession" />
                             </SelectTrigger>
@@ -838,7 +840,7 @@ export default function PortlandTrailPage() {
                     </div>
                     <div className="space-y-1 col-span-2">
                         <Label htmlFor="origin" className='font-headline text-lg'>PROVENANCE</Label>
-                        <Select value={origin} onValueChange={setOrigin} disabled={isLoading || isInitializing}>
+                        <Select value={origin} onValueChange={setOrigin} disabled={isLoading || isInitializing.current}>
                             <SelectTrigger id="origin" className="text-base">
                             <SelectValue placeholder="Select an origin" />
                             </SelectTrigger>
@@ -947,3 +949,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
