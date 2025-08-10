@@ -150,7 +150,6 @@ export default function PortlandTrailPage() {
         const result = await generateHipsterName();
         setName(result.name);
         updateSystemStatus({ name: result.dataSource });
-        toast({ title: 'Moniker Conjured!', description: 'Your new identity awaits, for now.' });
         return result.name;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -228,32 +227,26 @@ export default function PortlandTrailPage() {
             // Then generate the name
             const generatedName = await handleGenerateName();
             
-            // Only after name is generated, do we generate avatar and mood
-            if (generatedName) {
-                await Promise.all([
-                    generateIntroAvatar(generatedName, randomJob, randomOrigin),
-                    handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName, job: randomJob, origin: randomOrigin })
-                ]);
-            }
-
-            setIsInitializing(false);
             setHasInitialized(true); 
+            setIsInitializing(false);
         };
         performInitialSetup();
     }
-  }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
+  }, [gameState, hasInitialized, handleGenerateName]);
 
   // Effect for user-driven changes on the intro screen, AFTER initial setup.
   useEffect(() => {
     // Debounce handler
     const handler = setTimeout(() => {
         // Only run if initialization is complete, it's the intro screen, and we're not already loading
-        if (gameState === 'intro' && hasInitialized && !isInitializing && !isIntroAvatarLoading && !isNameLoading && !isMoodLoading) {
+        if (gameState === 'intro' && hasInitialized && !isInitializing) {
             const updateUserChoices = async () => {
                 await generateIntroAvatar(name, job, origin);
                 await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
             }
-            updateUserChoices();
+            if (name && job && origin) {
+                updateUserChoices();
+            }
         }
     }, 500); // 500ms debounce delay
 
@@ -261,8 +254,7 @@ export default function PortlandTrailPage() {
     return () => {
         clearTimeout(handler);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, job, origin, hasInitialized]);
+  }, [name, job, origin, hasInitialized, isInitializing, generateIntroAvatar, handleGenerateMood]);
 
 
   // Regenerate mood when vibe changes during gameplay
