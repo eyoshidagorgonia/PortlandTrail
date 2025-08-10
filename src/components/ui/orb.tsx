@@ -21,7 +21,7 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
         <div 
             className="relative w-24 h-24 rounded-full border-4 border-border/60 bg-background/80 shadow-inner overflow-hidden"
             style={{
-                boxShadow: 'inset 0 0 10px rgba(0,0,0,0.7), 0 0 15px -5px hsl(var(--border))',
+                boxShadow: `inset 0 0 10px rgba(0,0,0,0.7), 0 0 15px -5px ${color}`,
             }}
         >
             {/* Background Texture */}
@@ -41,7 +41,7 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
                 }}
             />
             
-            {/* Color-matched gradient overlay */}
+            {/* Color-matched gradient overlay for shading */}
              <div 
                 className="absolute inset-0"
                 style={{

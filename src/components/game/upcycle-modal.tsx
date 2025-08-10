@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { LootItem, GearQuality, Equipment } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
@@ -29,7 +29,7 @@ const getQualityColor = (quality: string) => {
     }
 }
 
-const ItemCard = ({ item, isSelected, onSelect, disabled }: { item: LootItem, isSelected: boolean, onSelect: (item: LootItem) => void, disabled: boolean }) => {
+const ItemCard = ({ item, isSelected, onSelect, disabled }: { item: LootItem & {isEquipped?: boolean}, isSelected: boolean, onSelect: (item: LootItem) => void, disabled: boolean }) => {
     const Icon = getItemIcon(item.type);
     return (
         <div 
@@ -75,7 +75,8 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
     }, [allItems]);
 
     const hasAnyUpcyclableGroups = useMemo(() => {
-        return Object.values(groupedItems).some(group => group.length >= 3);
+        // Correctly check if ANY group of 'Thrifted' or 'Artisanal' has 3 or more items.
+        return groupedItems['Thrifted'].length >= 3 || groupedItems['Artisanal'].length >= 3;
     }, [groupedItems]);
 
     const handleSelect = (item: LootItem) => {
@@ -108,7 +109,7 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
     };
     
     // Clear selection when modal is closed
-    React.useEffect(() => {
+    useEffect(() => {
         if (!isOpen) {
             setSelectedItems([]);
         }
@@ -141,7 +142,7 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
 
                                 return (
                                     <div key={quality}>
-                                        <h4 className={cn("text-center font-bold mb-2 text-lg", getQualityColor(quality))}>{quality} Items</h4>
+                                        <h4 className={cn("text-center font-bold mb-2 text-lg", getQualityColor(quality as GearQuality))}>{quality} Items</h4>
                                         <div className="grid grid-cols-1 gap-2">
                                             {items.map((item, index) => (
                                                 <ItemCard 
