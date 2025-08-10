@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -185,3 +186,5 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
         </Dialog>
     );
 }
+
+    

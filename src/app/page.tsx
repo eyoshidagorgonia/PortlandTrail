@@ -249,7 +249,7 @@ export default function PortlandTrailPage() {
     // Debounce handler
     const handler = setTimeout(() => {
         // Only run if initialization is complete, it's the intro screen, and we're not already loading
-        if (gameState === 'intro' && hasInitialized && !isInitializing) {
+        if (gameState === 'intro' && hasInitialized && !isInitializing && !isIntroAvatarLoading && !isNameLoading && !isMoodLoading) {
             const updateUserChoices = async () => {
                 await generateIntroAvatar(name, job, origin);
                 await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
@@ -952,3 +952,5 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
+
+    
