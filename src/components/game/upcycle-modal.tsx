@@ -74,7 +74,7 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
     }, [allItems]);
 
     const hasAnyUpcyclableGroups = useMemo(() => {
-        return groupedItems['Thrifted'].length >= 3 || groupedItems['Artisanal'].length >= 3;
+        return Object.values(groupedItems).some(group => group.length >= 3);
     }, [groupedItems]);
 
     const handleSelect = (item: LootItem) => {
@@ -185,5 +185,3 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
         </Dialog>
     );
 }
-
-    

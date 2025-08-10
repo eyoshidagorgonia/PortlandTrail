@@ -951,5 +951,3 @@ export default function PortlandTrailPage() {
     </main>
   );
 }
-
-    
