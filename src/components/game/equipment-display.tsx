@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -122,7 +121,6 @@ export default function EquipmentDisplay({ equipment, onManageItem }: { equipmen
                 {/* Placeholders for consistent spacing */}
                 <div className="row-start-1 col-start-1"></div>
                 <div className="row-start-1 col-start-3"></div>
-                <div className="row-start-2 col-start-2"></div>
                 <div className="row-start-3 col-start-1"></div>
                 <div className="row-start-3 col-start-3"></div>
 
