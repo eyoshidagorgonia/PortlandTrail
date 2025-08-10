@@ -151,15 +151,16 @@ export default function PortlandTrailPage() {
     try {
         const result = await generateHipsterName();
         updateSystemStatus({ name: result.dataSource });
-        return result.name;
+        setName(result.name);
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         toast({ variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
-        return '';
+        setName(''); // Clear name on error
     } finally {
         setIsNameLoading(false);
     }
   }, [updateSystemStatus, toast]);
+
 
   const handleGenerateMood = useCallback(async (state: PlayerState) => {
      if (!state.name || !state.job || !state.origin) return;
@@ -213,46 +214,51 @@ export default function PortlandTrailPage() {
     }
   }, [avatarKaomoji, toast, updateSystemStatus]);
 
-  // Effect for initial game setup.
+  // Combined effect for initial setup and user-driven changes on the intro screen.
   useEffect(() => {
-    if (gameState === 'intro' && !hasInitialized) {
+    // This effect should only run on the intro screen.
+    if (gameState !== 'intro') return;
+
+    // Logic for the very first initialization.
+    if (!hasInitialized) {
         isInitializing.current = true;
         const performInitialSetup = async () => {
-            
-            // Set random job and origin first
+            // Set random job and origin first, without triggering effects.
             const randomJob = HIPSTER_JOBS[Math.floor(Math.random() * HIPSTER_JOBS.length)];
             const randomOrigin = STARTING_CITIES[Math.floor(Math.random() * STARTING_CITIES.length)];
             setJob(randomJob);
             setOrigin(randomOrigin);
 
-            // Then generate the name
-            const generatedName = await handleGenerateName();
-            setName(generatedName || '');
-            
-            // Finally generate avatar and mood with all the info
-            await generateIntroAvatar(generatedName || '', randomJob, randomOrigin);
-            await handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName || '', job: randomJob, origin: randomOrigin });
-
-            setHasInitialized(true); 
-            isInitializing.current = false;
+            // Generate the name, which will then trigger the other part of this effect.
+            setIsNameLoading(true);
+            toast({ title: 'Conjuring Moniker...', description: 'The Vibe Sage is consulting the ether.' });
+            try {
+                const result = await generateHipsterName();
+                updateSystemStatus({ name: result.dataSource });
+                setName(result.name); // Setting the name here will cause the effect to run again.
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                toast({ variant: 'destructive', title: 'Name Generation Failed', description: errorMessage });
+                setName('');
+            } finally {
+                setIsNameLoading(false);
+                setHasInitialized(true); // Mark that the first setup has run.
+                isInitializing.current = false;
+            }
         };
         performInitialSetup();
+        return; // Exit after starting the initial setup.
     }
-  }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
 
-  // Effect for user-driven changes on the intro screen, AFTER initial setup.
-  useEffect(() => {
-    // Debounce handler
+    // This part runs *after* the initial setup is complete,
+    // either because the initial name was set, or a user changed a value.
     const handler = setTimeout(() => {
-        // Only run if initialization is complete, it's the intro screen, and we're not already loading
-        if (gameState === 'intro' && hasInitialized && !isInitializing.current) {
+        if (name && job && origin && !isInitializing.current) {
             const updateUserChoices = async () => {
                 await generateIntroAvatar(name, job, origin);
-                await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
-            }
-            if (name && job && origin) {
-                updateUserChoices();
-            }
+                await handleGenerateMood({ ...INITIAL_PLAYER_STATE, name, job, origin });
+            };
+            updateUserChoices();
         }
     }, 500); // 500ms debounce delay
 
@@ -260,7 +266,7 @@ export default function PortlandTrailPage() {
     return () => {
         clearTimeout(handler);
     };
-  }, [name, job, origin, gameState, hasInitialized, generateIntroAvatar, handleGenerateMood]);
+}, [name, job, origin, gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
 
 
   // Regenerate mood when vibe changes during gameplay
@@ -816,10 +822,10 @@ export default function PortlandTrailPage() {
                       disabled={isLoading || isNameLoading || isInitializing.current}
                       aria-label="Randomize Name"
                       >
-                      {isNameLoading || isInitializing.current ? (
+                      {isNameLoading || (isInitializing.current && !name) ? (
                         <ConjuringIcon className="h-5 w-5 animate-pulse-text" />
                       ) : (
-                        <ConjuringIcon className="h-5 w-5" />
+                        <RefreshCw className="h-5 w-5" />
                       )}
                     </Button>
                   </div>
