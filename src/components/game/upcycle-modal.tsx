@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -61,7 +60,7 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
     }, [inventory, equipment]);
 
     const groupedItems = useMemo(() => {
-        const groups: Record<GearQuality, LootItem[]> = {
+        const groups: Record<GearQuality, (LootItem & {isEquipped?: boolean})[]> = {
             'Thrifted': [],
             'Artisanal': [],
             'One-of-One': [],
@@ -75,7 +74,6 @@ export default function UpcycleModal({ isOpen, onClose, inventory, equipment, on
     }, [allItems]);
 
     const hasAnyUpcyclableGroups = useMemo(() => {
-        // Correctly check if ANY group of 'Thrifted' or 'Artisanal' has 3 or more items.
         return groupedItems['Thrifted'].length >= 3 || groupedItems['Artisanal'].length >= 3;
     }, [groupedItems]);
 

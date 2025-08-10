@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -45,8 +44,7 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
              <div 
                 className="absolute inset-0"
                 style={{
-                    background: `linear-gradient(to bottom, ${color} -20%, transparent 40%)`,
-                    opacity: 0.15,
+                    background: `linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4) 100%)`,
                     mixBlendMode: 'multiply'
                 }}
             />
