@@ -16,11 +16,11 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
   const percentage = Math.max(0, Math.min(100, (value / maxValue) * 100));
 
   const orbContent = (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-1">
         <div 
-            className="relative w-24 h-24 rounded-full border-4 border-border/60 bg-background/80 shadow-inner overflow-hidden"
+            className="relative w-20 h-20 rounded-full border-2 border-border/60 bg-background/80 shadow-inner overflow-hidden"
             style={{
-                boxShadow: `inset 0 0 10px rgba(0,0,0,0.7), 0 0 15px -5px ${color}`,
+                boxShadow: `inset 0 0 8px rgba(0,0,0,0.7), 0 0 12px -5px ${color}`,
             }}
         >
             {/* Background Texture */}
@@ -35,7 +35,7 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
                 style={{ 
                     height: `${percentage}%`, 
                     background: `radial-gradient(ellipse at bottom, ${color} 0%, transparent 80%)`,
-                    boxShadow: `0 0 30px 10px ${color}`,
+                    boxShadow: `0 0 20px 8px ${color}`,
                     opacity: 0.9,
                 }}
             />
@@ -59,10 +59,10 @@ const Orb = ({ label, value, maxValue = 100, color = 'hsl(var(--primary))', tool
             />
 
             <div className="absolute inset-0 flex items-center justify-center">
-                 <span className="font-mono text-3xl font-bold text-white" style={{textShadow: '2px 2px 4px #000'}}>{Math.round(value)}</span>
+                 <span className="font-mono text-2xl font-bold text-white" style={{textShadow: '1px 1px 3px #000'}}>{Math.round(value)}</span>
             </div>
         </div>
-         <span className="font-headline text-lg tracking-wider text-muted-foreground">{label}</span>
+         <span className="font-headline text-md tracking-wider text-muted-foreground">{label}</span>
     </div>
   );
 

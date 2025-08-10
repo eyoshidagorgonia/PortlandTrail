@@ -19,23 +19,23 @@ interface ScenarioDisplayProps {
 
 const LoadingState = () => (
     <Card className="bg-card/90 backdrop-blur-sm">
-      <CardHeader className="p-4 pb-2">
-        <div className="h-8 w-3/4 bg-muted/50 rounded animate-pulse" />
+      <CardHeader>
+        <div className="h-7 w-3/4 bg-muted/50 rounded animate-pulse" />
       </CardHeader>
-      <CardContent className="p-4 pt-2 space-y-3">
+      <CardContent className="space-y-2">
         <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
             <ConjuringIcon className="h-10 w-10" />
             <p className="font-body">The Vibe Sage is painting the scene...</p>
         </div>
-        <div className="h-5 w-full bg-muted/50 rounded animate-pulse" />
-        <div className="h-5 w-full bg-muted/50 rounded animate-pulse" />
-        <div className="h-5 w-5/6 bg-muted/50 rounded animate-pulse" />
+        <div className="h-4 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-4 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-4 w-5/6 bg-muted/50 rounded animate-pulse" />
       </CardContent>
-      <CardFooter className="grid grid-cols-2 gap-4 p-4 pt-4 border-t border-border/50">
-        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
-        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
-        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
-        <div className="h-12 w-full bg-muted/50 rounded animate-pulse" />
+      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t border-border/50">
+        <div className="h-10 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-10 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-10 w-full bg-muted/50 rounded animate-pulse" />
+        <div className="h-10 w-full bg-muted/50 rounded animate-pulse" />
       </CardFooter>
     </Card>
   );
@@ -47,12 +47,12 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
 
   return (
     <Card className="h-full flex flex-col bg-card/90 backdrop-blur-sm">
-      <CardHeader className="p-6 pb-2">
-        <CardTitle className="font-headline text-3xl font-bold tracking-wide">{scenario.scenario}</CardTitle>
-        <CardDescription className="font-body text-xl text-muted-foreground pt-2">{scenario.challenge}</CardDescription>
+      <CardHeader>
+        <CardTitle className="font-headline text-2xl font-bold tracking-wide">{scenario.scenario}</CardTitle>
+        <CardDescription className="font-body text-lg text-muted-foreground pt-1">{scenario.challenge}</CardDescription>
       </CardHeader>
-      <CardContent className="p-6 pt-2 flex-grow">
-        <div className="mb-4 overflow-hidden rounded-sm border-2 border-border/50 bg-muted/30">
+      <CardContent className="flex-grow">
+        <div className="mb-2 overflow-hidden rounded-sm border-2 border-border/50 bg-muted/30">
           {isImageLoading || !sceneImage ? (
              <div className="w-full aspect-video bg-muted/50 rounded-sm flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
                 <ConjuringIcon className="h-10 w-10" />
@@ -72,12 +72,12 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
         </div>
         
         {scenario.diablo2Element && (
-           <p className="mt-4 text-lg text-accent/80 border-l-4 border-accent/50 pl-4 italic font-body">
+           <p className="text-md text-accent/80 border-l-4 border-accent/50 pl-3 italic font-body">
             {scenario.diablo2Element}
           </p>
         )}
       </CardContent>
-      <CardFooter className="grid grid-cols-2 gap-4 p-6 pt-4 border-t-2 border-border/50">
+      <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-2 border-t-2 border-border/50">
         <TooltipProvider>
           {scenario.choices.map((choice, index) => (
             <Tooltip key={index}>
@@ -86,8 +86,7 @@ export default function ScenarioDisplay({ scenario, isLoading, isImageLoading, s
                   variant='secondary'
                   onClick={() => onChoice(choice)}
                   disabled={isLoading || isImageLoading}
-                  className={cn("font-headline text-xl w-full whitespace-normal flex flex-col justify-center h-full")}
-                  size="lg"
+                  className={cn("font-headline text-lg w-full whitespace-normal flex flex-col justify-center h-full")}
                 >
                   {choice.text}
                 </Button>

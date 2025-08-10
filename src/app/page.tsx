@@ -148,7 +148,6 @@ export default function PortlandTrailPage() {
     toast({ title: 'Conjuring Moniker...', description: 'The Vibe Sage is consulting the ether.' });
     try {
         const result = await generateHipsterName();
-        setName(result.name);
         updateSystemStatus({ name: result.dataSource });
         return result.name;
     } catch (error) {
@@ -226,13 +225,18 @@ export default function PortlandTrailPage() {
 
             // Then generate the name
             const generatedName = await handleGenerateName();
+            setName(generatedName || '');
             
+            // Finally generate avatar and mood with all the info
+            await generateIntroAvatar(generatedName || '', randomJob, randomOrigin);
+            await handleGenerateMood({...INITIAL_PLAYER_STATE, name: generatedName || '', job: randomJob, origin: randomOrigin });
+
             setHasInitialized(true); 
             setIsInitializing(false);
         };
         performInitialSetup();
     }
-  }, [gameState, hasInitialized, handleGenerateName]);
+  }, [gameState, hasInitialized, handleGenerateName, generateIntroAvatar, handleGenerateMood]);
 
   // Effect for user-driven changes on the intro screen, AFTER initial setup.
   useEffect(() => {
@@ -254,7 +258,7 @@ export default function PortlandTrailPage() {
     return () => {
         clearTimeout(handler);
     };
-  }, [name, job, origin, hasInitialized, isInitializing, generateIntroAvatar, handleGenerateMood]);
+  }, [name, job, origin, gameState, hasInitialized, isInitializing, generateIntroAvatar, handleGenerateMood]);
 
 
   // Regenerate mood when vibe changes during gameplay
@@ -770,22 +774,22 @@ export default function PortlandTrailPage() {
     return (
       <main className="min-h-screen bg-background text-foreground p-4 sm:p-6 md:p-8 flex items-center justify-center relative">
         <Card className="max-w-2xl w-full text-center shadow-2xl relative bg-card/80 backdrop-blur-sm border-2 border-border/20">
-          <CardContent className="p-8 space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-6xl font-headline font-bold text-primary">The Portland Trail</h1>
-              <p className="text-muted-foreground font-body text-xl">
+          <CardContent className="p-6 space-y-4">
+            <div className="space-y-1">
+              <h1 className="text-5xl font-headline font-bold text-primary">The Portland Trail</h1>
+              <p className="text-muted-foreground font-body text-lg">
                 {randomTagline}
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-8 text-left pt-4">
-              <div className="relative shrink-0 h-40 w-40">
+            <div className="flex flex-col sm:flex-row items-center gap-6 text-left pt-2">
+              <div className="relative shrink-0 h-32 w-32">
                 {isInitializing || isIntroAvatarLoading ? (
                   <div className="h-full w-full rounded-full border-4 border-secondary/50 bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse">
                     <ConjuringIcon className="h-10 w-10 text-primary" />
                   </div>
                 ) : (
-                  <Avatar className="h-40 w-40 border-4 border-secondary/50 text-5xl font-headline rounded-full">
+                  <Avatar className="h-32 w-32 border-4 border-secondary/50 text-5xl font-headline rounded-full">
                     <AvatarImage
                       src={avatarImage}
                       alt={name}
@@ -798,10 +802,10 @@ export default function PortlandTrailPage() {
               </div>
 
               <div className="space-y-4 flex-1 w-full">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className='font-headline text-xl'>YOUR MONIKER</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="name" className='font-headline text-lg'>YOUR MONIKER</Label>
                   <div className="flex items-center gap-2">
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading || isInitializing} className="text-lg" />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Rune, Thorne, Lux" disabled={isLoading || isNameLoading || isInitializing} className="text-base" />
                     <Button 
                       type="button"
                       size="icon" 
@@ -811,18 +815,18 @@ export default function PortlandTrailPage() {
                       aria-label="Randomize Name"
                       >
                       {isNameLoading || isInitializing ? (
-                        <ConjuringIcon className="h-6 w-6 animate-pulse-text" />
+                        <ConjuringIcon className="h-5 w-5 animate-pulse-text" />
                       ) : (
-                        <ConjuringIcon className="h-6 w-6" />
+                        <ConjuringIcon className="h-5 w-5" />
                       )}
                     </Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-5 gap-4">
-                    <div className="space-y-2 col-span-3">
-                        <Label htmlFor="job" className='font-headline text-xl'>VOCATION</Label>
+                    <div className="space-y-1 col-span-3">
+                        <Label htmlFor="job" className='font-headline text-lg'>VOCATION</Label>
                         <Select value={job} onValueChange={setJob} disabled={isLoading || isInitializing}>
-                            <SelectTrigger id="job" className="text-lg">
+                            <SelectTrigger id="job" className="text-base">
                             <SelectValue placeholder="Select a profession" />
                             </SelectTrigger>
                             <SelectContent>
@@ -832,10 +836,10 @@ export default function PortlandTrailPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="space-y-2 col-span-2">
-                        <Label htmlFor="origin" className='font-headline text-xl'>PROVENANCE</Label>
+                    <div className="space-y-1 col-span-2">
+                        <Label htmlFor="origin" className='font-headline text-lg'>PROVENANCE</Label>
                         <Select value={origin} onValueChange={setOrigin} disabled={isLoading || isInitializing}>
-                            <SelectTrigger id="origin" className="text-lg">
+                            <SelectTrigger id="origin" className="text-base">
                             <SelectValue placeholder="Select an origin" />
                             </SelectTrigger>
                             <SelectContent>
@@ -849,7 +853,7 @@ export default function PortlandTrailPage() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center mt-4">
+            <div className="flex flex-col items-center pt-2">
                 <Button 
                     size="lg" 
                     onClick={startGame} 
@@ -863,8 +867,8 @@ export default function PortlandTrailPage() {
                 </Button>
 
                 <Link href="/help" passHref>
-                    <Button variant="link" className="text-muted-foreground mt-4">
-                        <VibeSageIcon className="mr-2 h-5 w-5" />
+                    <Button variant="link" className="text-muted-foreground mt-2">
+                        <VibeSageIcon className="mr-2 h-4 w-4" />
                         Whisper to the Vibe Sage
                     </Button>
                 </Link>
@@ -884,7 +888,7 @@ export default function PortlandTrailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-body p-4 sm:p-6 lg:p-8 relative">
+    <main className="min-h-screen bg-background text-foreground font-body p-2 sm:p-3 lg:p-4 relative">
        {lastChoice && (
             <OutcomeModal 
                 isOpen={isOutcomeModalOpen}
@@ -895,9 +899,9 @@ export default function PortlandTrailPage() {
             />
         )}
       <div className="container mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
           
-          <div className="lg:col-span-1 flex flex-col gap-6 opacity-0 animate-fade-in animate-delay-100">
+          <div className="lg:col-span-1 flex flex-col gap-4 opacity-0 animate-fade-in animate-delay-100">
             <StatusDashboard 
               playerState={playerState} 
               avatarImage={avatarImage} 
@@ -909,19 +913,19 @@ export default function PortlandTrailPage() {
             />
           </div>
 
-          <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="lg:col-span-2 flex flex-col gap-4">
             <div className="opacity-0 animate-fade-in animate-delay-200">
                 <ScenarioDisplay scenario={scenario} isLoading={isLoading} isImageLoading={isImageLoading} sceneImage={sceneImage} onChoice={handleChoice} />
             </div>
             <div className="opacity-0 animate-fade-in animate-delay-300">
                 <Card className="bg-card/90 backdrop-blur-sm">
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-2">
                     <CardContent className="p-0">
-                        <h3 className="font-headline text-2xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
-                        <div className="text-base text-foreground/80 space-y-3 font-body max-h-96 overflow-y-auto pr-2 border-t border-border/50 pt-3">
+                        <h3 className="font-headline text-xl tracking-wider mb-2 text-center text-muted-foreground">Travel Diary</h3>
+                        <div className="text-sm text-foreground/80 space-y-2 font-body max-h-80 overflow-y-auto pr-2 border-t border-border/50 pt-2">
                             {eventLog.map((log, i) => (
-                            <div key={i} className="flex items-start gap-3 opacity-80 first:opacity-100">
-                                <p className="text-primary/70 text-sm pt-0.5 whitespace-nowrap">
+                            <div key={i} className="flex items-start gap-2 opacity-80 first:opacity-100">
+                                <p className="text-primary/70 text-xs pt-0.5 whitespace-nowrap">
                                 [{log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]
                                 </p>
                                 <p>{log.description}</p>

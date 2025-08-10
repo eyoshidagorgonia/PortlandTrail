@@ -54,10 +54,10 @@ const StatItem = ({ icon: Icon, label, value, tooltip }: StatItemProps) => (
   <TooltipProvider>
     <Tooltip>
       <TooltipTrigger className="w-full text-left">
-        <div className="group space-y-1 font-body text-lg">
+        <div className="group space-y-1 font-body text-md">
           <div className="flex items-center justify-between text-foreground/80">
             <div className="flex items-center gap-2">
-              <Icon className="h-5 w-5" />
+              <Icon className="h-4 w-4" />
               <span>{label}</span>
             </div>
             <span className="font-mono font-bold text-foreground">{value}</span>
@@ -83,11 +83,11 @@ const ResourceItem = ({ icon: Icon, label, value, tooltip }: ResourceItemProps) 
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger className="w-full text-left">
-            <div className="flex items-center gap-3 bg-card p-2 rounded-sm group hover:bg-muted/40 transition-colors duration-300">
-                <Icon className="h-8 w-8 text-foreground/70"/>
+            <div className="flex items-center gap-2 bg-card p-1.5 rounded-sm group hover:bg-muted/40 transition-colors duration-300">
+                <Icon className="h-7 w-7 text-foreground/70"/>
                 <div className="text-left">
-                    <div className="font-headline text-2xl text-foreground">{value}</div>
-                    <div className="text-sm text-muted-foreground font-body -mt-1">{label}</div>
+                    <div className="font-headline text-xl text-foreground">{value}</div>
+                    <div className="text-xs text-muted-foreground font-body -mt-1">{label}</div>
                 </div>
             </div>
         </TooltipTrigger>
@@ -208,11 +208,11 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
         isLoading={isLoading}
     />
     <Card className="bg-card/90 backdrop-blur-sm">
-      <CardHeader className="text-center items-center pb-4">
-        <Avatar className="h-32 w-32 border-2 border-border/50 text-4xl font-headline rounded-full">
+      <CardHeader className="text-center items-center">
+        <Avatar className="h-24 w-24 border-2 border-border/50 text-4xl font-headline rounded-full">
             {!avatarImage ? (
                 <div className="h-full w-full rounded-full bg-muted/50 flex flex-col items-center justify-center gap-2 text-foreground animate-pulse-text">
-                    <ConjuringIcon className="h-10 w-10" />
+                    <ConjuringIcon className="h-8 w-8" />
                 </div>
             ) : (
                 <AvatarImage src={avatarImage} alt={name} className="rounded-full" data-ai-hint="avatar portrait" />
@@ -220,11 +220,11 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
             <AvatarFallback className="rounded-full">{name.charAt(0)}</AvatarFallback>
         </Avatar>
 
-        <div className="space-y-1 pt-2">
+        <div className="space-y-0.5 pt-1">
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        <CardTitle className="font-headline text-4xl font-bold cursor-help">{name}</CardTitle>
+                        <CardTitle className="font-headline text-3xl font-bold cursor-help">{name}</CardTitle>
                     </TooltipTrigger>
                     {mood && (
                         <TooltipContent>
@@ -233,7 +233,7 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
                     )}
                 </Tooltip>
             </TooltipProvider>
-            <CardDescription className="font-body text-lg text-muted-foreground">{job}</CardDescription>
+            <CardDescription className="font-body text-md text-muted-foreground">{job}</CardDescription>
               <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -248,21 +248,21 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
             </TooltipProvider>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 pt-0">
-        <div className="flex justify-center gap-4 px-2">
+      <CardContent className="space-y-3 pt-0">
+        <div className="flex justify-center gap-2 px-1">
             <Orb label="Health" value={stats.health} tooltip="Your mortal coil's current status. Don't let it unravel." color="hsl(var(--destructive))"/>
             <Orb label="Vibes" value={stats.vibes} tooltip="Your creative essence. Required for most forms of self-expression." color="hsl(260, 80%, 70%)"/>
         </div>
 
-        <div className="px-4 space-y-2">
+        <div className="px-2 space-y-1">
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger className="w-full">
                         <div className="flex items-center justify-between text-muted-foreground mb-1">
-                            <label className="font-headline text-lg tracking-wider">FIXIE STAMINA</label>
-                            <span className="font-mono font-bold text-foreground">{resources.stamina}%</span>
+                            <label className="font-headline text-md tracking-wider">FIXIE STAMINA</label>
+                            <span className="font-mono font-bold text-foreground text-sm">{resources.stamina}%</span>
                         </div>
-                        <Progress value={resources.stamina} className="h-3" />
+                        <Progress value={resources.stamina} className="h-2" />
                     </TooltipTrigger>
                      <TooltipContent>
                         <p>Your fixed-gear's integrity. A breakdown would be, like, super inconvenient.</p>
@@ -273,7 +273,7 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
         
         <ThematicSeparator />
 
-        <div className="space-y-4 px-2">
+        <div className="space-y-2 px-2">
             <StatItem icon={StyleIcon} label="Style" value={stats.style} tooltip="Your aesthetic currency. Looking this effortless takes effort."/>
             <StatItem icon={IronyIcon} label="Irony" value={stats.irony} tooltip="Your defense against the sincere. Use it wisely, or whatever."/>
             <StatItem icon={AuthenticityIcon} label="Authenticity" value={stats.authenticity} tooltip="How 'real' you are. A concept you find both fascinating and deeply suspect."/>
@@ -281,29 +281,30 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
         
         <ThematicSeparator />
 
-         <div className="grid grid-cols-2 gap-4 px-2">
+         <div className="grid grid-cols-2 gap-2 px-2">
             <ResourceItem icon={VinylIcon} label="Vinyls" value={resources.vinyls} tooltip="A curated collection of vinyl. You haven't listened to them." />
             <ResourceItem icon={CoffeeIcon} label="CoffeeBeans" value={resources.coffee} tooltip="Single-origin, fair-trade, artisanal currency. The lifeblood of the trail."/>
         </div>
         
         <ThematicSeparator />
 
-        <div className="px-2 space-y-4">
+        <div className="px-2 space-y-3">
             <div>
-              <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <h3 className="text-xs font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Actions</h3>
+              <div className="grid grid-cols-2 gap-2">
                 <TooltipProvider>
                   {actions.map((action) => (
                     <Tooltip key={action.text}>
                       <TooltipTrigger asChild>
                         <Button
                           variant="secondary"
-                          className="flex flex-col h-auto p-3 text-center gap-2"
+                          size="sm"
+                          className="flex flex-col h-auto p-2 text-center gap-1"
                           onClick={() => onAction(action)}
                           disabled={isLoading}
                         >
-                          <action.icon className="h-8 w-8" />
-                          <span className="text-sm leading-tight font-body">{action.text}</span>
+                          <action.icon className="h-6 w-6" />
+                          <span className="text-xs leading-tight font-body">{action.text}</span>
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -322,36 +323,36 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
 
             <ThematicSeparator />
              <div>
-              <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Crafting</h3>
+              <h3 className="text-xs font-headline uppercase text-muted-foreground tracking-widest text-center mb-2">Crafting</h3>
                 <Button 
                     variant="outline"
-                    className="w-full font-headline text-lg"
+                    className="w-full font-headline text-md"
                     onClick={() => setIsUpcycleModalOpen(true)}
                     disabled={!canUpcycleAny || isLoading}
                 >
-                    <Zap className="mr-2 h-5 w-5" />
+                    <Zap className="mr-2 h-4 w-4" />
                     Upcycle Items
                 </Button>
             </div>
         </div>
 
         {resources.badges.length > 0 && (
-          <div className="space-y-3 pt-2">
+          <div className="space-y-2 pt-1">
              <ThematicSeparator />
-            <h3 className="text-sm font-headline uppercase text-muted-foreground tracking-widest pt-1 text-center">Badges of Dishonor</h3>
+            <h3 className="text-xs font-headline uppercase text-muted-foreground tracking-widest text-center">Badges of Dishonor</h3>
             <TooltipProvider>
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="flex flex-wrap gap-1.5 justify-center">
                 {resources.badges.map((badge, index) => (
                   <AlertDialog key={index}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <AlertDialogTrigger>
                           <div className={cn(
-                            "h-14 w-14 border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-3xl transition-all duration-300 cursor-pointer overflow-hidden rounded-full hover:border-accent",
+                            "h-12 w-12 border-2 border-secondary/50 p-0.5 flex items-center justify-center bg-muted text-2xl transition-all duration-300 cursor-pointer overflow-hidden rounded-full hover:border-accent",
                             badge.isUber && 'uber-badge-animation'
                           )}>
                            {badge.image ? (
-                                <Image src={badge.image} alt={badge.description} width={56} height={56} className="rounded-full" unoptimized data-ai-hint="badge icon" />
+                                <Image src={badge.image} alt={badge.description} width={48} height={48} className="rounded-full" unoptimized data-ai-hint="badge icon" />
                             ) : (
                                 <span className='mt-1'>{badge.emoji}</span>
                             )}
@@ -403,5 +404,3 @@ export default function StatusDashboard({ playerState, avatarImage, onEquip, onU
     </>
   );
 }
-
-    
