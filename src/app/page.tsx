@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -245,13 +246,22 @@ export default function PortlandTrailPage() {
 
   // Effect for user-driven changes on the intro screen, AFTER initial setup.
   useEffect(() => {
-    const handleUserChange = async () => {
+    // Debounce handler
+    const handler = setTimeout(() => {
+        // Only run if initialization is complete, it's the intro screen, and we're not already loading
         if (gameState === 'intro' && hasInitialized && !isInitializing) {
-            await generateIntroAvatar(name, job, origin);
-            await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
+            const updateUserChoices = async () => {
+                await generateIntroAvatar(name, job, origin);
+                await handleGenerateMood({...INITIAL_PLAYER_STATE, name, job, origin });
+            }
+            updateUserChoices();
         }
+    }, 500); // 500ms debounce delay
+
+    // Cleanup function
+    return () => {
+        clearTimeout(handler);
     };
-    handleUserChange();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, job, origin, hasInitialized]);
 
